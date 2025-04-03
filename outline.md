@@ -1,3 +1,6 @@
+Numbering from Atiyah-Macdonald. Make note if available in mathlib.
+
+
 - [ ] 10.26.
     - [ ] ⁠10.22.
         - [ ] 7.6.
@@ -21,3 +24,4 @@
             - [ ] 1.5. 
     - [ ] ⁠10.25.
         - [ ] 6.2 see above.
+
