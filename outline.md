@@ -1,7 +1,7 @@
 Numbering from Atiyah-Macdonald. Make note if available in mathlib.
 
 
-- [ ] 10.26.
+- [ ] 10.26. - more generality? for A-modules?
     - [ ] ⁠10.22.
         - [ ] 7.6.
             - [ ] 7.5.
@@ -25,3 +25,7 @@ Numbering from Atiyah-Macdonald. Make note if available in mathlib.
     - [ ] ⁠10.25.
         - [ ] 6.2 see above.
 
+
+Questions to ask:
+- in what generality are the statements true? should we prove more general results?
+- are there any results in mathlib that imply a desired result?
