@@ -3,6 +3,7 @@ Numbering from Atiyah-Macdonald. Make note if available in mathlib.
 Questions to ask:
 - in what generality are the statements true? should we prove more general results?
 - are there any results in mathlib that imply a desired result?
+- the lemmas as stated might not be needed for the main result, nonetheless it is probably good to formallize them as stated in A-M (e.g. 10.15 might not be needed, the result that implies it could be used directly).
 
 # Proof Tree
 
@@ -19,15 +20,15 @@ Questions to ask:
             - [X] 10.13.
                 - [ ] 2.18.
                     - [ ] 2.9. 
-                - [ ] 10.3.
+                - [?] 10.3.
                     - [ ] 10.2.
                         - [ ] 2.10.
                 - [ ] 10.12.
-                    - [ ] 10.3
+                    - [?] 10.3
             - [X] 10.14.
             - [ ] 10.5.
             - [ ] 10.4.
-                - [ ] 10.3.
+                - [?] 10.3.
             - [ ] 1.9.
             - [ ] 1.5. 
     - [ ] ⁠10.25.
@@ -76,8 +77,8 @@ Check box when implemented in lean. If already in mathlib make note.
 - [X] 10.14 (**mathlib**: AdicCompletion.flat_of_isNoetherian) (A NoethRing, A' I-adic completion, A' flat A-alg).
 
 - [ ] 10.15.
-    - [ ] i. (A Noethring, A' I-adic compl. ==> I' \cong A'tensor I)
-    - [ ] ii. (A Noethring, A' I-adic compl. ==> I^n ' = I'^n)
+    - [X] i. (**mathlib** AdicCompletion.ofTensorProduct_bijective_of_finite_of_isNoetherian, take I = M. this might also cover 10.15.ii.). (A Noethring, A' I-adic compl. ==> I' \cong A'tensor I)
+    - [?] ii. (A Noethring, A' I-adic compl. ==> I^n ' = I'^n)
     - [ ] iii. (A NoethRing, A' I-adic compl. ==>  consec quotient I^n iso to completion of it).
 
 - [ ] 10.22 

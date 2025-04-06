@@ -7,4 +7,4 @@ Sketch
 Set up
 - [X] Create repository + files
 - [X] Add outline 
-- [ ] Share repo 
+- [X] Share repo 
