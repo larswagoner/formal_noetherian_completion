@@ -4,6 +4,7 @@ Questions to ask:
 - in what generality are the statements true? should we prove more general results?
 - are there any results in mathlib that imply a desired result?
 - the lemmas as stated might not be needed for the main result, nonetheless it is probably good to formallize them as stated in A-M (e.g. 10.15 might not be needed, the result that implies it could be used directly).
+- for rings, sometimes A is used in mathlib other times its R... does it matter?
 
 # Proof Tree
 
