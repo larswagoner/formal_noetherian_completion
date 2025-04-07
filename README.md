@@ -67,7 +67,7 @@ Check box when implemented in lean. If already in mathlib make note.
 
 - [X] 10.13 (**mathlib**: AdicCompletion.ofTensorProductEquivOfFiniteNoetherian) (M fg A-mod, surjection onto M', isomorphism if A NoetherianRing).
 
-- [X] 10.14 (**mathlib**: AdicCompletion.flat_of_isNoetherian) (A NoethRing, A' I-adic completion, A' flat A-alg).
+- [X] 10.14 (**mathlib**: AdicCompletion.flat_of_isNoetherian) (A NoethRing, A' I-adic completion, A' flat A-alg). **NB** AM states flat as algebra, this is defined as being flat as an A-module, which is the statement in mathlib
 
 - [ ] 10.15.
     - [X] i. (**mathlib** AdicCompletion.ofTensorProduct_bijective_of_finite_of_isNoetherian, take I = M. this might also cover 10.15.ii.). (A Noethring, A' I-adic compl. ==> I' \cong A'tensor I)

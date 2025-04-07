@@ -3,6 +3,12 @@ import Mathlib
 
 -- 7.5 Polynomial.isNoetherianRing
 
+-- 10.14 If A is a Noetherian Ring, I an ideal and A' the I-adic completion of A, then A' is a flat A-algebra
+
+lemma am10_14 {A : Type*} [CommRing A] (I : Ideal A) [hN: IsNoetherianRing A] : Module.Flat A (AdicCompletion I A) := by 
+  exact AdicCompletion.flat_of_isNoetherian I
+
+
 
 
 -- 10.15.
@@ -13,21 +19,21 @@ import Mathlib
 
 
 
-theorem am1015i {R : Type*} [CommRing R] (I : Ideal R) [hN : IsNoetherianRing R] : 
+theorem am10_15_i {R : Type*} [CommRing R] (I : Ideal R) [hN : IsNoetherianRing R] : 
   TensorProduct R (AdicCompletion I R) I = AdicCompletion I I := by-- should be iso ≃ₗ[AdicCompletion I R]  instead of equality... but then its not a proposition
     
     sorry
 
 
 
-theorem am1015i2 {R : Type*} [CommRing R] (I : Ideal R) [hN : IsNoetherianRing R] : 
+theorem am10_15_i2 {R : Type*} [CommRing R] (I : Ideal R) [hN : IsNoetherianRing R] : 
   TensorProduct R (AdicCompletion I R) (↥I) = AdicCompletion I (↥I) := by
     sorry
 
 
 
 --ii. (I')^n = (I^n)'
--/
+
 
 
 
