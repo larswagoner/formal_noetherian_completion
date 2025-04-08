@@ -2,9 +2,9 @@
 
 - [ ] 10.26. 
     - [ ] ⁠10.22. 
-        - [ ] 7.6.
+        - [X] 7.6.
             - [X] 7.5.
-                - [ ] 6.2. 
+                - [X] 6.2. 
                 - [ ] 6.5.
                     - [ ] 6.3.
                     - [ ] 6.4.
@@ -22,10 +22,10 @@
             - [ ] 10.5.
             - [ ] 10.4.
                 - [?] 10.3.
-            - [ ] 1.9.
-            - [ ] 1.5. 
+            - [X] 1.9.
+            - [X] 1.5. 
     - [ ] ⁠10.25.
-        - [ ] 6.2.
+        - [X] 6.2.
         - [ ] 10.24.
             - [ ] 10.23.
                 - [ ] 10.2
@@ -33,9 +33,9 @@
 ## Ordered
 Check box when implemented in lean. If already in mathlib make note.
 
-- [ ] 1.5 (every non-unit contained in maximal ideal).
+- [X] 1.5 (**mathlib**: LocalRing.mem_maximalIdeal backwards implication. a little confused about LocalRing part...) (every non-unit contained in maximal ideal).
 
-- [ ] 1.9 (x in jacobson radical iff 1-xy unit for all y).
+- [X] 1.9 (**mathlib**: Ideal.mem_jacobson_bot) (x in jacobson radical iff 1-xy unit for all y).
 
 - [ ] 2.9 (exactness of sequence iff exact on hom space).
 
@@ -53,7 +53,7 @@ Check box when implemented in lean. If already in mathlib make note.
 
 - [X] 7.5 (**mathlib**: Polynomial.isNoetherianRing) (Hilbert's Basis Theorem).
 
-- [ ] 7.6 (Hilbert's Basis Theorem for n variables).
+- [X] 7.6 (**mathlib**: MvPolynomial.isNoetherianRing) (Hilbert's Basis Theorem for n variables).
 
 - [ ] 10.2 (inverse limits left exact. if system is surjective then exact)
 
@@ -61,9 +61,9 @@ Check box when implemented in lean. If already in mathlib make note.
 
 - [ ] 10.4 (quotient of completion iso to quotient).
 
-- [ ] 10.5 (completion is complete).
+- [ ] 10.5 (**mathlib** AdicCompletion definition in mathlib is apparently not always complete...) (completion is complete).
 
-- [ ] 10.12 (completion of exact sequence of f.g. A-mods, A NoethRing,  is exact).
+- [X] 10.12 (**mathlib** AdicCompletion.map_exact) (completion of exact sequence of f.g. A-mods, A NoethRing,  is exact).
 
 - [X] 10.13 (**mathlib**: AdicCompletion.ofTensorProductEquivOfFiniteNoetherian) (M fg A-mod, surjection onto M', isomorphism if A NoetherianRing).
 
