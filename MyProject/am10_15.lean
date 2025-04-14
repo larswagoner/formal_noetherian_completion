@@ -53,4 +53,7 @@ noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A
 lemma am10_15_iii (n : ℕ) : Function.Bijective (am10_15_iii_map n I) := sorry
 
 
-lemma am10_15_iv : true := sorry 
+
+
+lemma am10_15_iv : (I.adicCompletion I) ≤ Ring.jacobson (AdicCompletion I A) := sorry 
+-- can be stated as instance of subring of jacobson radical, can be stated in terms of membership, etc. https://leanprover-community.github.io/mathlib4_docs/Mathlib/RingTheory/Jacobson/Ideal.html
