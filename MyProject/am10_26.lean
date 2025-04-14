@@ -7,6 +7,6 @@ import MyProject.am10_25
   then the `I`-completion `Â` of `A` is Noetherian.
 -/
 
-theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : Ideal A) [h: IsNoetherianRing A] :
+theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AdicCompletion I A) := by
   sorry
