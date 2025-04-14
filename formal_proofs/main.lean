@@ -60,31 +60,31 @@ noncomputable def adicQ (n : ℕ) : Type _ := (↥(I^n)⧸(I•⊤ : Submodule A
 instance : AddCommGroup (adicQ I n) := inferInstanceAs (AddCommGroup (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))))
 noncomputable instance : AddCommGroup (adicQ (I.adicCompletion I) n) := inferInstanceAs (AddCommGroup (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))))
 
+
+set_option synthInstance.maxHeartbeats 0
+noncomputable def f : ↥(I.adicCompletion I ^ n) →ₗ[A] (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := (Submodule.mkQ (I.adicCompletion I • ⊤)).restrictScalars A
+
 -- many ↥ makes it slow
 noncomputable def am10_15_iii {n:ℕ } {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] : 
     (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) → (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := by
-    refine Submodule.liftQ _ ?a ?b -- this error can be fixed by solving instance above
+    apply Submodule.liftQ (I•⊤ : Submodule A ↥(I^n)) f ?_ -- okay seems like sl in f is a problem... maybe try a different map. not submodule.liftq
     · let f : ↥(I.adicCompletion I ^ n) →ₗ[A] (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := (Submodule.mkQ (I.adicCompletion I • ⊤)).restrictScalars A
     
       let g : ↥(I^n) →ₗ[A] ↥((I.adicCompletion I)^n) := sorry
       refine f ∘ₗ g 
     · 
       sorry
-      -/
-    
+     
 
 
 
 --- second version, optimized but first refine statement doesnt type check.
-noncomputable def adicQ (n : ℕ) : Type _ := (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) 
-instance : AddCommGroup (adicQ I n) := inferInstanceAs (AddCommGroup (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))))
-noncomputable instance : AddCommGroup (adicQ (I.adicCompletion I) n) := inferInstanceAs (AddCommGroup (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))))
 
 -- many ↥ makes it slow
-noncomputable def am10_15_iii {n:ℕ } {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] : 
+noncomputable def am10_15_iii2 {n:ℕ } {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] : 
     (adicQ I n) → (adicQ (I.adicCompletion I) n) := by
     -- Be explicit about the module structure
-    apply Submodule.liftQ (adicQ I n) ?_ ?_
+    apply Submodule.liftQ ?_ ?_ ?_
     sorry
 
     /-refine Submodule.liftQ _ ?a ?b -- this error can be fixed by solving instance above
