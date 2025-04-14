@@ -20,7 +20,7 @@ variable {A : Type*} [CommRing A] (I : Ideal A)
 def adicCompletionIdeal_ofIdeal (J : Ideal A) : Ideal (AdicCompletion I A) := 
   sorry -- will probably have to be noncomputable due to adic completion
 
-noncomputable def Ideal.adicCompletion (J : Ideal A): Ideal (AdicCompletion I A) := Ideal.map (algebraMap _ _) J -- extension of J into I-adic completion via induced algebra map. This is option 2 below.
+noncomputable def Ideal.adicCompletion (J : Ideal A): Ideal (AdicCompletion I A) := Ideal.map (algebraMap _ _) J -- extension of J into I-adic completion via induced algebra map. This is option 2 below. "I adic completion of J = I.adicCompletion J"
 
 variable [IsNoetherianRing A]
 
@@ -41,11 +41,16 @@ noncomputable def am10_15_i_option_2_b : I.adicCompletion I  ≃ₗ[AdicCompleti
   sorry
 
 
-lemma am10_15_ii (n : ℕ) : true := sorry
+
+noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := by
+  
+  sorry
 
 
-noncomputable def am10_15_iii {n:ℕ } {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] :  -- uses option 2 for I hat
+noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] :  -- uses option 2 for I hat
     (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) → (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := sorry
+
+lemma am10_15_iii (n : ℕ) : Function.Bijective (am10_15_iii_map n I) := sorry
 
 
 lemma am10_15_iv : true := sorry 
