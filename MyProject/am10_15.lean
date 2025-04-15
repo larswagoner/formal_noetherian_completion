@@ -2,6 +2,7 @@ import MyProject.am1_9
 import MyProject.am10_4
 import MyProject.am10_5
 import MyProject.am10_13
+import MyProject.adic_completion
 
 
 /-
@@ -19,12 +20,6 @@ variable {A : Type*} [CommRing A] (I : Ideal A)
   Given an ideal `J ⊆ A`, this gives the ideal `J^ = Â • J` in `Â`.
 -/
 
-/--
-  I adic completion of J = I.adicCompletion J.  Extension of J into I-adic completion via induced algebra map.
--/
-def Ideal.adicCompletion (J : Ideal A): Ideal (AdicCompletion I A) := Ideal.map (algebraMap A (AdicCompletion I A)) J 
-
-#check (AdicCompletion ((2):Ideal ℤ) ((2):Ideal ℤ))  
 
 variable [IsNoetherianRing A]
 

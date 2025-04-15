@@ -10,8 +10,10 @@ import MyProject.am10_24
   Then `M` is Noetherian `A`-module.
 -/
 
+
+
 lemma am10_25 {A : Type u} [CommRing A] (I : Ideal A) [IsAdicComplete I A]
   {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
   (h :  ⨅ n, F.N n = (⊥ : Submodule A M))  -- Best way to add `⋂ₙ Mₙ = 0`?
-  [IsNoetherian (AssociatedGradedRing I) (AssociatedGradedModule F)] :
+  (hiN : IsNoetherian (AssociatedGradedRing I) (AssociatedGradedModule F)) :
     IsNoetherian A M := sorry

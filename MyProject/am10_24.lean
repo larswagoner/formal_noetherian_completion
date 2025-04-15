@@ -1,6 +1,5 @@
 import MyProject.am10_23
-
--- trivial under our hypotheses. Skip to 10.25?
+import MyProject.adic_completion
 
 /-
   # Proposition 10.24

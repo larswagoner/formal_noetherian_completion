@@ -12,3 +12,6 @@ Set up
 
 - [ ] maybe outline proof of main theorem to see how things are used
 - [ ] define graded module.
+- [ ] verify adic_completion statements are actually true. worst case replace IsAdicComplete with IsReallyAdicComplete where necessary
+- [ ] try to find easy proofs to fill in
+- [ ] think about definitions of AssociatedGraded stuff. 
