@@ -1,5 +1,7 @@
 import MyProject.am10_23
 
+-- trivial under our hypotheses. Skip to 10.25?
+
 /-
   # Proposition 10.24
   Let `A` be a ring, `I` an ideal of `A`, `M` an `A`-module, `(Mₙ)` an

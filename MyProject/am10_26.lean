@@ -9,4 +9,5 @@ import MyProject.am10_25
 
 theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AdicCompletion I A) := by
+  
   sorry

@@ -1,5 +1,7 @@
 import Mathlib
 
+-- define associated graded module, then associated graded ring in terms of that. 
+
 /- # Associated Graded Ring
   Consider a ring `A` and an ideal `I : Ideal A`.
 
@@ -14,8 +16,25 @@ import Mathlib
   Now `G(M)` is a `G(A)`-module in a natural way.
 -/
 
+/- not general enough
+def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) 
 
-/-
+instance {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : AddCommGroup (GradedPiece I n) := sorry
+
+instance {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Module A (GradedPiece I n) := sorry
+
+open DirectSum
+def AssociatedGradedRing₁ {A : Type u} [CommRing A] (I : Ideal A) : Type u := ⨁ (n : ℕ) , (GradedPiece I n)
+
+instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing₁ I) := sorry
+
+-- no grading yet ;)
+
+-/
+
+def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := sorry
+
+/--
   This should be defined by `Gₐ(M) = ⊕ₙ Mₙ/Mₙ₊₁`
 -/
 def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]

@@ -80,7 +80,7 @@ Check box when implemented in lean. If already in mathlib make note.
 
 - [ ] 10.23 (phi: A -> B filtered group homom, inducing phi'. G(phi) h ==> phi' h, for h inj or surj).
 
-- [ ] 10.24 (M_n I filtration of M. A complete, M Hausdorff, G(M) f.g.==> M f.g. A-mod).
+- [] 10.24 (M_n I filtration of M. A complete, M Hausdorff, G(M) f.g.==> M f.g. A-mod).
 
 - [ ] 10.25 (assumptions on A, M, G(A) f.g, G(M) Noeth G(A) module ==> M Noeth A Mod).
 

@@ -8,3 +8,7 @@ Set up
 - [X] Create repository + files
 - [X] Add outline 
 - [X] Share repo 
+
+
+- [ ] maybe outline proof of main theorem to see how things are used
+- [ ] define graded module.
