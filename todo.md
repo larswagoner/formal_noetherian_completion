@@ -15,3 +15,4 @@ Set up
 - [ ] verify adic_completion statements are actually true. worst case replace IsAdicComplete with IsReallyAdicComplete where necessary
 - [ ] try to find easy proofs to fill in
 - [ ] think about definitions of AssociatedGraded stuff. 
+- [ ] in associated stuff make sure the definitions inherit the correct properties naturally. 
