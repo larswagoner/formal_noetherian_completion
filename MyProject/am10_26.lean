@@ -23,5 +23,5 @@ theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : 
 
     have := h h₁
     convert this
-
+    
     sorry
