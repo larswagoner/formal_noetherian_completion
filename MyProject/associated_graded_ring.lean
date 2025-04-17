@@ -33,20 +33,33 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRin
 
 -/
 
-def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := sorry
+open DirectSum
+
+/--
+  The `n`-th summand of `G(M)` is given by `Mₙ/Mₙ₊₁`. We use Submodule.comap to pull back the
+  submodule `F.N (n + 1) = Mₙ₊₁ ⊆ M` along the map `(F.N n).subtype : Mₙ ⟶ M`.
+-/
+def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ):
+    Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
+
+instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+    AddCommGroup (GradedPiece F n) := sorry
+
+instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+    Module A (GradedPiece F n) := sorry
 
 /--
   This should be defined by `Gₐ(M) = ⊕ₙ Mₙ/Mₙ₊₁`
 -/
-def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-  [Module A M] (F : I.Filtration M):
-    Type u := sorry
+def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) :
+    Type u := ⨁ n : ℕ, GradedPiece F n
 
 /-
   `Gₐ(M)` should be an abelian group
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-  [Module A M] (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) := sorry
+    [Module A M] (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) :=
+  inferInstanceAs (AddCommGroup (Π₀ n : ℕ, GradedPiece F n))
 
 /-
   This should be defined by `Gₐ(A) = ⊕ₙ aⁿ/aⁿ⁺¹`
@@ -57,7 +70,27 @@ def AssociatedGradedRing {A : Type u} [CommRing A] (I : Ideal A) : Type u :=
 /-
   `Gₐ(A)` should be proven to be a commutative ring
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) :=  sorry
+instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := {
+  instAddCommGroupAssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A)) with
+  mul := sorry
+  left_distrib := sorry
+  right_distrib := sorry
+  zero_mul := sorry
+  mul_zero := sorry
+  mul_assoc := sorry
+  one := sorry
+  one_mul := sorry
+  mul_one := sorry
+  neg := sorry
+  sub := sorry
+  sub_eq_add_neg := sorry
+  zsmul := sorry
+  zsmul_zero' := sorry
+  zsmul_succ' := sorry
+  zsmul_neg' := sorry
+  neg_add_cancel := sorry
+  mul_comm := sorry
+}
 
 /-
   `Gₐ(A)` should be an `A`-algebra
