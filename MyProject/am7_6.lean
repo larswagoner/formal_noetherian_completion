@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.RingTheory.Polynomial.Basic
 
 /-
   # Corollary 7.6

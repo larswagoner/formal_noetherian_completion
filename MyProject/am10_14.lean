@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.RingTheory.AdicCompletion.AsTensorProduct
 
 /-
   # Proposition 10.14

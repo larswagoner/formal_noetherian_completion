@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.RingTheory.Noetherian.Defs
 
 /-
   # Proposition 6.2

@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.Tactic
 
 /-
   # Proposition 2.10
