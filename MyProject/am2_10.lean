@@ -10,4 +10,6 @@ import Mathlib.Tactic
     `0 ⟶ Ker(f') ⟶ Ker(f) ⟶ Ker(f'') ⟶ Coker(f') ⟶ Coker(f) ⟶ Coker(f'') ⟶ 0`
 -/
 
+-- CategoryTheory.ShortComplex.SnakeInput.snake_lemma
+
 lemma am2_10 : true := sorry
