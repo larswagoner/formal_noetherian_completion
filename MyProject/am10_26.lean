@@ -20,8 +20,7 @@ theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : 
 
     have h₁ : IsNoetherianRing (AssociatedGradedRing (I.adicCompletion I)) := by
       apply isNoetherianRing_of_ringEquiv (AssociatedGradedRing I)
-      apply am10_22_ii 
+      apply am10_22_ii
     -- exact h₁
 
     sorry
-

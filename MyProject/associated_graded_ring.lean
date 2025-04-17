@@ -1,8 +1,7 @@
-import Mathlib
+import Mathlib.RingTheory.Filtration
+import Mathlib.RingTheory.GradedAlgebra.Basic
 
---test
-
--- define associated graded module, then associated graded ring in terms of that. 
+-- define associated graded module, then associated graded ring in terms of that.
 
 /- # Associated Graded Ring
   Consider a ring `A` and an ideal `I : Ideal A`.
@@ -19,7 +18,7 @@ import Mathlib
 -/
 
 /- not general enough
-def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) 
+def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n)))
 
 instance {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : AddCommGroup (GradedPiece I n) := sorry
 
@@ -71,8 +70,6 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRi
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Module (AssociatedGradedRing I) (AssociatedGradedModule F) := sorry
-
-
 
 
 
