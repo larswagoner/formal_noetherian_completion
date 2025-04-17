@@ -28,15 +28,9 @@ open DirectSum
 def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ):
     Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
 
-
 /- 
   `Mₙ/Mₙ₊₁` is an abelian group and an `A`-module
 -/
-
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
-    AddCommGroup (GradedPiece F n) := by
-    unfold GradedPiece
-    infer_instance
 
 
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
@@ -92,9 +86,27 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRin
 /-
   `Gₐ(A)` should be proven to be a commutative ring
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := by sorry
-
-  
+instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := {
+  instAddCommGroupAssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A)) with
+  mul := sorry
+  left_distrib := sorry
+  right_distrib := sorry
+  zero_mul := sorry
+  mul_zero := sorry
+  mul_assoc := sorry
+  one := sorry
+  one_mul := sorry
+  mul_one := sorry
+  neg := sorry
+  sub := sorry
+  sub_eq_add_neg := sorry
+  zsmul := sorry
+  zsmul_zero' := sorry
+  zsmul_succ' := sorry
+  zsmul_neg' := sorry
+  neg_add_cancel := sorry
+  mul_comm := sorry
+}
 
 
 /-
@@ -121,7 +133,7 @@ def AssociatedGradedModule_degMap {A : Type u} [CommRing A] {I : Ideal A} {M : T
     intro n
 
     --exact LinearMap.range (lof (AssociatedGradedRing I) ℕ (fun n => (GradedPiece F n)) n) -- Gₐ(A) needs to be a ring! Maybe prove it is a graded ring first?
-
+ 
     sorry
 
 /-
@@ -136,7 +148,7 @@ def AssociatedGradedRing_degMap {A : Type u} [CommRing A] (I : Ideal A) :
 /-
   With above indexing map, `Gₐ(A) ≅ ⊕ₙ ϕ(n)` should hold, making `Gₐ(A)` into a graded ring.
 -/
-/-- I broke this, will try to fix it...
+
 
 -- Need Gₐ(A) is (semi)-ring 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedRing_degMap I) where
@@ -147,9 +159,9 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedR
   left_inv := sorry
   right_inv := sorry
 
--/
+
+
 /-
   `Gₐ(M)` should be a graded `Gₐ(A)`-module
 -/
 -- instance : ??? := sorry
-lemma A : true := sorry -- also ignor this.
