@@ -32,6 +32,7 @@ def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGro
   `Mₙ/Mₙ₊₁` is an abelian group and an `A`-module
 -/
 
+
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
     AddCommGroup (GradedPiece F n) := by
     unfold GradedPiece
@@ -107,6 +108,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRin
   mul_comm := sorry
 }
 
+
 /-
   `Gₐ(A)` should be an `A`-algebra
 -/
@@ -129,8 +131,9 @@ def AssociatedGradedModule_degMap {A : Type u} [CommRing A] {I : Ideal A} {M : T
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     ℕ → Submodule (AssociatedGradedRing I) (AssociatedGradedModule F) := by
     intro n
+
     --exact LinearMap.range (lof (AssociatedGradedRing I) ℕ (fun n => (GradedPiece F n)) n) -- Gₐ(A) needs to be a ring! Maybe prove it is a graded ring first?
-    
+ 
     sorry
 
 /-
@@ -146,6 +149,7 @@ def AssociatedGradedRing_degMap {A : Type u} [CommRing A] (I : Ideal A) :
   With above indexing map, `Gₐ(A) ≅ ⊕ₙ ϕ(n)` should hold, making `Gₐ(A)` into a graded ring.
 -/
 
+
 -- Need Gₐ(A) is (semi)-ring 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedRing_degMap I) where
   one_mem := by 
@@ -154,6 +158,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedR
   decompose' := sorry
   left_inv := sorry
   right_inv := sorry
+
 
 
 /-
