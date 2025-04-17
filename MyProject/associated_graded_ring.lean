@@ -33,7 +33,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRin
 -- no grading yet ;)
 
 -/
-
+-- quotient by subsequent submodules, this definition should include filtration.
 def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := sorry
 
 /--
