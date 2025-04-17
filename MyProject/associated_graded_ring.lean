@@ -17,21 +17,7 @@ import Mathlib.RingTheory.GradedAlgebra.Basic
   Now `G(M)` is a `G(A)`-module in a natural way.
 -/
 
-/- not general enough
-def GradedPiece {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Type u := (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n)))
 
-instance {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : AddCommGroup (GradedPiece I n) := sorry
-
-instance {A : Type u} [CommRing A] (I : Ideal A) (n : ℕ) : Module A (GradedPiece I n) := sorry
-
-open DirectSum
-def AssociatedGradedRing₁ {A : Type u} [CommRing A] (I : Ideal A) : Type u := ⨁ (n : ℕ) , (GradedPiece I n)
-
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing₁ I) := sorry
-
--- no grading yet ;)
-
--/
 
 open DirectSum
 
@@ -43,10 +29,14 @@ def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGro
     Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
 
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
-    AddCommGroup (GradedPiece F n) := sorry
+    AddCommGroup (GradedPiece F n) := by
+    unfold GradedPiece
+    infer_instance
 
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
-    Module A (GradedPiece F n) := sorry
+    Module A (GradedPiece F n) := by
+    unfold GradedPiece
+    infer_instance
 
 
 /--
@@ -55,6 +45,11 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [
 def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Type u := ⨁ n : ℕ, GradedPiece F n
 
+
+def auxMap {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) : ℕ → Type u := by 
+  intro n
+  exact (GradedPiece F n)
+  
 /-
   `Gₐ(M)` should be an abelian group
 -/
@@ -71,7 +66,12 @@ def AssociatedGradedRing {A : Type u} [CommRing A] (I : Ideal A) : Type u :=
 /-
   `Gₐ(A)` should be proven to be a commutative ring
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := {
+instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := by sorry
+  unfold AssociatedGradedRing
+  
+
+
+  {
   instAddCommGroupAssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A)) with
   mul := sorry
   left_distrib := sorry
@@ -106,12 +106,18 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
     Module (AssociatedGradedRing I) (AssociatedGradedModule F) := sorry
 
 
+
+
 /-
   This should be the map `ℕ → Submodule Gₐ(A) Gₐ(M)` where `n ↦ Mₙ/Mₙ`
 -/
 def AssociatedGradedModule_degMap {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
-    ℕ → Submodule (AssociatedGradedRing I) (AssociatedGradedModule F) := sorry
+    ℕ → Submodule (AssociatedGradedRing I) (AssociatedGradedModule F) := by
+    intro n
+    --exact (lof (AssociatedGradedRing I) _ (fun n => (GradedPiece F n)) n).range -- need Gₐ(A) action first.
+    
+    sorry
 
 /-
   This should be the map `ϕ : ℕ → Submodule A Gₐ(A)` where `n ↦ aⁿ/aⁿ⁺¹`
