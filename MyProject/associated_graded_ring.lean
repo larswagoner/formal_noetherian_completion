@@ -28,89 +28,95 @@ open DirectSum
 def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ):
     Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
 
-/- 
-  `Mₙ/Mₙ₊₁` is an abelian group and an `A`-module
+/--
+  `Mₙ/Mₙ₊₁` is an abelian group.
 -/
-
-
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
     AddCommGroup (GradedPiece F n) := by
-    unfold GradedPiece
-    infer_instance
+  unfold GradedPiece
+  infer_instance
 
+/--
+  `Mₙ/Mₙ₊₁` is an `A`-module.
+-/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
     Module A (GradedPiece F n) := by
-    unfold GradedPiece
-    infer_instance
+  unfold GradedPiece
+  infer_instance
 
 
 /--
-  This should be defined by `Gₐ(M) = ⊕ₙ Mₙ/Mₙ₊₁`
+  The associated graded module is defined by `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`.
 -/
 def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Type u := ⨁ n : ℕ, GradedPiece F n
 
-  
-/-
-  `Gₐ(M)` is an abelian group and an `A`-module
+/--
+  `G(M)` is an abelian group.
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
     [Module A M] (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) :=
   inferInstanceAs (AddCommGroup (Π₀ n : ℕ, GradedPiece F n))
 
+/--
+  `G(M)` is an `A`-module.
+-/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
     [Module A M] (F : I.Filtration M) : Module A (AssociatedGradedModule F) := by
-    unfold AssociatedGradedModule
-    infer_instance
+  unfold AssociatedGradedModule
+  infer_instance
 
-
-/-
-  This should be defined by `Gₐ(A) = ⊕ₙ aⁿ/aⁿ⁺¹`
+/--
+  The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
 -/
 def AssociatedGradedRing {A : Type u} [CommRing A] (I : Ideal A) : Type u :=
   AssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A))
 
-/-
-  `Gₐ(A)` is an abelian group and an `A`-module
+/--
+  `G(A)` is an abelian group.
 -/
+instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommGroup (AssociatedGradedRing I) :=
+  instAddCommGroupAssociatedGradedModule _
 
-instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommMonoid (AssociatedGradedRing I):= by
-  unfold AssociatedGradedRing
-  infer_instance
-
-instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRing I):= by
-  unfold AssociatedGradedRing
-  unfold AssociatedGradedModule
-  infer_instance
-
-/-
-  `Gₐ(A)` should be proven to be a commutative ring
+/--
+  `G(A)` is an `A`-module.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := {
-  instAddCommGroupAssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A)) with
+instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRing I) :=
+  instModuleAssociatedGradedModule _
+
+/--
+  The map `ℕ → Type` given by `GradedPiece (I.stableFiltration (⊤ : Submodule A A))` defines a
+  graded ring structure.
+-/
+instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
   mul := sorry
-  left_distrib := sorry
-  right_distrib := sorry
-  zero_mul := sorry
   mul_zero := sorry
-  mul_assoc := sorry
+  zero_mul := sorry
+  mul_add := sorry
+  add_mul := sorry
   one := sorry
   one_mul := sorry
   mul_one := sorry
-  neg := sorry
-  sub := sorry
-  sub_eq_add_neg := sorry
-  zsmul := sorry
-  zsmul_zero' := sorry
-  zsmul_succ' := sorry
-  zsmul_neg' := sorry
-  neg_add_cancel := sorry
+  mul_assoc := sorry
+  gnpow := sorry
+  gnpow_zero' := sorry
+  gnpow_succ' := sorry
+  natCast := sorry
+  natCast_zero := sorry
+  natCast_succ := sorry
+  intCast := sorry
+  intCast_ofNat := sorry
+  intCast_negSucc_ofNat := sorry
   mul_comm := sorry
-}
-
 
 /-
-  `Gₐ(A)` should be an `A`-algebra
+  It follows that `G(A)` is a commutative ring.
+-/
+instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) :=
+  DirectSum.commRing _
+
+/-
+  `G(A)` should be an `A`-algebra
 -/
 instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) := sorry
 
@@ -125,41 +131,19 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
 
 
 /-
-  This should be the map `ℕ → Submodule Gₐ(A) Gₐ(M)` where `n ↦ Mₙ/Mₙ`
+  This should be the map `ℕ → Submodule A Gₐ(M)` where `n ↦ Mₙ/Mₙ₊₁`
 -/
 def AssociatedGradedModule_degMap {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
-    ℕ → Submodule (AssociatedGradedRing I) (AssociatedGradedModule F) := by
-    intro n
-
-    --exact LinearMap.range (lof (AssociatedGradedRing I) ℕ (fun n => (GradedPiece F n)) n) -- Gₐ(A) needs to be a ring! Maybe prove it is a graded ring first?
- 
-    sorry
+    ℕ → Submodule A (AssociatedGradedModule F) :=
+  fun i ↦ LinearMap.range (lof A ℕ (fun n => (GradedPiece F n)) i)
 
 /-
   This should be the map `ϕ : ℕ → Submodule A Gₐ(A)` where `n ↦ aⁿ/aⁿ⁺¹`
 -/
 def AssociatedGradedRing_degMap {A : Type u} [CommRing A] (I : Ideal A) :
-    ℕ → Submodule A (AssociatedGradedRing I) := by 
-  intro n
-  exact LinearMap.range (lof A ℕ (fun n => (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n)) n)
-
-
-/-
-  With above indexing map, `Gₐ(A) ≅ ⊕ₙ ϕ(n)` should hold, making `Gₐ(A)` into a graded ring.
--/
-
-
--- Need Gₐ(A) is (semi)-ring 
-instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedRing_degMap I) where
-  one_mem := by 
-    sorry
-  mul_mem := sorry
-  decompose' := sorry
-  left_inv := sorry
-  right_inv := sorry
-
-
+    ℕ → Submodule A (AssociatedGradedRing I) :=
+  AssociatedGradedModule_degMap (I.stableFiltration (⊤ : Submodule A A))
 
 /-
   `Gₐ(M)` should be a graded `Gₐ(A)`-module
