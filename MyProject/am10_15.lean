@@ -23,7 +23,7 @@ variable {A : Type*} [CommRing A] (I : Ideal A)
 
 variable [IsNoetherianRing A]
 
--- get induced map AdicCompletion I I → AdicCompletion I A (inclusion), show image is I.adicCompletion I 
+-- get induced map AdicCompletion I I → AdicCompletion I A (inclusion), show image is I.adicCompletion I
 
 -- Note:
 -- Option 1) We take `â` to be the `a`-adic completion of `a`. This makes it an `Â`-module.
@@ -61,6 +61,6 @@ lemma am10_15_iii (n : ℕ) : Function.Bijective (am10_15_iii_map n I) := sorry
 
 
 
-
-lemma am10_15_iv : (I.adicCompletion I) ≤ Ring.jacobson (AdicCompletion I A) := sorry 
--- can be stated as instance of subring of jacobson radical, can be stated in terms of membership, etc. https://leanprover-community.github.io/mathlib4_docs/Mathlib/RingTheory/Jacobson/Ideal.html
+omit [IsNoetherianRing A] in -- It is not necerssary for `A` to be Noetherian.
+lemma am10_15_iv : (I.adicCompletion I) ≤ (⊥ : Ideal (AdicCompletion I A)).jacobson :=
+  IsAdicComplete.le_jacobson_bot (I.adicCompletion I)
