@@ -84,12 +84,44 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommGroup (AssociatedGrade
 instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRing I) :=
   instModuleAssociatedGradedModule _
 
+
+/-
+  Defining multiplication on `G(A)`
+        : (h : GradedPiece I m) component_map : GradedPiece I n → GradedPiece I n+m
+-/
+noncomputable def graded_mul  {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) m) → 
+    (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n) →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) (m+n)) := by  
+  intro x y 
+  let x_rep := Quotient.out x 
+  let y_rep := Quotient.out y 
+
+  let z := (x_rep : A) * (y_rep : A)
+
+  have h₁ : z ∈ I ^ (m + n) := by 
+    have m_equiv : (I.stableFiltration ⊤).N m = I ^ m := by simp only [Ideal.stableFiltration_N,
+        smul_eq_mul, Ideal.mul_top]
+    have n_equiv : (I.stableFiltration ⊤).N n = I ^ n := by simp only [Ideal.stableFiltration_N,
+        smul_eq_mul, Ideal.mul_top]
+
+    apply SetLike.mul_mem_graded
+    · rw[← m_equiv]
+      exact x_rep.prop
+    · rw[← n_equiv]
+      exact y_rep.prop
+    
+  let hz : ↥(I ^ (m + n)) := ⟨z, h₁⟩  
+
+  apply Submodule.Quotient.mk
+  simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top]
+  
+  exact hz
+
 /--
   The map `ℕ → Type` given by `GradedPiece (I.stableFiltration (⊤ : Submodule A A))` defines a
   graded ring structure.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
-  mul := sorry
+noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
+  mul := (graded_mul I)
   mul_zero := sorry
   zero_mul := sorry
   mul_add := sorry
