@@ -84,8 +84,73 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRin
   infer_instance
 
 /-
+  Defining multiplication on `Gₐ(A)`
+        : (h : GradedPiece I m) component_map : GradedPiece I n → GradedPiece I n+m
+-/
+noncomputable def graded_mul  {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) m) → 
+    (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n) →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) (m+n)) := by  
+  intro x y 
+  let x_rep := Quotient.out x 
+  let y_rep := Quotient.out y 
+
+  let z := (x_rep : A) * (y_rep : A)
+
+  have h₁ : z ∈ I ^ (m + n) := by 
+    have m_equiv : (I.stableFiltration ⊤).N m = I ^ m := by simp only [Ideal.stableFiltration_N,
+        smul_eq_mul, Ideal.mul_top]
+    have n_equiv : (I.stableFiltration ⊤).N n = I ^ n := by simp only [Ideal.stableFiltration_N,
+        smul_eq_mul, Ideal.mul_top]
+
+    apply SetLike.mul_mem_graded
+    · rw[← m_equiv]
+      exact x_rep.prop
+    · rw[← n_equiv]
+      exact y_rep.prop
+    
+  let hz : ↥(I ^ (m + n)) := ⟨z, h₁⟩  
+
+  apply Submodule.Quotient.mk
+  simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top]
+  
+  exact hz
+
+
+
+
+
+/--
+  The map `ℕ → Type` given by `GradedPiece (I.stableFiltration (⊤ : Submodule A A))` defines a
+  graded ring structure.
+-/
+noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
+  mul := (graded_mul I)
+  mul_zero := sorry
+  zero_mul := sorry
+  mul_add := sorry
+  add_mul := sorry
+  one := sorry
+  one_mul := sorry
+  mul_one := sorry
+  mul_assoc := sorry
+  gnpow := sorry
+  gnpow_zero' := sorry
+  gnpow_succ' := sorry
+  natCast := sorry
+  natCast_zero := sorry
+  natCast_succ := sorry
+  intCast := sorry
+  intCast_ofNat := sorry
+  intCast_negSucc_ofNat := sorry
+  mul_comm := sorry
+  
+
+
+
+
+/-
   `Gₐ(A)` should be proven to be a commutative ring
 -/
+
 instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) := {
   instAddCommGroupAssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A)) with
   mul := sorry
@@ -133,7 +198,6 @@ def AssociatedGradedModule_degMap {A : Type u} [CommRing A] {I : Ideal A} {M : T
     intro n
 
     --exact LinearMap.range (lof (AssociatedGradedRing I) ℕ (fun n => (GradedPiece F n)) n) -- Gₐ(A) needs to be a ring! Maybe prove it is a graded ring first?
- 
     sorry
 
 /-
@@ -148,7 +212,6 @@ def AssociatedGradedRing_degMap {A : Type u} [CommRing A] (I : Ideal A) :
 /-
   With above indexing map, `Gₐ(A) ≅ ⊕ₙ ϕ(n)` should hold, making `Gₐ(A)` into a graded ring.
 -/
-
 
 -- Need Gₐ(A) is (semi)-ring 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedRing (AssociatedGradedRing_degMap I) where
