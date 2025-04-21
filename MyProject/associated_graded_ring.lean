@@ -89,104 +89,83 @@ namespace AssociatedGradedRing
 abbrev CanonicalFiltration {A : Type u} [CommRing A] (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
 
 lemma canonicalFiltration_eval {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
-    (I.stableFiltration ⊤).N m = I ^ m := by simp
+    (CanonicalFiltration I).N m = I ^ m := by simp
 
-def CanonicalMap {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
-    ↑((CanonicalFiltration I).N m) → ↑(I ^ m) := by
-  intro x
-  rw [←canonicalFiltration_eval I m]
-  exact x
+lemma mem_filtration_iff_mem_Im {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : A) :
+    x ∈ (CanonicalFiltration I).N m ↔ x ∈ I^m := by
+  constructor
+  · intro h
+    simp at h
+    exact h
+  · intro h
+    simp
+    exact h
 
-
-def CanonicalMapInv {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
-     ↑(I ^ m) → ↑((CanonicalFiltration I).N m) := by
-  intro x
-  rw [canonicalFiltration_eval I m]
-  exact x
-
-lemma canonicalMapInv_comp_map {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : ↑((CanonicalFiltration I).N m)) :
-    (CanonicalMapInv I m (CanonicalMap I m x)) = x := by
-  simp [CanonicalMapInv, CanonicalMap]
-
-lemma canonicalMap_comp_mapInv {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : ↑(I^m)) :
-    (CanonicalMap I m (CanonicalMapInv I m x)) = x := by
-  simp [CanonicalMapInv, CanonicalMap]
-
-lemma CanonicalMapInv_bijective {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) : Function.Bijective (CanonicalMapInv I m) := 
-⟨by
-  intro x y h
-  have := congrArg (CanonicalMap I m) h
-  simp [canonicalMap_comp_mapInv] at this
-  exact this, 
- by
-  intro y
-  use CanonicalMap I m y
-  simp [canonicalMapInv_comp_map]⟩ 
-
-lemma CanonicalMap_bijective {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
-  Function.Bijective (CanonicalMap I m) :=
-⟨λ x y h => by rw [←canonicalMapInv_comp_map I m x, ←canonicalMapInv_comp_map I m y, h], λ y => ⟨CanonicalMapInv I m y, canonicalMap_comp_mapInv I m y⟩⟩
-
-
-lemma canonicalMapInv_difference {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x y : ↑(I^m)) : 
-(CanonicalMapInv I m x) - (CanonicalMapInv I m y) = (CanonicalMapInv I m (x-y)) := by 
-  -- use the fact that canonical map is a bijection? maybe it is better to prove the canonical map and inverse are isomoprhism, so then we can use additive property here and elsewhere
-  simp [CanonicalMapInv]
-  sorry
+lemma canonicalFiltration_mul_deg {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
+    x * y ∈ (CanonicalFiltration I).N (m + n) := by
+  rw [mem_filtration_iff_mem_Im] at *
+  exact SetLike.GradedMul.mul_mem hx hy
 
 abbrev GradedRingPiece {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :=
   GradedPiece (CanonicalFiltration I) m
 
-def GradedRingPiece_mk {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : ↑(I^m)) :
-    (GradedRingPiece I m) :=
-  Quotient.mk _ (CanonicalMapInv I m x)
-
-noncomputable def GradedRingPiece_out {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : GradedRingPiece I m) :
-    ↑(I ^ m) :=
-  CanonicalMap I m x.out
-
 @[simp]
 lemma GradedRingPiece_mk_out {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : GradedRingPiece I m) :
-    (GradedRingPiece_mk (GradedRingPiece_out x)) = x := by
-  unfold GradedRingPiece_mk GradedRingPiece_out
-  rw [canonicalMapInv_comp_map]
-  exact Quotient.out_eq x
-
--- used in lemma below, probably can be more generalized. Mathematically simple.
-lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} (m:ℕ) (z : ↑(I^m)): (z:A) ∈ ↑(I^(m+1)) →  ↑(CanonicalMapInv I m z) ∈ I ^ (m+1) := by
-  sorry
+    ⟦x.out⟧ = x :=
+  Quotient.out_eq x
 
 @[simp]
-lemma GradedRingPiece_mk_eq {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x y : ↑(I^m)) :
-    x.1 - y.1 ∈ I^(m+1) → GradedRingPiece_mk x = GradedRingPiece_mk y := by 
-  intro h
-  apply Quotient.sound
-  
-  have h₁ : (CanonicalMapInv I m x - CanonicalMapInv I m y) ∈ Submodule.comap ((CanonicalFiltration I).N m).subtype ((CanonicalFiltration I).N (m + 1)):= by
-    rw [canonicalMapInv_difference]
-    simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top, Submodule.mem_comap,
-      Submodule.subtype_apply, AddSubgroupClass.coe_sub]
-    exact (aux₁ (m) (x-y) h)
+lemma GradedRingPiece_mk_eq_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} {x y : (CanonicalFiltration I).N m} :
+    x.1 - y.1 ∈ (CanonicalFiltration I).N (m+1) ↔ (⟦x⟧ : GradedRingPiece I m) = ⟦y⟧ := by
+  rw [Quotient.eq'']
+  rw [(Submodule.quotientRel_def
+            (Submodule.comap ((CanonicalFiltration I).N m).subtype
+              ((CanonicalFiltration I).N (m + 1))))]
+  simp
 
-  apply Quotient.eq.mp
-  refine Quotient.eq''.mpr ?_
-  exact
-    (Submodule.quotientRel_def
-          (Submodule.comap ((CanonicalFiltration I).N m).subtype
-            ((CanonicalFiltration I).N (m + 1)))).mpr
-      h₁
+@[simp]
+lemma GradedRingPiece_mk_zero {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} :
+    (⟦0⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := rfl
 
+lemma GradedRingPiece_mk_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
+    ↑x ∈ (CanonicalFiltration I).N (m+1) ↔ (⟦x⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := by
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+lemma GradedRingPiece_eq_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} {x : GradedRingPiece I m} :
+    ↑x.out ∈ (CanonicalFiltration I).N (m+1) ↔ x = (0 : GradedRingPiece I m) := by
+  rw [←Quotient.out_eq x]
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+@[simp]
+lemma GradedRingPiece_out_mk_sub {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
+    ↑((⟦x⟧ : GradedRingPiece I m).out - x) ∈ (CanonicalFiltration I).N (m+1) := by
+  apply GradedRingPiece_mk_eq_iff.mpr
+  simp
 
 /--
   Let `A` be a ring and `I` be an ideal. Then for `m n : ℕ` we obtain a multiplication map
   `I^m → I^n → I^(m+n)`
 -/
 def ideal_mul {A : Type u} [CommRing A] (I : Ideal A) (m n : ℕ) :
-    ↑(I^m) → ↑(I^n) → ↑(I^(m+n)) :=
-  fun x y ↦ ⟨x.1 * y.1, SetLike.mul_mem_graded x.2 y.2⟩
+    ↑((CanonicalFiltration I).N m) →
+      ↑((CanonicalFiltration I).N n) →
+        ↑((CanonicalFiltration I).N (m + n)) :=
+  fun x y ↦ ⟨x.1 * y.1, canonicalFiltration_mul_deg x.2 y.2⟩
 
-lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : A} (hx : x ∈ I^m) (hy : y ∈ I^n) :
+lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
     ↑(ideal_mul I m n ⟨x, hx⟩ ⟨y, hy⟩ : A) = ↑(x * y) := rfl
+
+lemma ideal_mul_eval₂ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    ↑(ideal_mul I m n x y : A) = (x : A) * ↑y := rfl
+
+lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N m) :
+    ideal_mul I m n x (0 : (CanonicalFiltration I).N n) = 0 := by
+  unfold ideal_mul
+  simp
 
 /--
   Defining multiplication on `G(A)`
@@ -194,29 +173,26 @@ lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : 
 -/
 noncomputable def graded_mul {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} :
     (GradedRingPiece I m) → (GradedRingPiece I n) → (GradedRingPiece I (m+n)) :=
-  fun x y ↦
-    GradedRingPiece_mk (ideal_mul I m n
-      (GradedRingPiece_out x)
-      (GradedRingPiece_out y))
+  fun x y ↦ ⟦ideal_mul I m n x.out y.out⟧
 
-
-
-lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : ↑(I^m)) (y : ↑(I^n)) :
-    graded_mul I
-      (GradedRingPiece_mk x) (GradedRingPiece_mk y) =
-      (GradedRingPiece_mk (ideal_mul I m n x y)) := by
+lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    graded_mul I ⟦x⟧ ⟦y⟧ = ⟦ideal_mul I m n x y⟧ := by
   unfold graded_mul
-  apply GradedRingPiece_mk_eq
+  apply GradedRingPiece_mk_eq_iff.mp
   rw [ideal_mul_eval, ideal_mul_eval]
-  -- idea: show left term can be written as GRP_out (GRP_mk * GRP_mk)
-  sorry
+  have : (↑(⟦x⟧ : GradedRingPiece I m).out : A) * ↑(⟦y⟧ : GradedRingPiece I n).out - ↑x * ↑y =
+      ((⟦x⟧ : GradedRingPiece I m).out - x) * (⟦y⟧ : GradedRingPiece I n).out + x * ((⟦y⟧ : GradedRingPiece I n).out - y) := by ring
+  rw [this]
+  apply Submodule.add_mem
+  · have := canonicalFiltration_mul_deg (GradedRingPiece_out_mk_sub x) (⟦y⟧ : GradedRingPiece I n).out.2
+    convert this using 2
+    ring
+  · have := canonicalFiltration_mul_deg x.2 (GradedRingPiece_out_mk_sub y)
+    exact this
 
-
-lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : GradedRingPiece I m) : (x = 0) → ↑(GradedRingPiece_out x) ∈ I ^ (m + 1) := by
-  intro h
-  rw[h]
-  -- tricky to work with GRP_out after unfolding.
-  sorry
+lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
+    ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
+  apply GradedRingPiece_eq_zero_iff.mpr rfl
 
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
@@ -226,18 +202,11 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   mul := (graded_mul I)
   mul_zero := by
     intro m n a
-    simp [graded_mul]
-    nth_rw 2 [← GradedRingPiece_mk_out 0]
-    apply GradedRingPiece_mk_eq
-    rw [ideal_mul_eval]
-    have h₁ : ↑(GradedRingPiece_out (0: GradedRingPiece I (m + n))) ∈ I ^ (m + n + 1) := (GradedRingPiece_zero (0: GradedRingPiece I (m + n)) rfl)
-    
-    have h₂ : ↑(GradedRingPiece_out (0: GradedRingPiece I (n))) ∈ I ^ (n + 1) :=  (GradedRingPiece_zero (0: GradedRingPiece I (n)) rfl)
-    
-    have h₃ : ↑((GradedRingPiece_out (a : GradedRingPiece I m)) : A) * ↑((GradedRingPiece_out (0: GradedRingPiece I (n))) : A) ∈ I ^ (m + (n + 1)) := (SetLike.mul_mem_graded (GradedRingPiece_out a).prop h₂)
-
-    exact (Submodule.sub_mem_iff_left (I ^ (m + n + 1)) h₁).mpr h₃
-
+    calc graded_mul I a 0 = graded_mul I ⟦a.out⟧ 0 := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦a.out⟧ ⟦0⟧ := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
   zero_mul := sorry
   mul_add := sorry
   add_mul := sorry
