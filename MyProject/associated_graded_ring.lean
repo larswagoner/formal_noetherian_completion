@@ -124,6 +124,23 @@ lemma GradedRingPiece_mk_eq_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ
   simp
 
 @[simp]
+lemma GradedRingPiece_mk_zero {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} :
+    (⟦0⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := rfl
+
+lemma GradedRingPiece_mk_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
+    ↑x ∈ (CanonicalFiltration I).N (m+1) ↔ (⟦x⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := by
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+lemma GradedRingPiece_eq_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} {x : GradedRingPiece I m} :
+    ↑x.out ∈ (CanonicalFiltration I).N (m+1) ↔ x = (0 : GradedRingPiece I m) := by
+  rw [←Quotient.out_eq x]
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+@[simp]
 lemma GradedRingPiece_out_mk_sub {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
     ↑((⟦x⟧ : GradedRingPiece I m).out - x) ∈ (CanonicalFiltration I).N (m+1) := by
   apply GradedRingPiece_mk_eq_iff.mpr
@@ -144,6 +161,11 @@ lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : 
 
 lemma ideal_mul_eval₂ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
     ↑(ideal_mul I m n x y : A) = (x : A) * ↑y := rfl
+
+lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N m) :
+    ideal_mul I m n x (0 : (CanonicalFiltration I).N n) = 0 := by
+  unfold ideal_mul
+  simp
 
 /--
   Defining multiplication on `G(A)`
@@ -170,8 +192,7 @@ lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : 
 
 lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
-  -- tricky to work with GRP_out after unfolding.
-  sorry
+  apply GradedRingPiece_eq_zero_iff.mpr rfl
 
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
@@ -181,14 +202,11 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   mul := (graded_mul I)
   mul_zero := by
     intro m n a
-    simp [graded_mul]
-    apply GradedRingPiece_mk_eq_iff.mp
-    apply (Submodule.sub_mem_iff_left ((CanonicalFiltration I).N (m + n + 1)) _).mpr
-    · rw [ideal_mul_eval₂]
-      have := canonicalFiltration_mul_deg (a.out.prop) (GradedRingPiece_zero n)
-      exact this
-    · simp
-
+    calc graded_mul I a 0 = graded_mul I ⟦a.out⟧ 0 := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦a.out⟧ ⟦0⟧ := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
   zero_mul := sorry
   mul_add := sorry
   add_mul := sorry
