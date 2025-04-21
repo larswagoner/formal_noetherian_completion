@@ -158,8 +158,15 @@ lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : 
   unfold graded_mul
   apply GradedRingPiece_mk_eq_iff.mp
   rw [ideal_mul_eval, ideal_mul_eval]
-  -- idea: show left term can be written as GRP_out (GRP_mk * GRP_mk)
-  sorry
+  have : (↑(⟦x⟧ : GradedRingPiece I m).out : A) * ↑(⟦y⟧ : GradedRingPiece I n).out - ↑x * ↑y =
+      ((⟦x⟧ : GradedRingPiece I m).out - x) * (⟦y⟧ : GradedRingPiece I n).out + x * ((⟦y⟧ : GradedRingPiece I n).out - y) := by ring
+  rw [this]
+  apply Submodule.add_mem
+  · have := canonicalFiltration_mul_deg (GradedRingPiece_out_mk_sub x) (⟦y⟧ : GradedRingPiece I n).out.2
+    convert this using 2
+    ring
+  · have := canonicalFiltration_mul_deg x.2 (GradedRingPiece_out_mk_sub y)
+    exact this
 
 lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
