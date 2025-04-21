@@ -97,6 +97,7 @@ def CanonicalMap {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
   rw [←canonicalFiltration_eval I m]
   exact x
 
+
 def CanonicalMapInv {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
      ↑(I ^ m) → ↑((CanonicalFiltration I).N m) := by
   intro x
@@ -110,6 +111,28 @@ lemma canonicalMapInv_comp_map {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ)
 lemma canonicalMap_comp_mapInv {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : ↑(I^m)) :
     (CanonicalMap I m (CanonicalMapInv I m x)) = x := by
   simp [CanonicalMapInv, CanonicalMap]
+
+lemma CanonicalMapInv_bijective {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) : Function.Bijective (CanonicalMapInv I m) := 
+⟨by
+  intro x y h
+  have := congrArg (CanonicalMap I m) h
+  simp [canonicalMap_comp_mapInv] at this
+  exact this, 
+ by
+  intro y
+  use CanonicalMap I m y
+  simp [canonicalMapInv_comp_map]⟩ 
+
+lemma CanonicalMap_bijective {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
+  Function.Bijective (CanonicalMap I m) :=
+⟨λ x y h => by rw [←canonicalMapInv_comp_map I m x, ←canonicalMapInv_comp_map I m y, h], λ y => ⟨CanonicalMapInv I m y, canonicalMap_comp_mapInv I m y⟩⟩
+
+
+lemma canonicalMapInv_difference {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x y : ↑(I^m)) : 
+(CanonicalMapInv I m x) - (CanonicalMapInv I m y) = (CanonicalMapInv I m (x-y)) := by 
+  -- use the fact that canonical map is a bijection? maybe it is better to prove the canonical map and inverse are isomoprhism, so then we can use additive property here and elsewhere
+  simp [CanonicalMapInv]
+  sorry
 
 abbrev GradedRingPiece {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :=
   GradedPiece (CanonicalFiltration I) m
@@ -129,6 +152,10 @@ lemma GradedRingPiece_mk_out {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (
   rw [canonicalMapInv_comp_map]
   exact Quotient.out_eq x
 
+-- used in lemma below, probably can be more generalized. Mathematically simple.
+lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} (m:ℕ) (z : ↑(I^m)): (z:A) ∈ ↑(I^(m+1)) →  ↑(CanonicalMapInv I m z) ∈ I ^ (m+1) := by
+  sorry
+
 @[simp]
 lemma GradedRingPiece_mk_eq {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x y : ↑(I^m)) :
     x.1 - y.1 ∈ I^(m+1) → GradedRingPiece_mk x = GradedRingPiece_mk y := by 
@@ -136,13 +163,11 @@ lemma GradedRingPiece_mk_eq {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x
   apply Quotient.sound
   
   have h₁ : (CanonicalMapInv I m x - CanonicalMapInv I m y) ∈ Submodule.comap ((CanonicalFiltration I).N m).subtype ((CanonicalFiltration I).N (m + 1)):= by
-   
+    rw [canonicalMapInv_difference]
     simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top, Submodule.mem_comap,
       Submodule.subtype_apply, AddSubgroupClass.coe_sub]
-    
-    --simp [CanonicalMapInv, CanonicalMapInv]
-    -- basically just do some rewrites with h
-    sorry
+    exact (aux₁ (m) (x-y) h)
+
   apply Quotient.eq.mp
   refine Quotient.eq''.mpr ?_
   exact
@@ -183,8 +208,15 @@ lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : 
   unfold graded_mul
   apply GradedRingPiece_mk_eq
   rw [ideal_mul_eval, ideal_mul_eval]
+  -- idea: show left term can be written as GRP_out (GRP_mk * GRP_mk)
   sorry
 
+
+lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : GradedRingPiece I m) : (x = 0) → ↑(GradedRingPiece_out x) ∈ I ^ (m + 1) := by
+  intro h
+  rw[h]
+  -- tricky to work with GRP_out after unfolding.
+  sorry
 
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
@@ -192,7 +224,20 @@ lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : 
 -/
 noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
   mul := (graded_mul I)
-  mul_zero := sorry
+  mul_zero := by
+    intro m n a
+    simp [graded_mul]
+    nth_rw 2 [← GradedRingPiece_mk_out 0]
+    apply GradedRingPiece_mk_eq
+    rw [ideal_mul_eval]
+    have h₁ : ↑(GradedRingPiece_out (0: GradedRingPiece I (m + n))) ∈ I ^ (m + n + 1) := (GradedRingPiece_zero (0: GradedRingPiece I (m + n)) rfl)
+    
+    have h₂ : ↑(GradedRingPiece_out (0: GradedRingPiece I (n))) ∈ I ^ (n + 1) :=  (GradedRingPiece_zero (0: GradedRingPiece I (n)) rfl)
+    
+    have h₃ : ↑((GradedRingPiece_out (a : GradedRingPiece I m)) : A) * ↑((GradedRingPiece_out (0: GradedRingPiece I (n))) : A) ∈ I ^ (m + (n + 1)) := (SetLike.mul_mem_graded (GradedRingPiece_out a).prop h₂)
+
+    exact (Submodule.sub_mem_iff_left (I ^ (m + n + 1)) h₁).mpr h₃
+
   zero_mul := sorry
   mul_add := sorry
   add_mul := sorry

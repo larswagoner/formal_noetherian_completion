@@ -74,4 +74,4 @@ class IsReallyAdicComplete {A : Type u} [CommRing A] (I : Ideal A) (M: Type u) [
 instance {A : Type u} [CommRing A] (I : Ideal A) (M: Type u) [AddCommGroup M] [Module A M] [IsAdicComplete I M] : IsReallyAdicComplete I M where
   map_iso := adicCompletionBijective_ofIsAdicComplete I M
 
-instance {A : Type u} [CommRing A] {I : Ideal A}: IsAdicComplete (I.adicCompletion I) (AdicCompletion I A) := sorry
+instance {A : Type u} [CommRing A] {I : Ideal A}: IsAdicComplete (I.adicCompletion I) (AdicCompletion I A) :=  sorry
