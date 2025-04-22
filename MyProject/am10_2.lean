@@ -40,7 +40,7 @@ def InverseLimit (𝒜 : AddInverseSystem) : Type _ :=
 #check InverseLimit example_of_inverse_system
 
 #check DirectLimit
-
+/-
 instance d (𝒜 : AddInverseSystem) : AddCommMonoid (∀ n : ℕ, 𝒜.ι n) where
   add := by
     intro h k n
@@ -73,8 +73,8 @@ instance d (𝒜 : AddInverseSystem) : AddCommMonoid (∀ n : ℕ, 𝒜.ι n) wh
     have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
     simp
     abel
-
-
+-/
+/-
 instance d₂ (ι : ℕ → Type) [h : (i : ℕ) → AddCommGroup (ι i)] (𝒜 : (AddInverseSystem₂ ι ((i : ℕ) → AddCommGroup (ι i)))) : AddCommMonoid (∀ n : ℕ, 𝒜.ι n) where
   add := by
     intro h k n
@@ -106,6 +106,8 @@ instance d₂ (ι : ℕ → Type) [h : (i : ℕ) → AddCommGroup (ι i)] (𝒜 
     simp
     abel
 
+
+
 instance subgroup (𝒜 : AddInverseSystem) : AddSubgroup (∀ n : ℕ, 𝒜.ι n) where sorry
 
 instance M : LE ℕ where
@@ -121,6 +123,7 @@ instance N : Preorder ℕ where
   le_refl := by sorry
   le_trans := by sorry
 
+-/
 
 lemma am10_2_i : true := sorry
 lemma am10_2_ii : true := sorry
