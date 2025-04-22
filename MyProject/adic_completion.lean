@@ -84,4 +84,4 @@ lemma IsAdicComplete_iff_Bijective {A : Type u} [CommRing A] (I : Ideal A) (M: T
   · intro ⟨inj, surj⟩
     exact @IsAdicComplete.mk A _ I M _ _ ((IsHausdorff_iff_Injective I M).mpr inj) ((IsPrecomplete_of_Surjective I M) surj)
 
-instance {A : Type u} [CommRing A] {I : Ideal A}: IsAdicComplete (I.adicCompletion I) (AdicCompletion I A) := sorry
+instance {A : Type u} [CommRing A] {I : Ideal A}: IsAdicComplete (I.adicCompletion I) (AdicCompletion I A) :=  sorry
