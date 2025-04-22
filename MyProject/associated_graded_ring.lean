@@ -144,7 +144,7 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (Grad
 /-
   It follows that `G(A)` is a commutative ring.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) :=
+noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (AssociatedGradedRing I) :=
   DirectSum.commRing _
 
 /-
