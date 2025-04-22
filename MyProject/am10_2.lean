@@ -1,4 +1,3 @@
-import Mathlib
 import MyProject.am2_10
 
 /-
