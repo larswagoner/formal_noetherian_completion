@@ -167,10 +167,12 @@ lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (C
   unfold ideal_mul
   simp
 
+
 lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
     ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
   unfold ideal_mul
   simp
+
 
 
 /--
@@ -200,17 +202,6 @@ lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
   apply GradedRingPiece_eq_zero_iff.mpr rfl
 
-@[simp]
-lemma GradedRingPiece_add {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : (GradedRingPiece I (m + n)) = (GradedRingPiece I (n+m)) := by 
-  have : (m+n) = (n+m) := add_comm m n
-  rw[← this]
-
-def GradedRingPiece_add_map {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : (GradedRingPiece I (m + n)) → (GradedRingPiece I (n+m)) := by 
-  intro x
-  have : (m+n) = (n+m) := add_comm m n
-  rw[← this]
-  exact x
-
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
@@ -231,6 +222,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
+
   mul_add := sorry
   add_mul := sorry
   one := sorry
