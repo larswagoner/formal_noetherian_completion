@@ -167,6 +167,14 @@ lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (C
   unfold ideal_mul
   simp
 
+
+lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
+    ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
+  unfold ideal_mul
+  simp
+
+
+
 /--
   Defining multiplication on `G(A)`
         : (h : GradedPiece I m) component_map : GradedPiece I n → GradedPiece I n+m
@@ -207,7 +215,14 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-  zero_mul := sorry
+  zero_mul := by
+    intro m n b
+    calc graded_mul I 0 b = graded_mul I  0 ⟦b.out⟧  := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦0⟧ ⟦b.out⟧  := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
+
   mul_add := sorry
   add_mul := sorry
   one := sorry
@@ -223,7 +238,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   intCast := sorry
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
-  mul_comm := sorry
+  mul_comm :=  sorry
 
 
 /-
