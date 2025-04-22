@@ -231,18 +231,9 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-  mul_add := by 
-      intro m n a b c
-      calc 
-        graded_mul I a (b+c) = graded_mul I ⟦a.out⟧ ⟦(b+c).out⟧ := by rw [Quotient.out_eq, Quotient.out_eq]
-        _ = ⟦ideal_mul I m n a.out (b+c).out⟧ := by rw [graded_mul_of_mk]
-        _ = ⟦(ideal_mul I m n a.out b.out) + (ideal_mul I m n a.out c.out)⟧ := by sorry 
-        _ = Quotient.mk _ ((ideal_mul I m n a.out b.out) + (ideal_mul I m n a.out c.out)) := by sorry
-       -- _ = (Quotient.mk _ (ideal_mul I m n a.out b.out)) + (Quotient.mk _ (ideal_mul I m n a.out c.out)) := by sorry
-        _ = graded_mul I a b + graded_mul I a c := by sorry
-     
+  mul_add := sorry
   add_mul := sorry
-  one := by sorry
+  one := sorry
   one_mul := sorry
   mul_one := sorry
   mul_assoc := sorry
