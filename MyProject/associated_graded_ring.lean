@@ -167,6 +167,12 @@ lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (C
   unfold ideal_mul
   simp
 
+lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
+    ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
+  unfold ideal_mul
+  simp
+
+
 /--
   Defining multiplication on `G(A)`
         : (h : GradedPiece I m) component_map : GradedPiece I n → GradedPiece I n+m
@@ -194,6 +200,45 @@ lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
   apply GradedRingPiece_eq_zero_iff.mpr rfl
 
+@[simp]
+lemma GradedRingPiece_add {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : (GradedRingPiece I (m + n)) = (GradedRingPiece I (n+m)) := by 
+  have : (m+n) = (n+m) := add_comm m n
+  rw[← this]
+
+def GradedRingPiece_add_map {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : (GradedRingPiece I (m + n)) → (GradedRingPiece I (n+m)) := by 
+  intro x
+  have : (m+n) = (n+m) := add_comm m n
+  rw[← this]
+  exact x
+
+/-
+def GradedRingPiece_add_iso {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : 
+  (GradedRingPiece I (m + n)) ≃ₗ[A] (GradedRingPiece I (n + m)) :=
+   by
+  -- First establish the equality between m+n and n+m
+    apply LinearEquiv.cast GradedRingPiece_add
+    have h : m + n = n + m := add_comm m n
+    
+    -- Create the map using this equality
+    apply?
+    -- This uses the fact that if two types are equal, there's a canonical isomorphism between them
+    -- by transport/cast/coe
+    exact h ▸ (LinearEquiv.refl A (GradedRingPiece I (m + n)))
+
+    -/
+
+/-
+
+lemma ideal_mul_comm {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    ideal_mul I m n x y = GradedRingPiece_add_map (ideal_mul I n m y x):= sorry
+
+   
+
+lemma graded_mul_comm {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    graded_mul I ⟦x⟧ ⟦y⟧ = GradedRingPiece_add_map (graded_mul I ⟦y⟧ ⟦x⟧) := sorry
+
+   -/
+
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
@@ -207,8 +252,14 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-  zero_mul := sorry
-  mul_add := sorry
+  zero_mul := by
+    intro m n b
+    calc graded_mul I 0 b = graded_mul I  0 ⟦b.out⟧  := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦0⟧ ⟦b.out⟧  := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
+  mul_add := by sorry
   add_mul := sorry
   one := sorry
   one_mul := sorry
@@ -223,7 +274,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   intCast := sorry
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
-  mul_comm := sorry
+  mul_comm := by sorry
 
 
 /-
