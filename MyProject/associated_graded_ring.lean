@@ -84,46 +84,145 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommGroup (AssociatedGrade
 instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRing I) :=
   instModuleAssociatedGradedModule _
 
+namespace AssociatedGradedRing
 
-/-
+abbrev CanonicalFiltration {A : Type u} [CommRing A] (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
+
+lemma canonicalFiltration_eval {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
+    (CanonicalFiltration I).N m = I ^ m := by simp
+
+lemma mem_filtration_iff_mem_Im {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : A) :
+    x ∈ (CanonicalFiltration I).N m ↔ x ∈ I^m := by
+  constructor
+  · intro h
+    simp at h
+    exact h
+  · intro h
+    simp
+    exact h
+
+lemma canonicalFiltration_mul_deg {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
+    x * y ∈ (CanonicalFiltration I).N (m + n) := by
+  rw [mem_filtration_iff_mem_Im] at *
+  exact SetLike.GradedMul.mul_mem hx hy
+
+abbrev GradedRingPiece {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :=
+  GradedPiece (CanonicalFiltration I) m
+
+@[simp]
+lemma GradedRingPiece_mk_out {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : GradedRingPiece I m) :
+    ⟦x.out⟧ = x :=
+  Quotient.out_eq x
+
+@[simp]
+lemma GradedRingPiece_mk_eq_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} {x y : (CanonicalFiltration I).N m} :
+    x.1 - y.1 ∈ (CanonicalFiltration I).N (m+1) ↔ (⟦x⟧ : GradedRingPiece I m) = ⟦y⟧ := by
+  rw [Quotient.eq'']
+  rw [(Submodule.quotientRel_def
+            (Submodule.comap ((CanonicalFiltration I).N m).subtype
+              ((CanonicalFiltration I).N (m + 1))))]
+  simp
+
+@[simp]
+lemma GradedRingPiece_mk_zero {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} :
+    (⟦0⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := rfl
+
+lemma GradedRingPiece_mk_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
+    ↑x ∈ (CanonicalFiltration I).N (m+1) ↔ (⟦x⟧ : GradedRingPiece I m) = (0 : GradedRingPiece I m) := by
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+lemma GradedRingPiece_eq_zero_iff {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} {x : GradedRingPiece I m} :
+    ↑x.out ∈ (CanonicalFiltration I).N (m+1) ↔ x = (0 : GradedRingPiece I m) := by
+  rw [←Quotient.out_eq x]
+  rw [←GradedRingPiece_mk_zero]
+  rw [←GradedRingPiece_mk_eq_iff]
+  simp
+
+@[simp]
+lemma GradedRingPiece_out_mk_sub {A : Type u} [CommRing A] {I : Ideal A} {m : ℕ} (x : (CanonicalFiltration I).N m) :
+    ↑((⟦x⟧ : GradedRingPiece I m).out - x) ∈ (CanonicalFiltration I).N (m+1) := by
+  apply GradedRingPiece_mk_eq_iff.mpr
+  simp
+
+/--
+  Let `A` be a ring and `I` be an ideal. Then for `m n : ℕ` we obtain a multiplication map
+  `I^m → I^n → I^(m+n)`
+-/
+def ideal_mul {A : Type u} [CommRing A] (I : Ideal A) (m n : ℕ) :
+    ↑((CanonicalFiltration I).N m) →
+      ↑((CanonicalFiltration I).N n) →
+        ↑((CanonicalFiltration I).N (m + n)) :=
+  fun x y ↦ ⟨x.1 * y.1, canonicalFiltration_mul_deg x.2 y.2⟩
+
+lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
+    ↑(ideal_mul I m n ⟨x, hx⟩ ⟨y, hy⟩ : A) = ↑(x * y) := rfl
+
+lemma ideal_mul_eval₂ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    ↑(ideal_mul I m n x y : A) = (x : A) * ↑y := rfl
+
+lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N m) :
+    ideal_mul I m n x (0 : (CanonicalFiltration I).N n) = 0 := by
+  unfold ideal_mul
+  simp
+
+
+lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
+    ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
+  unfold ideal_mul
+  simp
+
+
+
+/--
   Defining multiplication on `G(A)`
         : (h : GradedPiece I m) component_map : GradedPiece I n → GradedPiece I n+m
 -/
-noncomputable def graded_mul  {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) m) → 
-    (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n) →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) (m+n)) := by  
-  intro x y 
-  let x_rep := Quotient.out x 
-  let y_rep := Quotient.out y 
+noncomputable def graded_mul {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} :
+    (GradedRingPiece I m) → (GradedRingPiece I n) → (GradedRingPiece I (m+n)) :=
+  fun x y ↦ ⟦ideal_mul I m n x.out y.out⟧
 
-  let z := (x_rep : A) * (y_rep : A)
+lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    graded_mul I ⟦x⟧ ⟦y⟧ = ⟦ideal_mul I m n x y⟧ := by
+  unfold graded_mul
+  apply GradedRingPiece_mk_eq_iff.mp
+  rw [ideal_mul_eval, ideal_mul_eval]
+  have : (↑(⟦x⟧ : GradedRingPiece I m).out : A) * ↑(⟦y⟧ : GradedRingPiece I n).out - ↑x * ↑y =
+      ((⟦x⟧ : GradedRingPiece I m).out - x) * (⟦y⟧ : GradedRingPiece I n).out + x * ((⟦y⟧ : GradedRingPiece I n).out - y) := by ring
+  rw [this]
+  apply Submodule.add_mem
+  · have := canonicalFiltration_mul_deg (GradedRingPiece_out_mk_sub x) (⟦y⟧ : GradedRingPiece I n).out.2
+    convert this using 2
+    ring
+  · have := canonicalFiltration_mul_deg x.2 (GradedRingPiece_out_mk_sub y)
+    exact this
 
-  have h₁ : z ∈ I ^ (m + n) := by 
-    have m_equiv : (I.stableFiltration ⊤).N m = I ^ m := by simp only [Ideal.stableFiltration_N,
-        smul_eq_mul, Ideal.mul_top]
-    have n_equiv : (I.stableFiltration ⊤).N n = I ^ n := by simp only [Ideal.stableFiltration_N,
-        smul_eq_mul, Ideal.mul_top]
-
-    apply SetLike.mul_mem_graded
-    · rw[← m_equiv]
-      exact x_rep.prop
-    · rw[← n_equiv]
-      exact y_rep.prop
-    
-  let hz : ↥(I ^ (m + n)) := ⟨z, h₁⟩  
-
-  apply Submodule.Quotient.mk
-  simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top]
-  
-  exact hz
+lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
+    ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
+  apply GradedRingPiece_eq_zero_iff.mpr rfl
 
 /--
-  The map `ℕ → Type` given by `GradedPiece (I.stableFiltration (⊤ : Submodule A A))` defines a
+  The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
 -/
-noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
+noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
   mul := (graded_mul I)
-  mul_zero := sorry
-  zero_mul := sorry
+  mul_zero := by
+    intro m n a
+    calc graded_mul I a 0 = graded_mul I ⟦a.out⟧ 0 := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦a.out⟧ ⟦0⟧ := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
+  zero_mul := by
+    intro m n b
+    calc graded_mul I 0 b = graded_mul I  0 ⟦b.out⟧  := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦0⟧ ⟦b.out⟧  := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
+
   mul_add := sorry
   add_mul := sorry
   one := sorry
@@ -139,7 +238,8 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : GCommRing (Grad
   intCast := sorry
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
-  mul_comm := sorry
+  mul_comm :=  sorry
+
 
 /-
   It follows that `G(A)` is a commutative ring.
@@ -151,6 +251,8 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (Assoc
   `G(A)` should be an `A`-algebra
 -/
 instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) := sorry
+
+end AssociatedGradedRing
 
 /-
   `Gₐ(M)` should be an `Gₐ(A)`-module
