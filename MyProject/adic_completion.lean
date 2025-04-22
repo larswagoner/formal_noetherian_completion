@@ -7,8 +7,11 @@ variable {A : Type*} [CommRing A] (I : Ideal A)
 -/
 def Ideal.adicCompletion (J : Ideal A): Ideal (AdicCompletion I A) := Ideal.map (algebraMap A (AdicCompletion I A)) J
 
+
+noncomputable def toFunAdicCompletion : AdicCompletion I ↥I → ↥(I.adicCompletion I) := sorry
+
 noncomputable def adicCompletionsAreSame : AdicCompletion I I ≃ₗ[AdicCompletion I A] I.adicCompletion I where
-  toFun := sorry
+  toFun := toFunAdicCompletion I
   map_add' := sorry
   map_smul' := sorry
   invFun := sorry
