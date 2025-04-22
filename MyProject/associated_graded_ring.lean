@@ -211,34 +211,6 @@ def GradedRingPiece_add_map {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} 
   rw[← this]
   exact x
 
-/-
-def GradedRingPiece_add_iso {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} : 
-  (GradedRingPiece I (m + n)) ≃ₗ[A] (GradedRingPiece I (n + m)) :=
-   by
-  -- First establish the equality between m+n and n+m
-    apply LinearEquiv.cast GradedRingPiece_add
-    have h : m + n = n + m := add_comm m n
-    
-    -- Create the map using this equality
-    apply?
-    -- This uses the fact that if two types are equal, there's a canonical isomorphism between them
-    -- by transport/cast/coe
-    exact h ▸ (LinearEquiv.refl A (GradedRingPiece I (m + n)))
-
-    -/
-
-/-
-
-lemma ideal_mul_comm {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    ideal_mul I m n x y = GradedRingPiece_add_map (ideal_mul I n m y x):= sorry
-
-   
-
-lemma graded_mul_comm {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    graded_mul I ⟦x⟧ ⟦y⟧ = GradedRingPiece_add_map (graded_mul I ⟦y⟧ ⟦x⟧) := sorry
-
-   -/
-
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
@@ -259,9 +231,18 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-  mul_add := by sorry
+  mul_add := by 
+      intro m n a b c
+      calc 
+        graded_mul I a (b+c) = graded_mul I ⟦a.out⟧ ⟦(b+c).out⟧ := by rw [Quotient.out_eq, Quotient.out_eq]
+        _ = ⟦ideal_mul I m n a.out (b+c).out⟧ := by rw [graded_mul_of_mk]
+        _ = ⟦(ideal_mul I m n a.out b.out) + (ideal_mul I m n a.out c.out)⟧ := by sorry 
+        _ = Quotient.mk _ ((ideal_mul I m n a.out b.out) + (ideal_mul I m n a.out c.out)) := by sorry
+       -- _ = (Quotient.mk _ (ideal_mul I m n a.out b.out)) + (Quotient.mk _ (ideal_mul I m n a.out c.out)) := by sorry
+        _ = graded_mul I a b + graded_mul I a c := by sorry
+     
   add_mul := sorry
-  one := sorry
+  one := by sorry
   one_mul := sorry
   mul_one := sorry
   mul_assoc := sorry
@@ -274,7 +255,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   intCast := sorry
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
-  mul_comm := by sorry
+  mul_comm :=  sorry
 
 
 /-
