@@ -250,7 +250,11 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (Assoc
 /-
   `G(A)` should be an `A`-algebra
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) := sorry
+instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) where
+  smul a x := a • x
+  algebraMap := sorry -- keep in mind this needs to be a ring hom! i.e. a map that is also a morphism!!
+  commutes' := sorry
+  smul_def' := sorry
 
 end AssociatedGradedRing
 
@@ -259,7 +263,14 @@ end AssociatedGradedRing
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
-    Module (AssociatedGradedRing I) (AssociatedGradedModule F) := sorry
+    Module (AssociatedGradedRing I) (AssociatedGradedModule F) where
+      smul := sorry
+      one_smul := sorry
+      mul_smul := sorry
+      smul_zero := sorry
+      smul_add := sorry
+      add_smul := sorry
+      zero_smul := sorry
 
 
 

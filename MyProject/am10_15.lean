@@ -37,7 +37,7 @@ noncomputable def am10_15_i_option_1 :
 
 
 
-noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion I A] TensorProduct A (AdicCompletion I A) I := by sorry
+noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion I A] TensorProduct A (AdicCompletion I A) I := sorry
 
 
 
