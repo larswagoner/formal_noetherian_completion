@@ -167,11 +167,16 @@ lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (C
   unfold ideal_mul
   simp
 
-
 lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
     ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
   unfold ideal_mul
   simp
+
+lemma ideal_mul_comm_coe {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    (↑(ideal_mul I m n x y) : A) = (↑(ideal_mul I n m y x) : A) := by
+  rw [ideal_mul_eval]
+  rw [ideal_mul_eval]
+  apply mul_comm
 
 
 
@@ -201,6 +206,17 @@ lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : 
 lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
   apply GradedRingPiece_eq_zero_iff.mpr rfl
+
+/--
+  Let `F : ℕ → Submodule A A` denote the Canonical Filtration given by `F m = I^m`.
+  If `x ∈ F m` and `y ∈ F n` such that `m = n` and `↑x = ↑y : A`, then `⟦x⟧ : GradedRingPiece I m` and `⟦y⟧ : GradedRingPiece I n` are heterogenously equal.
+-/
+lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x : (CanonicalFiltration I).N m} {y : (CanonicalFiltration I).N n} (hxy : (↑x : A) = (↑y : A)) (h : m = n):
+    HEq (⟦x⟧ : GradedRingPiece I m) (⟦y⟧ : GradedRingPiece I n) := by
+  subst h
+  have : x = y := SetLike.coe_eq_coe.mp hxy
+  subst this
+  exact HEq.refl ⟦x⟧
 
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
@@ -238,9 +254,16 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   intCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
-  mul_comm :=  sorry
-
-
+  mul_comm := by
+    rintro ⟨m, x⟩ ⟨n, y⟩
+    apply Sigma.ext
+    · show (m + n) = (n + m)
+      exact add_comm m n
+    · simp
+      unfold graded_mul
+      apply aux₁
+      · exact ideal_mul_comm_coe _ _
+      · exact add_comm _ _
 /-
   It follows that `G(A)` is a commutative ring.
 -/
