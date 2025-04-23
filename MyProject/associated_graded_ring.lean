@@ -241,17 +241,17 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
 
   mul_add := sorry
   add_mul := sorry
-  one := sorry
+  one := ⟦(⟨1, by simp⟩)⟧ 
   one_mul := sorry
   mul_one := sorry
   mul_assoc := sorry
   gnpow := sorry
   gnpow_zero' := sorry
   gnpow_succ' := sorry
-  natCast := sorry
+  natCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
   natCast_zero := sorry
   natCast_succ := sorry
-  intCast := sorry
+  intCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
   mul_comm := by
@@ -273,7 +273,40 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (Assoc
 /-
   `G(A)` should be an `A`-algebra
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) := sorry
+
+
+def algebraMap_fn₁ {A : Type u} [CommRing A] (I : Ideal A) : A →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) := fun a => ⟦(⟨a, by simp⟩)⟧
+
+
+def algebraMap_fn₁_morphism {A : Type u} [CommRing A] (I : Ideal A) : A →+*(GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) where
+  toFun := algebraMap_fn₁ I
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+
+def algebraMap_fn₂ {A : Type u} [CommRing A] (I : Ideal A) :
+    (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) → AssociatedGradedRing I := fun a
+ => (DirectSum.of _ 0 a )
+
+
+def algebraMap_fn₂_morphism {A : Type u} [CommRing A] (I : Ideal A) : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) →+* AssociatedGradedRing I where
+  toFun := algebraMap_fn₂ I
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+
+
+def AssociatedGradedRing_algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A →+* AssociatedGradedRing I := (algebraMap_fn₂_morphism I).comp (algebraMap_fn₁_morphism I)
+
+
+
+instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) where
+  smul a x := a • x
+  algebraMap := AssociatedGradedRing_algebraMap I 
+  commutes' := sorry
+  smul_def' := sorry
 
 end AssociatedGradedRing
 
@@ -281,8 +314,15 @@ end AssociatedGradedRing
   `Gₐ(M)` should be an `Gₐ(A)`-module
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
-  [AddCommGroup M] [Module A M] (F : I.Filtration M) :
-    Module (AssociatedGradedRing I) (AssociatedGradedModule F) := sorry
+    [AddCommGroup M] [Module A M] (F : I.Filtration M) :
+    Module (AssociatedGradedRing I) (AssociatedGradedModule F) where
+  smul := sorry
+  one_smul := sorry
+  mul_smul := sorry
+  smul_zero := sorry
+  smul_add := sorry
+  add_smul := sorry
+  zero_smul := sorry
 
 
 

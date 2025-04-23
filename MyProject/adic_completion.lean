@@ -7,6 +7,17 @@ variable {A : Type*} [CommRing A] (I : Ideal A)
 -/
 def Ideal.adicCompletion (J : Ideal A): Ideal (AdicCompletion I A) := Ideal.map (algebraMap A (AdicCompletion I A)) J
 
+
+noncomputable def toFunAdicCompletion : AdicCompletion I ↥I → ↥(I.adicCompletion I) := sorry
+
+noncomputable def adicCompletionsAreSame : AdicCompletion I I ≃ₗ[AdicCompletion I A] I.adicCompletion I where
+  toFun := toFunAdicCompletion I
+  map_add' := sorry
+  map_smul' := sorry
+  invFun := sorry
+  left_inv := sorry
+  right_inv := sorry
+
 /--
   Let `M` be an `A`-module and `I ⊆ A` an ideal. Then the natural map `M → AdicComplation I M` is
   injective if and only iff `M` is Hausdorff w.r.t `I`.
