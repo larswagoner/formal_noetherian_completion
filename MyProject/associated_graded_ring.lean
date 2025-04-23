@@ -45,6 +45,10 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [
   infer_instance
 
 
+instance {A : Type u} [CommRing A]  (I : Ideal A)  (i n : ℕ):
+    Module A (GradedPiece  (I.stableFiltration (⊤ : Submodule A A)) (n*i)) := inferInstance
+
+
 /--
   The associated graded module is defined by `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`.
 -/
@@ -65,6 +69,8 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
     [Module A M] (F : I.Filtration M) : Module A (AssociatedGradedModule F) := by
   unfold AssociatedGradedModule
   infer_instance
+
+
 
 /--
   The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
@@ -222,6 +228,16 @@ lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x : (Canonical
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
 -/
+
+
+def gnpow {A : Type*} [CommRing A] [CommRing A] (I : Ideal A) (n i : ℕ) (x : GradedPiece (I.stableFiltration (⊤ : Submodule A A)) i) :
+  GradedPiece (I.stableFiltration (⊤ : Submodule A A)) (n * i) :=
+  match n with 
+  | 0 => ⟦(⟨1, by simp⟩)⟧ 
+  | 1 => have h :  i = 1 *i := by simp
+    cast (congr_arg (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) h) x
+  | n+1 =>  sorry --graded_mul I x (gnpow n (n*i) x )
+
 noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
   mul := (graded_mul I)
   mul_zero := by
@@ -245,7 +261,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   one_mul := sorry
   mul_one := sorry
   mul_assoc := sorry
-  gnpow := sorry
+  gnpow := gnpow I 
   gnpow_zero' := sorry
   gnpow_succ' := sorry
   natCast := fun n => ⟦(⟨n, by simp⟩)⟧ 
