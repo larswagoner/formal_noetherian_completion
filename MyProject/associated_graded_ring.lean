@@ -178,7 +178,17 @@ lemma ideal_mul_comm_coe {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x 
   rw [ideal_mul_eval]
   apply mul_comm
 
+abbrev one_cf {A : Type u} [CommRing A] {I : Ideal A} : (CanonicalFiltration I).N 0 := ⟨(1 : A), by simp⟩
 
+lemma ideal_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    ideal_mul I 0 n one_cf x = ⟨↑x, by rw [zero_add]; exact x.2⟩ := by
+  unfold ideal_mul
+  simp
+
+lemma ideal_mul_one {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    ideal_mul I n 0 x one_cf = x := by
+  unfold ideal_mul
+  simp
 
 /--
   Defining multiplication on `G(A)`
@@ -207,6 +217,15 @@ lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
     ↑(0 : GradedRingPiece I m).out ∈ (CanonicalFiltration I).N (m+1) := by
   apply GradedRingPiece_eq_zero_iff.mpr rfl
 
+abbrev one_gp {A : Type u} [CommRing A] {I : Ideal A} : GradedRingPiece I 0 := ⟦one_cf⟧
+
+lemma graded_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    graded_mul I one_gp (⟦x⟧ : GradedRingPiece I n) =
+      (⟦(⟨(↑x : A), by rw [zero_add]; exact x.2⟩ : (CanonicalFiltration I).N (0 + n))⟧ : GradedRingPiece I (0 + n)) := by
+  rw [graded_mul_of_mk]
+  rw [ideal_one_mul]
+
+
 /--
   Let `F : ℕ → Submodule A A` denote the Canonical Filtration given by `F m = I^m`.
   If `x ∈ F m` and `y ∈ F n` such that `m = n` and `↑x = ↑y : A`, then `⟦x⟧ : GradedRingPiece I m` and `⟦y⟧ : GradedRingPiece I n` are heterogenously equal.
@@ -222,7 +241,7 @@ lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x : (Canonical
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
 -/
-noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (GradedPiece (I.stableFiltration (⊤ : Submodule A A))) where
+noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (GradedRingPiece I) where
   mul := (graded_mul I)
   mul_zero := by
     intro m n a
@@ -238,12 +257,30 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-
   mul_add := sorry
   add_mul := sorry
-  one := ⟦(⟨1, by simp⟩)⟧ 
-  one_mul := sorry
-  mul_one := sorry
+  one := one_gp
+  one_mul := by
+    intro ⟨n, a⟩
+    apply Sigma.ext
+    · simp
+    simp
+    rw [←Quotient.out_eq a]
+    rw [graded_one_mul a.out]
+    apply aux₁
+    simp
+    exact zero_add n
+  mul_one := by
+    intro ⟨n, a⟩
+    apply Sigma.ext
+    · rfl
+    simp
+    calc
+      graded_mul I a one_gp = graded_mul I ⟦a.out⟧ one_gp := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦a.out⟧ ⟦one_cf⟧ := rfl
+        _ = ⟦ideal_mul I n 0 a.out one_cf⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦a.out⟧ : GradedRingPiece I (n + 0)) := by rw [ideal_mul_one]
+        _ = (a : GradedRingPiece I n) := by rw [Quotient.out_eq]
   mul_assoc := sorry
   gnpow := sorry
   gnpow_zero' := sorry
@@ -304,7 +341,7 @@ def AssociatedGradedRing_algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A 
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) where
   smul a x := a • x
-  algebraMap := AssociatedGradedRing_algebraMap I 
+  algebraMap := AssociatedGradedRing_algebraMap I
   commutes' := sorry
   smul_def' := sorry
 
