@@ -268,7 +268,7 @@ def algebraMap_fn₂ {A : Type u} [CommRing A] (I : Ideal A) :
 
 
 def algebraMap_fn₂_morphism {A : Type u} [CommRing A] (I : Ideal A) : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) →+* AssociatedGradedRing I where
-  toFun :=algebraMap_fn₂ I
+  toFun := algebraMap_fn₂ I
   map_one' := sorry
   map_mul' := sorry
   map_zero' := sorry
@@ -281,7 +281,7 @@ def AssociatedGradedRing_algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A 
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) where
   smul a x := a • x
-  algebraMap := AssociatedGradedRing_algebraMap I -- keep in mind this needs to be a ring hom! i.e. a map that is also a morphism!!
+  algebraMap := AssociatedGradedRing_algebraMap I 
   commutes' := sorry
   smul_def' := sorry
 
