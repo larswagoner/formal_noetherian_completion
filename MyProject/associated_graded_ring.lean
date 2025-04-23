@@ -251,24 +251,31 @@ noncomputable instance {A : Type u} [CommRing A] (I : Ideal A) : CommRing (Assoc
   `G(A)` should be an `A`-algebra
 -/
 
--- Outline: 
---    1. define A-algebra map A → GradedPiece I... 0. 
---    2. Then define A-algebra map GradedPiece I... 0 → AGR I
---    3. Compose them, giving algebraMap with desired properties
 
-def algebraMap_fn₁ {A : Type u} [CommRing A] (I : Ideal A) : A →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) := sorry
+def algebraMap_fn₁ {A : Type u} [CommRing A] (I : Ideal A) : A →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) := fun a => ⟦(⟨a, by simp⟩)⟧
 
-def algebraMap_fn₁_morphism {A : Type u} [CommRing A] (I : Ideal A) : A →+*(GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) := sorry
+
+def algebraMap_fn₁_morphism {A : Type u} [CommRing A] (I : Ideal A) : A →+*(GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) where
+  toFun := algebraMap_fn₁ I
+  map_one' := by
+    -- simp [algebraMap_fn₁]
+    --rw [Ideal.Quotient.mk_eq_mk] -- problem with this is lean doesnt recognize GradedPiece as a quotient.
+    sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
 
 def algebraMap_fn₂ {A : Type u} [CommRing A] (I : Ideal A) :
     (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) → AssociatedGradedRing I := fun a
  => (DirectSum.of _ 0 a )
 
 
-def algebraMap_fn₂_morphism {A : Type u} [CommRing A] (I : Ideal A) : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) →+* AssociatedGradedRing I := by
-
-  sorry
-
+def algebraMap_fn₂_morphism {A : Type u} [CommRing A] (I : Ideal A) : (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) →+* AssociatedGradedRing I where
+  toFun :=algebraMap_fn₂ I
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
 
 
 def algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A →+* AssociatedGradedRing I := (algebraMap_fn₂_morphism I).comp (algebraMap_fn₁_morphism I)
