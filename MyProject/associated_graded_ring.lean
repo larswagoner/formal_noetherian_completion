@@ -257,10 +257,7 @@ def algebraMap_fn₁ {A : Type u} [CommRing A] (I : Ideal A) : A →  (GradedPie
 
 def algebraMap_fn₁_morphism {A : Type u} [CommRing A] (I : Ideal A) : A →+*(GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) where
   toFun := algebraMap_fn₁ I
-  map_one' := by
-    -- simp [algebraMap_fn₁]
-    --rw [Ideal.Quotient.mk_eq_mk] -- problem with this is lean doesnt recognize GradedPiece as a quotient.
-    sorry
+  map_one' := sorry
   map_mul' := sorry
   map_zero' := sorry
   map_add' := sorry
@@ -278,14 +275,13 @@ def algebraMap_fn₂_morphism {A : Type u} [CommRing A] (I : Ideal A) : (GradedP
   map_add' := sorry
 
 
-def algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A →+* AssociatedGradedRing I := (algebraMap_fn₂_morphism I).comp (algebraMap_fn₁_morphism I)
-
+def AssociatedGradedRing_algebraMap {A : Type u} [CommRing A] (I : Ideal A) : A →+* AssociatedGradedRing I := (algebraMap_fn₂_morphism I).comp (algebraMap_fn₁_morphism I)
 
 
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : Algebra A (AssociatedGradedRing I) where
   smul a x := a • x
-  algebraMap := algebraMap I -- keep in mind this needs to be a ring hom! i.e. a map that is also a morphism!!
+  algebraMap := AssociatedGradedRing_algebraMap I -- keep in mind this needs to be a ring hom! i.e. a map that is also a morphism!!
   commutes' := sorry
   smul_def' := sorry
 
@@ -295,15 +291,15 @@ end AssociatedGradedRing
   `Gₐ(M)` should be an `Gₐ(A)`-module
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
-  [AddCommGroup M] [Module A M] (F : I.Filtration M) :
+    [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Module (AssociatedGradedRing I) (AssociatedGradedModule F) where
-      smul := sorry
-      one_smul := sorry
-      mul_smul := sorry
-      smul_zero := sorry
-      smul_add := sorry
-      add_smul := sorry
-      zero_smul := sorry
+  smul := sorry
+  one_smul := sorry
+  mul_smul := sorry
+  smul_zero := sorry
+  smul_add := sorry
+  add_smul := sorry
+  zero_smul := sorry
 
 
 
