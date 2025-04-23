@@ -167,11 +167,18 @@ lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (C
   unfold ideal_mul
   simp
 
+lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
+    ideal_mul I m n  (0 : (CanonicalFiltration I).N m) x = 0 := by
+  unfold ideal_mul
+  simp
+
 lemma ideal_mul_comm_coe {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
     (↑(ideal_mul I m n x y) : A) = (↑(ideal_mul I n m y x) : A) := by
   rw [ideal_mul_eval]
   rw [ideal_mul_eval]
   apply mul_comm
+
+
 
 /--
   Defining multiplication on `G(A)`
@@ -224,7 +231,14 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
         _ = ⟦ideal_mul I m n a.out 0⟧ := by rw [graded_mul_of_mk]
         _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_mul_zero]
         _ = (0 : GradedRingPiece I (m + n)) := rfl
-  zero_mul := sorry
+  zero_mul := by
+    intro m n b
+    calc graded_mul I 0 b = graded_mul I  0 ⟦b.out⟧  := by rw [Quotient.out_eq]
+        _ = graded_mul I ⟦0⟧ ⟦b.out⟧  := by rw [←GradedRingPiece_mk_zero]
+        _ = ⟦ideal_mul I m n 0 b.out⟧ := by rw [graded_mul_of_mk]
+        _ = (⟦0⟧ : GradedRingPiece I (m + n)) := by rw [ideal_zero_mul]
+        _ = (0 : GradedRingPiece I (m + n)) := rfl
+
   mul_add := sorry
   add_mul := sorry
   one := sorry
