@@ -248,10 +248,10 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   gnpow := sorry
   gnpow_zero' := sorry
   gnpow_succ' := sorry
-  natCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
+  natCast := fun n => ⟦(⟨n, by simp⟩)⟧ 
   natCast_zero := sorry
   natCast_succ := sorry
-  intCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
+  intCast := fun n => ⟦(⟨n, by simp⟩)⟧ -- should reference one above
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
   mul_comm := by
@@ -342,7 +342,3 @@ def AssociatedGradedRing_degMap {A : Type u} [CommRing A] (I : Ideal A) :
     ℕ → Submodule A (AssociatedGradedRing I) :=
   AssociatedGradedModule_degMap (I.stableFiltration (⊤ : Submodule A A))
 
-/-
-  `Gₐ(M)` should be a graded `Gₐ(A)`-module
--/
--- instance : ??? := sorry
