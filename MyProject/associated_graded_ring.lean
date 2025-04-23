@@ -225,7 +225,7 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
 
   mul_add := sorry
   add_mul := sorry
-  one := sorry
+  one := ⟦(⟨1, by simp⟩)⟧ 
   one_mul := sorry
   mul_one := sorry
   mul_assoc := sorry
