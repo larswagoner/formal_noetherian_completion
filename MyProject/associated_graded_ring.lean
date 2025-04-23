@@ -232,10 +232,10 @@ noncomputable instance {A : Type u} [hA: CommRing A] (I : Ideal A) : GCommRing (
   gnpow := sorry
   gnpow_zero' := sorry
   gnpow_succ' := sorry
-  natCast := sorry
+  natCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
   natCast_zero := sorry
   natCast_succ := sorry
-  intCast := sorry
+  intCast := fun n => ⟦((⟨n, by simp⟩) * (⟨1, by simp⟩))⟧ -- should reference one above
   intCast_ofNat := sorry
   intCast_negSucc_ofNat := sorry
   mul_comm :=  sorry
