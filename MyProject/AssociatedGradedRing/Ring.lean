@@ -75,15 +75,14 @@ lemma ideal_mul_one {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (Cano
 
 noncomputable def graded_mul {A : Type u} [CommRing A] (I : Ideal A) {m n :ℕ} :
     (GradedRingPiece I m) → (GradedRingPiece I n) → (GradedRingPiece I (m+n)) :=
-  fun x y ↦ ⟦ideal_mul I m n x.out y.out⟧
+  fun x y ↦ ⟦ideal_mul I m n x.out y.out⟧ₘ
 
 lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    graded_mul I ⟦x⟧ ⟦y⟧ = ⟦ideal_mul I m n x y⟧ := by
+    graded_mul I ⟦x⟧ₘ ⟦y⟧ₘ = ⟦ideal_mul I m n x y⟧ₘ := by
   unfold graded_mul
   apply GradedPiece_mk_eq_iff.mp
   rw [ideal_mul_eval, ideal_mul_eval]
-  have : (↑(⟦x⟧ : GradedRingPiece I m).out : A) * ↑(⟦y⟧ : GradedRingPiece I n).out - ↑x * ↑y =
-      ((⟦x⟧ : GradedRingPiece I m).out - x) * (⟦y⟧ : GradedRingPiece I n).out + x * ((⟦y⟧ : GradedRingPiece I n).out - y) := by ring
+  have : (⟦x⟧ₘ.out : A) * ⟦y⟧ₘ.out - x * y = (⟦x⟧ₘ.out - x) * ⟦y⟧ₘ.out + x * (⟦y⟧ₘ.out - y) := by ring
   rw [this]
   apply Submodule.add_mem
   · have := canonicalFiltration_mul_deg (GradedPiece_out_mk_sub x) (⟦y⟧ : GradedRingPiece I n).out.2
@@ -100,7 +99,7 @@ abbrev one_gp {A : Type u} [CommRing A] {I : Ideal A} : GradedRingPiece I 0 := �
 
 lemma graded_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
     graded_mul I one_gp ⟦x⟧ₘ =
-      (⟦(⟨(↑x : A), by rw [zero_add]; exact x.2⟩ : (CanonicalFiltration I).N (0 + n))⟧ : GradedRingPiece I (0 + n)) := by
+      ⟦(⟨(↑x : A), by rw [zero_add]; exact x.2⟩ : (CanonicalFiltration I).N (0 + n))⟧ₘ := by
   rw [graded_mul_of_mk]
   rw [ideal_one_mul]
 
