@@ -1,10 +1,11 @@
 import MyProject.AssociatedGradedRing.Ring
 
-/--
+/-
   # Associated Graded Module
   In this file, we prove that the associated graded module `G(M)` of an
   `A`-module `M` is a `G(A)`-module.
 -/
+
 def algebraMap_fn₁ {A : Type u} [CommRing A] (I : Ideal A) : A →  (GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) := fun a => ⟦(⟨a, by simp⟩)⟧
 
 def algebraMap_fn₁_morphism {A : Type u} [CommRing A] (I : Ideal A) : A →+*(GradedPiece (I.stableFiltration (⊤ : Submodule A A)) 0) where

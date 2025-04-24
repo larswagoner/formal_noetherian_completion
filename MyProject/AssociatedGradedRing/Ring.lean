@@ -45,9 +45,6 @@ def ideal_mul {A : Type u} [CommRing A] (I : Ideal A) (m n : ℕ) :
 lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
     ↑(ideal_mul I m n ⟨x, hx⟩ ⟨y, hy⟩ : A) = ↑(x * y) := rfl
 
-lemma ideal_mul_eval₂ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    ↑(ideal_mul I m n x y : A) = (x : A) * ↑y := rfl
-
 lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N m) :
     ideal_mul I m n x (0 : (CanonicalFiltration I).N n) = 0 := by
   unfold ideal_mul

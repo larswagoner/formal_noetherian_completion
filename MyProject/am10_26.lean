@@ -12,14 +12,5 @@ theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : 
   apply am10_25 (I.adicCompletion I) ((I.adicCompletion I).stableFiltration (⊤ : Submodule (AdicCompletion I A) (AdicCompletion I A)))
   · apply IsHausdorff.iInf_pow_smul
     apply IsAdicComplete.toIsHausdorff
-  · -- unfold AssociatedGradedRing
-    have h := (@isNoetherianRing_iff (AssociatedGradedRing (I.adicCompletion I))).mp
-    -- unfold AssociatedGradedRing at h
-
-    have h₁ : IsNoetherianRing (AssociatedGradedRing (I.adicCompletion I)) := by
-      apply isNoetherianRing_of_ringEquiv (AssociatedGradedRing I)
-      apply am10_22_ii
-    -- exact h₁
-
-    have := h h₁
-    sorry
+  · apply isNoetherianRing_of_ringEquiv (AssociatedGradedRing I)
+    apply am10_22_ii
