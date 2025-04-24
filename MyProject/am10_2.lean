@@ -1,4 +1,3 @@
-import Mathlib
 import MyProject.am2_10
 
 /-
@@ -18,7 +17,6 @@ class AddInverseSystem where
 class AddInverseSystem₂ (ι : ℕ → Type) [(i : ℕ) → AddCommGroup (ι i)] where
   transition_morphisms : ∀ i, (ι (i+1)) →+ (ι i)
 
-
 instance alwaysZ : (ℕ → Type) := (fun _ ↦ ℤ)
 
 instance example_of_inverse_system : AddInverseSystem where
@@ -36,90 +34,35 @@ instance example_of_inverse_system : AddInverseSystem where
 def InverseLimit (𝒜 : AddInverseSystem) : Type _ :=
   { f : (∀(n : ℕ), (𝒜.ι n)) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
 
-#check example_of_inverse_system
-#check InverseLimit example_of_inverse_system
 
-#check DirectLimit
-
-instance d (𝒜 : AddInverseSystem) : AddCommMonoid (∀ n : ℕ, 𝒜.ι n) where
-  add := by
-    intro h k n
-    have _ : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    apply (h n) + (k n)
-  add_assoc := by
-    intro a b c
-    ext n
-    simp
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    abel
-  zero := by
+instance (𝒜 : AddInverseSystem) : AddCommGroup (∀ n : ℕ, 𝒜.ι n) := by
+  have h : ∀ n, AddCommGroup (𝒜.ι n) := by
     intro n
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    apply x.zero
-  zero_add := by
-    intro a
-    ext n
-    simp
-    apply (𝒜.entry_is_group n).zero_add
-  add_zero := by
-    intro a
-    ext n
-    simp
-    apply (𝒜.entry_is_group n).add_zero
-  nsmul := by sorry
-  add_comm := by
-    intro a b
-    ext n
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    simp
-    abel
+    apply 𝒜.entry_is_group n
+  apply inferInstanceAs (AddCommGroup (Π n : ℕ, 𝒜.ι n))
 
+variable (𝒜 : AddInverseSystem)
 
-instance d₂ (ι : ℕ → Type) [h : (i : ℕ) → AddCommGroup (ι i)] (𝒜 : (AddInverseSystem₂ ι ((i : ℕ) → AddCommGroup (ι i)))) : AddCommMonoid (∀ n : ℕ, 𝒜.ι n) where
-  add := by
-    intro h k n
-    have _ : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    apply (h n) + (k n)
-  add_assoc := by
-    intro a b c
-    ext n
+instance (X : InverseLimit 𝒜) : AddSubgroup (∀ n : ℕ, 𝒜.ι n) where
+  carrier := {f : (∀ n : ℕ, 𝒜.ι n) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
+  add_mem' := by
+    rintro a b ha hb n
     simp
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    abel
-  zero := by
+    rw [ha, hb]
+  zero_mem' := by
     intro n
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    apply x.zero
-  zero_add := by
-    intro a
-    ext n
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
     simp
-    -- help
+  neg_mem' := by
+    intro a ha n
+    have h₀ : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
+    have h₁ : AddCommGroup (𝒜.ι (n+1)) := 𝒜.entry_is_group (n+1)
+    have h : 𝒜.ι (n+1) →+ 𝒜.ι n := 𝒜.transition_morphisms n
+    rw [Pi.neg_apply, Pi.neg_apply]
+    nth_rewrite 2 [<- ha]
+    simp
+    rw [map_neg]
     sorry
-  add_zero := by sorry
-  nsmul := sorry --nsmulRec
-  add_comm := by
-    intro a b
-    ext n
-    have x : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    simp
-    abel
 
-instance subgroup (𝒜 : AddInverseSystem) : AddSubgroup (∀ n : ℕ, 𝒜.ι n) where sorry
-
-instance M : LE ℕ where
-  le := fun x y ↦ y ≤ x
-
-instance K : LT ℕ where
-  lt := fun x y ↦ y < x
-
-instance N : Preorder ℕ where
-  le := fun x y ↦ y ≤ x
-  lt := fun x y ↦ y < x
-  lit_iff_le_not_le := by sorry
-  le_refl := by sorry
-  le_trans := by sorry
 
 
 lemma am10_2_i : true := sorry
