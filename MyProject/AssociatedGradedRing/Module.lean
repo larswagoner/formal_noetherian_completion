@@ -76,7 +76,6 @@ lemma graded_one_smul {n : ℕ} (x : F.N n) :
   rw [graded_smul_of_mk]
   rw [filtration_one_smul]
 
-
 noncomputable instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
   [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     GradedMonoid.GSMul (GradedRingPiece I) (GradedPiece F) where
@@ -107,3 +106,8 @@ noncomputable instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u}
     [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Module (AssociatedGradedRing I) (AssociatedGradedModule F) :=
   DirectSum.Gmodule.module (GradedRingPiece I) (GradedPiece F)
+
+lemma AssociatedGradedModule.of_smul_of {F : I.Filtration M} {m n : ℕ} (s : GradedRingPiece I m) (x : GradedPiece F n) :
+  (AssociatedGradedRing.of s) • (AssociatedGradedModule.of x) =
+    (AssociatedGradedModule.of (graded_smul F s x)) :=
+  DirectSum.Gmodule.of_smul_of _ _ _ _

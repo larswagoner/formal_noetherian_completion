@@ -92,12 +92,29 @@ lemma GradedPiece_mk_neg (x : F.N m) :
 def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) :
     Type u := ⨁ n : ℕ, GradedPiece F n
 
+def AssociatedGradedModule.of {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {n : ℕ} (x : GradedPiece F n) :
+  AssociatedGradedModule F := DirectSum.of (GradedPiece F) n x
+
 /--
   `G(M)` is an abelian group.
 -/
 instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
     [Module A M] (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) :=
   inferInstanceAs (AddCommGroup (Π₀ n : ℕ, GradedPiece F n))
+
+/--
+  An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
+-/
+instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
+    [Module A M] (F : I.Filtration M) : DFunLike (AssociatedGradedModule F) _ fun n : ℕ => GradedPiece F n :=
+  inferInstanceAs (DFunLike (Π₀ n, GradedPiece F n) _ _)
+
+/--
+  An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
+-/
+instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
+    [Module A M] (F : I.Filtration M) : CoeFun (AssociatedGradedModule F) fun _ => ∀ n : ℕ, GradedPiece F n :=
+  inferInstanceAs (CoeFun (Π₀ n, GradedPiece F n) fun _ => ∀ n : ℕ, GradedPiece F n)
 
 /--
   `G(M)` is an `A`-module.
@@ -113,11 +130,25 @@ instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
 def AssociatedGradedRing {A : Type u} [CommRing A] (I : Ideal A) : Type u :=
   AssociatedGradedModule (I.stableFiltration (⊤ : Submodule A A))
 
+def AssociatedGradedRing.of {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n) :
+  AssociatedGradedRing I := DirectSum.of _ n x
+
 /--
   `G(A)` is an abelian group.
 -/
 instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommGroup (AssociatedGradedRing I) :=
   instAddCommGroupAssociatedGradedModule _
+
+/--
+  An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
+-/
+instance {A : Type u} [CommRing A] (I : Ideal A) :
+    DFunLike (AssociatedGradedRing I) _ fun n : ℕ => GradedPiece (I.stableFiltration (⊤ : Submodule A A)) n :=
+  instDFunLikeAssociatedGradedModuleNatGradedPiece (I.stableFiltration (⊤ : Submodule A A))
+
+instance {A : Type u} [CommRing A] (I : Ideal A) :
+    CoeFun (AssociatedGradedRing I) fun _ => ∀ n : ℕ, GradedPiece  (I.stableFiltration (⊤ : Submodule A A)) n :=
+  instCoeFunAssociatedGradedModuleForallGradedPiece (I.stableFiltration (⊤ : Submodule A A))
 
 /--
   `G(A)` is an `A`-module.

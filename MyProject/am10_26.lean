@@ -9,7 +9,7 @@ import MyProject.am10_25
 
 theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AdicCompletion I A) := by
-  apply am10_25 (I.adicCompletion I) ((I.adicCompletion I).stableFiltration (⊤ : Submodule (AdicCompletion I A) (AdicCompletion I A)))
+  apply am10_25 ((I.adicCompletion I).stableFiltration (⊤ : Submodule (AdicCompletion I A) (AdicCompletion I A)))
   · apply IsHausdorff.iInf_pow_smul
     apply IsAdicComplete.toIsHausdorff
   · apply isNoetherianRing_of_ringEquiv (AssociatedGradedRing I)
