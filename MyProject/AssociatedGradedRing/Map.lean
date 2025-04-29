@@ -25,8 +25,8 @@ lemma FiltrationHom_apply {n : ℕ} (hφ_n : F₁.N n ≤ (F₂.N n).comap φ) {
 
 def FiltrationHom_smul (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ)  {m n : ℕ} (s : (CanonicalFiltration I).N m)
   (x : F₁.N n) :
-  FiltrationHom (hφ (m + n)) (filtration_smul F₁ m n s x) =
-   filtration_smul F₂ m n s (FiltrationHom (hφ n) x) := by
+  FiltrationHom (hφ (m + n)) (filtration_smul F₁ s x) =
+   filtration_smul F₂ s (FiltrationHom (hφ n) x) := by
   unfold filtration_smul
   refine Subtype.coe_eq_of_eq_mk ?_
   simp
