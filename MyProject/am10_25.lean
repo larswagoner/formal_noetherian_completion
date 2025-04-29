@@ -28,5 +28,5 @@ lemma am10_25 [IsAdicComplete I A] (F : I.Filtration M) (hF : ‚®Ö n, F.N n = (‚ä
     intro M'
     apply Module.Finite.iff_fg.mp
     have : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule (SubmoduleFiltration F M')) :=
-      Module.Finite.of_injective (SubmoduleGradedRingHom F M') (SubmoduleGradedModuleMap_injective F M')
+      Module.Finite.of_injective (SubmoduleGradedModuleHom F M') (SubmoduleGradedModuleMap_injective F M')
     apply am10_24 (SubmoduleFiltration F M') (SubmoduleFiltrationHausdorff_of M' hF)
