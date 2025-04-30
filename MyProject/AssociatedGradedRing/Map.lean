@@ -23,10 +23,10 @@ def FiltrationHom {n : ℕ} (hφ_n : F₁.N n ≤ (F₂.N n).comap φ) :
 lemma FiltrationHom_apply {n : ℕ} (hφ_n : F₁.N n ≤ (F₂.N n).comap φ) {x : F₁.N n} :
     FiltrationHom hφ_n x = φ x := rfl
 
-def FiltrationHom_smul (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ)  {m n : ℕ} (s : (CanonicalFiltration I).N m)
+def FiltrationHom_smul (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) {m n : ℕ} (s : (CanonicalFiltration I).N m)
   (x : F₁.N n) :
-  FiltrationHom (hφ (m + n)) (filtration_smul F₁ s x) =
-   filtration_smul F₂ s (FiltrationHom (hφ n) x) := by
+  FiltrationHom (hφ (m + n)) (filtration_smul s x) =
+   filtration_smul s (FiltrationHom (hφ n) x) := by
   unfold filtration_smul
   refine Subtype.coe_eq_of_eq_mk ?_
   simp
@@ -49,8 +49,7 @@ lemma GradedPieceHom_apply (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) (n : 
     GradedPieceHom hφ n ⟦x⟧ = ⟦FiltrationHom (hφ n) x⟧ := rfl
 
 lemma GradedPieceHom_smul (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) {m n : ℕ} (s : GradedRingPiece I m) (x : GradedPiece F₁ n) :
-  GradedPieceHom hφ (m + n) (graded_smul F₁ s x) =
-    graded_smul F₂ s (GradedPieceHom hφ n x) := by
+    GradedPieceHom hφ (m + n) (graded_smul s x) = graded_smul s (GradedPieceHom hφ n x) := by
   rw [←GradedPiece_mk_out x]
   rw [←GradedPiece_mk_out s]
   rw [graded_smul_of_mk]

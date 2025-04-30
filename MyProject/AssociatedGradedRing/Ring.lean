@@ -2,9 +2,9 @@ import MyProject.AssociatedGradedRing.GradedSMul
 
 open DirectSum
 
-variable {A : Type u} [CommRing A] (I : Ideal A)
+variable {A : Type u} [CommRing A] {I : Ideal A}
 
-lemma canonicalFiltration_mul_deg {I : Ideal A} {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
+lemma canonicalFiltration_mul_deg {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
     x * y ∈ (CanonicalFiltration I).N (m + n) := by
   rw [mem_filtration_iff_mem_Im] at *
   exact SetLike.GradedMul.mul_mem hx hy
@@ -17,67 +17,67 @@ def ideal_mul {m n : ℕ} :
     (CanonicalFiltration I).N m →ₗ[A]
       (CanonicalFiltration I).N n →ₗ[A]
         (CanonicalFiltration I).N (m + n) :=
-  filtration_smul (CanonicalFiltration I)
+  filtration_smul
 
-lemma ideal_mul_eval {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
-    ↑(ideal_mul I ⟨x, hx⟩ ⟨y, hy⟩ : A) = ↑(x * y) := rfl
+lemma ideal_mul_eval {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
+    ↑(ideal_mul ⟨x, hx⟩ ⟨y, hy⟩ : A) = ↑(x * y) := rfl
 
-lemma ideal_mul_zero {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N m) :
-    ideal_mul I x (0 : (CanonicalFiltration I).N n) = 0 :=
-  LinearMap.map_zero ((ideal_mul I) x)
+lemma ideal_mul_zero {m : ℕ} (n : ℕ) (x : (CanonicalFiltration I).N m) :
+    ideal_mul x (0 : (CanonicalFiltration I).N n) = 0 :=
+  LinearMap.map_zero (ideal_mul x)
 
-lemma ideal_zero_mul {A : Type u} [CommRing A] {I : Ideal A} (m n : ℕ) (x : (CanonicalFiltration I).N n) :
-    ideal_mul I (0 : (CanonicalFiltration I).N m) x = 0 :=
-  LinearMap.map_zero₂ (ideal_mul I) x
+lemma ideal_zero_mul (m : ℕ) {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    ideal_mul (0 : (CanonicalFiltration I).N m) x = 0 :=
+  LinearMap.map_zero₂ ideal_mul x
 
-lemma ideal_add_mul {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x y : (CanonicalFiltration I).N m) (z : (CanonicalFiltration I).N n) :
-    ideal_mul I (x + y) z = (ideal_mul I x z) + (ideal_mul I y z) :=
-  LinearMap.map_add₂ (ideal_mul I) x y z
+lemma ideal_add_mul {m n : ℕ} (x y : (CanonicalFiltration I).N m) (z : (CanonicalFiltration I).N n) :
+    ideal_mul (x + y) z = ideal_mul x z + ideal_mul y z :=
+  LinearMap.map_add₂ ideal_mul x y z
 
-lemma ideal_mul_add {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y z : (CanonicalFiltration I).N n) :
-    ideal_mul I x (y + z) = (ideal_mul I x y) + (ideal_mul I x z) :=
-  LinearMap.map_add (ideal_mul I x) y z
+lemma ideal_mul_add {m n : ℕ} (x : (CanonicalFiltration I).N m) (y z : (CanonicalFiltration I).N n) :
+    ideal_mul x (y + z) = ideal_mul x y + ideal_mul x z :=
+  LinearMap.map_add (ideal_mul x) y z
 
-lemma ideal_smul_mul {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (a : A) (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    ideal_mul I (a • x) y = a • (ideal_mul I x y) :=
-  LinearMap.map_smul₂ (ideal_mul I) a x y
+lemma ideal_smul_mul {m n : ℕ} (a : A) (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    ideal_mul (a • x) y = a • (ideal_mul x y) :=
+  LinearMap.map_smul₂ ideal_mul a x y
 
-lemma ideal_mul_smul {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (a : A) (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    ideal_mul I x (a • y) = a • (ideal_mul I x y) :=
-  LinearMap.map_smul (ideal_mul I x) a y
+lemma ideal_mul_smul {m n : ℕ} (a : A) (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    ideal_mul x (a • y) = a • (ideal_mul x y) :=
+  LinearMap.map_smul (ideal_mul x) a y
 
-abbrev one_cf {A : Type u} [CommRing A] {I : Ideal A} : (CanonicalFiltration I).N 0 := ⟨(1 : A), by simp⟩
+abbrev one_cf : (CanonicalFiltration I).N 0 := ⟨(1 : A), by simp⟩
 
-lemma ideal_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
-    ideal_mul I one_cf x = ⟨↑x, by rw [zero_add]; exact x.2⟩ :=
+lemma ideal_one_mul {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    ideal_mul one_cf x = ⟨↑x, by rw [zero_add]; exact x.2⟩ :=
   filtration_one_fsmul x
 
-lemma ideal_mul_one {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
-    ideal_mul I x one_cf = x := by
+lemma ideal_mul_one {n : ℕ} (x : (CanonicalFiltration I).N n) :
+    ideal_mul x one_cf = x := by
   unfold ideal_mul
   unfold filtration_smul
   simp
 
-lemma ideal_mul_comm_coe {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    (↑(ideal_mul I x y) : A) = (↑(ideal_mul I y x) : A) := by
+lemma ideal_mul_comm_coe {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    (↑(ideal_mul x y) : A) = (↑(ideal_mul y x) : A) := by
   rw [ideal_mul_eval]
   rw [ideal_mul_eval]
   apply mul_comm
 
-def graded_mul_hom {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} :
+def graded_mul_hom {m n : ℕ} :
     (GradedRingPiece I m) →ₗ[A] (GradedRingPiece I n) →ₗ[A] (GradedRingPiece I (m+n)) :=
-  graded_smul_hom (CanonicalFiltration I)
+  graded_smul_hom
 
-def graded_mul {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} :
+def graded_mul {m n : ℕ} :
     (GradedRingPiece I m) → (GradedRingPiece I n) → (GradedRingPiece I (m+n)) :=
-  graded_smul (CanonicalFiltration I)
+  graded_smul
 
-lemma graded_mul_of_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
-    graded_mul I ⟦x⟧ₘ ⟦y⟧ₘ = ⟦ideal_mul I x y⟧ₘ := by
+lemma graded_mul_of_mk {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
+    graded_mul ⟦x⟧ₘ ⟦y⟧ₘ = ⟦ideal_mul x y⟧ₘ := by
   rfl
 
 lemma graded_mul_to_mk {A : Type u} [CommRing A] (I : Ideal A) {m n : ℕ} (x : GradedRingPiece I m) (y : GradedRingPiece I n) :
-    graded_mul I x y = ⟦ideal_mul I x.out y.out⟧ₘ := by
+    graded_mul x y = ⟦ideal_mul x.out y.out⟧ₘ := by
   nth_rw 1 [←GradedPiece_mk_out x]
   nth_rw 1 [←GradedPiece_mk_out y]
   rfl
@@ -89,7 +89,7 @@ lemma GradedRingPiece_zero {A : Type u} [CommRing A] {I : Ideal A} (m : ℕ) :
 abbrev one_gp {A : Type u} [CommRing A] {I : Ideal A} : GradedRingPiece I 0 := ⟦one_cf⟧
 
 lemma graded_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (CanonicalFiltration I).N n) :
-    graded_mul I one_gp ⟦x⟧ₘ =
+    graded_mul one_gp ⟦x⟧ₘ =
       ⟦(⟨(↑x : A), by rw [zero_add]; exact x.2⟩ : (CanonicalFiltration I).N (0 + n))⟧ₘ := by
   rw [graded_mul_of_mk]
   rw [ideal_one_mul]
@@ -111,16 +111,16 @@ lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x : (Canonical
   graded ring structure.
 -/
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMul (GradedRingPiece I) where
-  mul := graded_mul I
+  mul := graded_mul
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GOne (GradedRingPiece I) where
   one := one_gp
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GNonUnitalNonAssocSemiring (GradedRingPiece I) where
-  mul_zero := fun a ↦ LinearMap.map_zero ((graded_mul_hom I) a)
-  zero_mul := fun a ↦ LinearMap.map_zero₂ (graded_mul_hom I) a
-  mul_add := fun a b c ↦ LinearMap.map_add ((graded_mul_hom I) a) b c
-  add_mul := fun a b c ↦ LinearMap.map_add₂ (graded_mul_hom I) a b c
+  mul_zero := fun a ↦ LinearMap.map_zero (graded_mul_hom a)
+  zero_mul := fun a ↦ LinearMap.map_zero₂ graded_mul_hom a
+  mul_add := fun a b c ↦ LinearMap.map_add (graded_mul_hom a) b c
+  add_mul := fun a b c ↦ LinearMap.map_add₂ graded_mul_hom a b c
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMonoid (GradedRingPiece I) where
   one_mul := by
@@ -129,7 +129,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMonoid (GradedR
     · simp
     simp
     rw [←Quotient.out_eq a]
-    show HEq (graded_mul I one_gp _) _
+    show HEq (graded_mul one_gp _) _
     rw [graded_one_mul a.out]
     apply aux₁
     simp
@@ -140,9 +140,9 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMonoid (GradedR
     · rfl
     simp
     calc
-      graded_mul I a one_gp = graded_mul I ⟦a.out⟧ₘ one_gp := by rw [GradedPiece_mk_out]
-        _ = graded_mul I ⟦a.out⟧ₘ ⟦one_cf⟧ₘ := rfl
-        _ = ⟦ideal_mul I a.out one_cf⟧ₘ := by rw [graded_mul_of_mk]
+      graded_mul a one_gp = graded_mul ⟦a.out⟧ₘ one_gp := by rw [GradedPiece_mk_out]
+        _ = graded_mul ⟦a.out⟧ₘ ⟦one_cf⟧ₘ := rfl
+        _ = ⟦ideal_mul a.out one_cf⟧ₘ := by rw [graded_mul_of_mk]
         _ = ⟦a.out⟧ₘ := by rw [ideal_mul_one]; rfl
         _ = (a : GradedRingPiece I n) := by rw [GradedPiece_mk_out]
   mul_assoc := sorry
@@ -154,7 +154,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GCommMonoid (Gra
     · show (m + n) = (n + m)
       exact add_comm m n
     · simp
-      show HEq (graded_mul I _ _) (graded_mul I _ _)
+      show HEq (graded_mul _ _) (graded_mul _ _)
       rw [graded_mul_to_mk]
       rw [graded_mul_to_mk]
       apply aux₁
@@ -163,9 +163,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GCommMonoid (Gra
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GSemiring (GradedRingPiece I) where
   natCast := fun n => ⟦⟨n, by simp⟩⟧ₘ
-  natCast_zero := by
-    simp
-    rfl
+  natCast_zero := by simp; rfl
   natCast_succ := by
     intro n
     show _ = _ + one_gp
@@ -174,10 +172,7 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GSemiring (GradedRingPiece I)
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GRing (GradedRingPiece I) where
   intCast := fun n => ⟦⟨n, by simp⟩⟧ₘ
-  intCast_ofNat := by
-    intro n
-    simp
-    rfl
+  intCast_ofNat := by intro n; simp; rfl
   intCast_negSucc_ofNat := by
     intro n
     show ⟦_⟧ₘ = -⟦_⟧ₘ
