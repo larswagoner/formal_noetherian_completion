@@ -16,8 +16,23 @@ instance : GradedMonoid.GSMul (GradedRingPiece I) (GradedPiece F) where
   smul := graded_smul
 
 instance : GradedMonoid.GMulAction (GradedRingPiece I) (GradedPiece F) where
-  one_smul := sorry
-  mul_smul := sorry
+  one_smul := by
+    intro ⟨n, a⟩
+    show (⟨0 + n, graded_smul ⟦one_cf⟧ₘ a⟩ : GradedMonoid (GradedPiece F)) = ⟨n, a⟩
+    rw [←Quotient.out_eq a]
+    apply AssociatedGradedModule.ext
+    · exact zero_add n
+    rw [filtration_one_fsmul a.out]
+  mul_smul := by
+    intro ⟨k, a⟩ ⟨m, b⟩ ⟨n, c⟩
+    show (⟨k + m + n, graded_smul (graded_mul a b) c⟩ : GradedMonoid (GradedPiece F)) =
+        ⟨k + (m + n), graded_smul a (graded_smul b c)⟩
+    rw [←Quotient.out_eq a]
+    rw [←Quotient.out_eq b]
+    rw [←Quotient.out_eq c]
+    apply AssociatedGradedModule.ext
+    · exact add_assoc k m n
+    exact filtration_mul_smul_coe _ _ _
 
 instance : DirectSum.GdistribMulAction (GradedRingPiece I) (GradedPiece F) where
   smul_add := fun a ↦ LinearMap.map_add (graded_smul_hom a)

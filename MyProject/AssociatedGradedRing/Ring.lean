@@ -60,9 +60,12 @@ lemma ideal_mul_one {n : ℕ} (x : (CanonicalFiltration I).N n) :
 
 lemma ideal_mul_comm_coe {m n : ℕ} (x : (CanonicalFiltration I).N m) (y : (CanonicalFiltration I).N n) :
     (↑(ideal_mul x y) : A) = (↑(ideal_mul y x) : A) := by
-  rw [ideal_mul_eval]
-  rw [ideal_mul_eval]
-  apply mul_comm
+  rw [ideal_mul_eval, ideal_mul_eval]
+  exact mul_comm _ _
+
+lemma ideal_mul_assoc_coe {k m n : ℕ} (x : (CanonicalFiltration I).N k) (y : (CanonicalFiltration I).N m) (z : (CanonicalFiltration I).N n) :
+    (↑(ideal_mul (ideal_mul x y) z) : A) = (↑(ideal_mul x (ideal_mul y z)) : A) :=
+  filtration_mul_smul_coe x y z
 
 def graded_mul_hom {m n : ℕ} :
     (GradedRingPiece I m) →ₗ[A] (GradedRingPiece I n) →ₗ[A] (GradedRingPiece I (m+n)) :=
@@ -94,18 +97,6 @@ lemma graded_one_mul {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : (Can
   rw [graded_mul_of_mk]
   rw [ideal_one_mul]
 
-
-/--
-  Let `F : ℕ → Submodule A A` denote the Canonical Filtration given by `F m = I^m`.
-  If `x ∈ F m` and `y ∈ F n` such that `m = n` and `↑x = ↑y : A`, then `⟦x⟧ : GradedRingPiece I m` and `⟦y⟧ : GradedRingPiece I n` are heterogenously equal.
--/
-lemma aux₁ {A : Type u} [CommRing A] {I : Ideal A} {m n : ℕ} {x : (CanonicalFiltration I).N m} {y : (CanonicalFiltration I).N n} (hxy : (↑x : A) = (↑y : A)) (h : m = n):
-    HEq ⟦x⟧ₘ ⟦y⟧ₘ := by
-  subst h
-  have : x = y := SetLike.coe_eq_coe.mp hxy
-  subst this
-  exact HEq.refl ⟦x⟧ₘ
-
 /--
   The map `ℕ → Type` given by `GradedRingPiece I` defines a
   graded ring structure.
@@ -125,41 +116,37 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GNonUnitalNonAssocSemiring (G
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMonoid (GradedRingPiece I) where
   one_mul := by
     intro ⟨n, a⟩
-    apply Sigma.ext
-    · simp
-    simp
+    show (⟨0 + n, graded_mul ⟦one_cf⟧ₘ a⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n, a⟩
     rw [←Quotient.out_eq a]
-    show HEq (graded_mul one_gp _) _
-    rw [graded_one_mul a.out]
-    apply aux₁
-    simp
-    exact zero_add n
+    apply AssociatedGradedModule.ext
+    · exact zero_add n
+    rw [filtration_one_fsmul a.out]
   mul_one := by
     intro ⟨n, a⟩
-    apply Sigma.ext
-    · rfl
-    simp
-    calc
-      graded_mul a one_gp = graded_mul ⟦a.out⟧ₘ one_gp := by rw [GradedPiece_mk_out]
-        _ = graded_mul ⟦a.out⟧ₘ ⟦one_cf⟧ₘ := rfl
-        _ = ⟦ideal_mul a.out one_cf⟧ₘ := by rw [graded_mul_of_mk]
-        _ = ⟦a.out⟧ₘ := by rw [ideal_mul_one]; rfl
-        _ = (a : GradedRingPiece I n) := by rw [GradedPiece_mk_out]
-  mul_assoc := sorry
+    show (⟨n + 0, graded_mul a ⟦one_cf⟧ₘ⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n, a⟩
+    rw [←Quotient.out_eq a]
+    apply AssociatedGradedModule.ext rfl
+    exact Subtype.eq_iff.mp (ideal_mul_one a.out)
+  mul_assoc := by
+    intro ⟨k, a⟩ ⟨m, b⟩ ⟨n, c⟩
+    show (⟨k + m + n, graded_mul (graded_mul a b) c⟩ : GradedMonoid (GradedRingPiece I)) =
+        ⟨k + (m + n), graded_mul a (graded_mul b c)⟩
+    rw [←Quotient.out_eq a]
+    rw [←Quotient.out_eq b]
+    rw [←Quotient.out_eq c]
+    apply AssociatedGradedModule.ext
+    · exact add_assoc k m n
+    exact ideal_mul_assoc_coe _ _ _
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GCommMonoid (GradedRingPiece I) where
   mul_comm := by
     rintro ⟨m, x⟩ ⟨n, y⟩
-    apply Sigma.ext
-    · show (m + n) = (n + m)
-      exact add_comm m n
-    · simp
-      show HEq (graded_mul _ _) (graded_mul _ _)
-      rw [graded_mul_to_mk]
-      rw [graded_mul_to_mk]
-      apply aux₁
-      · exact ideal_mul_comm_coe _ _
-      · exact add_comm _ _
+    show (⟨m + n, graded_mul x y⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n + m, graded_mul y x⟩
+    rw [←Quotient.out_eq x]
+    rw [←Quotient.out_eq y]
+    apply AssociatedGradedModule.ext
+    · exact add_comm m n
+    exact ideal_mul_comm_coe x.out y.out
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GSemiring (GradedRingPiece I) where
   natCast := fun n => ⟦⟨n, by simp⟩⟧ₘ

@@ -74,6 +74,11 @@ lemma filtration_one_fsmul {n : ℕ} (x : F.N n) :
   unfold filtration_smul
   simp
 
+lemma filtration_mul_smul_coe {k m n : ℕ} (x : (CanonicalFiltration I).N k) (y : (CanonicalFiltration I).N m) (z : F.N n) :
+    (↑(filtration_smul (filtration_smul x y) z) : M) = ↑(filtration_smul x (filtration_smul y z)) := by
+  rw [filtration_smul_coe_eval, filtration_smul_coe_eval, filtration_smul_coe_eval, filtration_smul_coe_eval]
+  simp
+  module
 
 def graded_smul_left {m n : ℕ} :
     (CanonicalFiltration I).N m →ₗ[A] (GradedPiece F n) →ₗ[A] (GradedPiece F (m+n)) where

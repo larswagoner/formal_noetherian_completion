@@ -41,7 +41,7 @@ abbrev GradedPiece_mk {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddC
 
 notation "⟦" x "⟧ₘ" => GradedPiece_mk x
 
-section
+section GradedPiece
 
 variable {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {m : ℕ}
 
@@ -88,55 +88,69 @@ lemma GradedPiece_mk_add (x y : F.N m) :
 lemma GradedPiece_mk_neg (x : F.N m) :
   ⟦-x⟧ₘ = -⟦x⟧ₘ := rfl
 
-end
+end GradedPiece
+
+section AssociatedGradedModule
+
+variable {A : Type u} [CommRing A] {I : Ideal A}
+variable {M : Type u} [AddCommGroup M] [Module A M]
 
 /--
   The associated graded module is defined by `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`.
 -/
-def AssociatedGradedModule {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) :
+def AssociatedGradedModule (F : I.Filtration M) :
     Type u := ⨁ n : ℕ, GradedPiece F n
 
-def AssociatedGradedModule.of {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {n : ℕ} (x : GradedPiece F n) :
+def AssociatedGradedModule.of {F : I.Filtration M} {n : ℕ} (x : GradedPiece F n) :
   AssociatedGradedModule F := DirectSum.of (GradedPiece F) n x
+
+lemma AssociatedGradedModule.ext {F : I.Filtration M} {m n : ℕ} {x : F.N m} {y : F.N n} (h : m = n) (hxy : (↑x : M) = (↑y : M)):
+    (⟨m, ⟦x⟧ₘ⟩ : GradedMonoid (GradedPiece F)) = ⟨n, ⟦y⟧ₘ⟩ := by
+  subst h
+  have : x = y := SetLike.coe_eq_coe.mp hxy
+  subst this
+  rfl
 
 /--
   `G(M)` is an abelian group.
 -/
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-    [Module A M] (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) :=
+instance (F : I.Filtration M) : AddCommGroup (AssociatedGradedModule F) :=
   inferInstanceAs (AddCommGroup (Π₀ n : ℕ, GradedPiece F n))
 
 /--
   An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
 -/
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-    [Module A M] (F : I.Filtration M) : DFunLike (AssociatedGradedModule F) _ fun n : ℕ => GradedPiece F n :=
+instance (F : I.Filtration M) : DFunLike (AssociatedGradedModule F) _ fun n : ℕ => GradedPiece F n :=
   inferInstanceAs (DFunLike (Π₀ n, GradedPiece F n) _ _)
 
 /--
   An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
 -/
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-    [Module A M] (F : I.Filtration M) : CoeFun (AssociatedGradedModule F) fun _ => ∀ n : ℕ, GradedPiece F n :=
+instance (F : I.Filtration M) : CoeFun (AssociatedGradedModule F) fun _ => ∀ n : ℕ, GradedPiece F n :=
   inferInstanceAs (CoeFun (Π₀ n, GradedPiece F n) fun _ => ∀ n : ℕ, GradedPiece F n)
 
 /--
   `G(M)` is an `A`-module.
 -/
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M]
-    [Module A M] (F : I.Filtration M) : Module A (AssociatedGradedModule F) := by
+instance (F : I.Filtration M) : Module A (AssociatedGradedModule F) := by
   unfold AssociatedGradedModule
   infer_instance
+
+end AssociatedGradedModule
+
+section AssociatedGradedRing
+
+variable {A : Type u} [CommRing A]
 
 /--
   `CanonicalFiltration I` is an abbreviation for `I.stableFiltration (⊤ : Submodule A A)` and is thus given by the filtration `n ↦ Iⁿ`.
 -/
-abbrev CanonicalFiltration {A : Type u} [CommRing A] (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
+abbrev CanonicalFiltration (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
 
-lemma canonicalFiltration_eval {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :
+lemma canonicalFiltration_eval (I : Ideal A) (m : ℕ) :
     (CanonicalFiltration I).N m = I ^ m := by simp
 
-lemma mem_filtration_iff_mem_Im {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) (x : A) :
+lemma mem_filtration_iff_mem_Im (I : Ideal A) (m : ℕ) (x : A) :
     x ∈ (CanonicalFiltration I).N m ↔ x ∈ I^m := by
   constructor
   · intro h
@@ -149,37 +163,39 @@ lemma mem_filtration_iff_mem_Im {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ
 /--
   `GradedRingPiece I m` is an abbreviation for `GradedPiece (CanonicalFiltration I) m` and thus informally reduces to `Iᵐ/Iᵐ⁺¹`.
 -/
-abbrev GradedRingPiece {A : Type u} [CommRing A] (I : Ideal A) (m : ℕ) :=
+abbrev GradedRingPiece (I : Ideal A) (m : ℕ) :=
   GradedPiece (CanonicalFiltration I) m
 
 /--
   The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
 -/
-def AssociatedGradedRing {A : Type u} [CommRing A] (I : Ideal A) : Type u :=
+def AssociatedGradedRing (I : Ideal A) : Type u :=
   AssociatedGradedModule (CanonicalFiltration I)
 
-def AssociatedGradedRing.of {A : Type u} [CommRing A] {I : Ideal A} {n : ℕ} (x : GradedRingPiece I n) :
+def AssociatedGradedRing.of {I : Ideal A} {n : ℕ} (x : GradedRingPiece I n) :
   AssociatedGradedRing I := DirectSum.of _ n x
 
 /--
   `G(A)` is an abelian group.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : AddCommGroup (AssociatedGradedRing I) :=
+instance (I : Ideal A) : AddCommGroup (AssociatedGradedRing I) :=
   instAddCommGroupAssociatedGradedModule _
 
 /--
   An element of `AssociatedGradedModule F` can be considered as a map `(n : ℕ) → GradedPiece F n`.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) :
+instance (I : Ideal A) :
     DFunLike (AssociatedGradedRing I) _ fun n : ℕ => GradedRingPiece I n :=
   instDFunLikeAssociatedGradedModuleNatGradedPiece (CanonicalFiltration I)
 
-instance {A : Type u} [CommRing A] (I : Ideal A) :
+instance (I : Ideal A) :
     CoeFun (AssociatedGradedRing I) fun _ => ∀ n : ℕ, GradedRingPiece I n :=
   instCoeFunAssociatedGradedModuleForallGradedPiece (CanonicalFiltration I)
 
 /--
   `G(A)` is an `A`-module.
 -/
-instance {A : Type u} [CommRing A] (I : Ideal A) : Module A (AssociatedGradedRing I) :=
+instance (I : Ideal A) : Module A (AssociatedGradedRing I) :=
   instModuleAssociatedGradedModule _
+
+end AssociatedGradedRing
