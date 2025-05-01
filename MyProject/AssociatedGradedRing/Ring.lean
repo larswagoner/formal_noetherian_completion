@@ -115,38 +115,26 @@ instance {A : Type u} [CommRing A] (I : Ideal A) : GNonUnitalNonAssocSemiring (G
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GMonoid (GradedRingPiece I) where
   one_mul := by
-    intro ⟨n, a⟩
-    show (⟨0 + n, graded_mul ⟦one_cf⟧ₘ a⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n, a⟩
-    rw [←Quotient.out_eq a]
+    rintro ⟨n, ⟨a⟩⟩
     apply AssociatedGradedModule.ext
     · exact zero_add n
-    rw [filtration_one_fsmul a.out]
+    exact filtration_one_fsmul_coe a
   mul_one := by
-    intro ⟨n, a⟩
-    show (⟨n + 0, graded_mul a ⟦one_cf⟧ₘ⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n, a⟩
-    rw [←Quotient.out_eq a]
+    rintro ⟨n, ⟨a⟩⟩
     apply AssociatedGradedModule.ext rfl
-    exact Subtype.eq_iff.mp (ideal_mul_one a.out)
+    exact Subtype.eq_iff.mp (ideal_mul_one a)
   mul_assoc := by
-    intro ⟨k, a⟩ ⟨m, b⟩ ⟨n, c⟩
-    show (⟨k + m + n, graded_mul (graded_mul a b) c⟩ : GradedMonoid (GradedRingPiece I)) =
-        ⟨k + (m + n), graded_mul a (graded_mul b c)⟩
-    rw [←Quotient.out_eq a]
-    rw [←Quotient.out_eq b]
-    rw [←Quotient.out_eq c]
+    rintro ⟨k, ⟨a⟩⟩ ⟨m, ⟨b⟩⟩ ⟨n, ⟨c⟩⟩
     apply AssociatedGradedModule.ext
     · exact add_assoc k m n
     exact ideal_mul_assoc_coe _ _ _
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GradedMonoid.GCommMonoid (GradedRingPiece I) where
   mul_comm := by
-    rintro ⟨m, x⟩ ⟨n, y⟩
-    show (⟨m + n, graded_mul x y⟩ : GradedMonoid (GradedRingPiece I)) = ⟨n + m, graded_mul y x⟩
-    rw [←Quotient.out_eq x]
-    rw [←Quotient.out_eq y]
+    rintro ⟨m, ⟨x⟩⟩ ⟨n, ⟨y⟩⟩
     apply AssociatedGradedModule.ext
     · exact add_comm m n
-    exact ideal_mul_comm_coe x.out y.out
+    exact ideal_mul_comm_coe x y
 
 instance {A : Type u} [CommRing A] (I : Ideal A) : GSemiring (GradedRingPiece I) where
   natCast := fun n => ⟦⟨n, by simp⟩⟧ₘ
