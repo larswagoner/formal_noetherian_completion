@@ -8,43 +8,26 @@ import MyProject.am2_10
 -/
 
 
-class AddInverseSystem where
-  ι : ℕ → Type
-  entry_is_group : ∀ i, AddCommGroup (ι i)
+class AddInverseSystem (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)] where
   transition_morphisms : ∀ i, (ι (i+1)) →+ (ι i)
 
 
-class AddInverseSystem₂ (ι : ℕ → Type) [(i : ℕ) → AddCommGroup (ι i)] where
-  transition_morphisms : ∀ i, (ι (i+1)) →+ (ι i)
-
-instance alwaysZ : (ℕ → Type) := (fun _ ↦ ℤ)
-
-instance example_of_inverse_system : AddInverseSystem where
-  ι := alwaysZ
-  entry_is_group := by
-    intro i
-    unfold alwaysZ
-    infer_instance
-  transition_morphisms := by
-    intro i
-    unfold alwaysZ
-    apply (AddMonoidHom.id ℤ)
+def InverseLimit {ι : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (ι i)] (𝒜 : AddInverseSystem ι) : Set (∀ n : ℕ, ι n) :=
+  { f : (∀(n : ℕ), (ι n)) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
 
 
-def InverseLimit (𝒜 : AddInverseSystem) : Type _ :=
-  { f : (∀(n : ℕ), (𝒜.ι n)) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
-
-
-instance (𝒜 : AddInverseSystem) : AddCommGroup (∀ n : ℕ, 𝒜.ι n) := by
-  have h : ∀ n, AddCommGroup (𝒜.ι n) := by
+instance (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)] : AddCommGroup (∀ n : ℕ, ι n) := by
+  have h : ∀ n, AddCommGroup (ι n) := by
     intro n
-    apply 𝒜.entry_is_group n
-  apply inferInstanceAs (AddCommGroup (Π n : ℕ, 𝒜.ι n))
+    apply entry_is_group n
+  apply inferInstanceAs (AddCommGroup (Π n : ℕ, ι n))
 
-variable (𝒜 : AddInverseSystem)
+variable (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)]
+variable (𝒜 : AddInverseSystem ι)
 
-instance (X : InverseLimit 𝒜) : AddSubgroup (∀ n : ℕ, 𝒜.ι n) where
-  carrier := {f : (∀ n : ℕ, 𝒜.ι n) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
+
+def InverseLimitSubgroup {ι : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (ι i)] (𝒜 : AddInverseSystem ι) : AddSubgroup (∀ n : ℕ, ι n) where
+  carrier := InverseLimit 𝒜
   add_mem' := by
     rintro a b ha hb n
     simp
@@ -54,14 +37,14 @@ instance (X : InverseLimit 𝒜) : AddSubgroup (∀ n : ℕ, 𝒜.ι n) where
     simp
   neg_mem' := by
     intro a ha n
-    have h₀ : AddCommGroup (𝒜.ι n) := 𝒜.entry_is_group n
-    have h₁ : AddCommGroup (𝒜.ι (n+1)) := 𝒜.entry_is_group (n+1)
-    have h : 𝒜.ι (n+1) →+ 𝒜.ι n := 𝒜.transition_morphisms n
     rw [Pi.neg_apply, Pi.neg_apply]
     nth_rewrite 2 [<- ha]
-    simp
     rw [map_neg]
-    sorry
+
+instance (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)]  (𝒜 : AddInverseSystem ι) : AddCommGroup (InverseLimit 𝒜) :=
+    AddSubgroup.toAddCommGroup (InverseLimitSubgroup 𝒜)
+
+
 
 
 
