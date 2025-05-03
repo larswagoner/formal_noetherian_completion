@@ -8,42 +8,16 @@ section
 variable {A : Type u} [CommRing A] {I : Ideal A}
 variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
 
-
-lemma IFiltration_I_pow_smul (m n : ℕ) :
-    I^m • F.N n ≤ F.N (n + m) := by
-  revert n
-  induction' m with m ih
-  · simp
-  · intro n
-    have : I • F.N n ≤ F.N (n + 1) := F.smul_le n
-    calc
-      I^(m+1) • F.N n = I^m • (I • F.N n) := Submodule.smul_assoc (I ^ m) I (F.N n)
-      _ ≤ I^m • (F.N (n + 1)) := Submodule.smul_mono (le_refl (I^m)) (F.smul_le n)
-      _ ≤ F.N (n + 1 + m) := ih (n + 1)
-      _ = F.N (n + m + 1) := by rw [Nat.add_right_comm]
-
-lemma IFiltration_mono (m n : ℕ) (h : m ≤ n) :
-    F.N n ≤ F.N m := by
-  have : n = m + (n - m) := (Nat.add_sub_of_le h).symm
-  rw [this]
-  set d := n - m
-  induction' d with d ih
-  · rfl
-  · calc
-      F.N (m + (d + 1)) = F.N (m + d + 1) := by rw [add_assoc]
-        _ ≤ F.N (m + d) := F.mono (m + d)
-        _ ≤ F.N m := ih
-
 lemma IFiltration_I_pow_sub_smul_le (m n : ℕ) :
     I^(m - n) • F.N n ≤ F.N m := by
   by_cases h : m < n
   · rw [Nat.sub_eq_zero_of_le (le_of_lt h)]
     simp
-    exact IFiltration_mono F m n (le_of_lt h)
-  · have := IFiltration_I_pow_smul F (m - n) n
+    exact Ideal.Filtration.antitone F (le_of_lt h)
+  · have := Ideal.Filtration.pow_smul_le F (m - n) n
     convert this
     push_neg at h
-    exact (Nat.add_sub_of_le h).symm
+    exact (Nat.sub_eq_iff_eq_add h).mp rfl
 
 def OffSetFiltration (m : ℕ) : I.Filtration M where
   N := fun n ↦ F.N (n - m)
