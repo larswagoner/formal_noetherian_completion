@@ -1,6 +1,6 @@
 import MyProject.am7_6
 import MyProject.am10_15
-import MyProject.associated_graded_ring
+import MyProject.AssociatedGradedRing.Module
 
 /-
   # Proposition 10.22
