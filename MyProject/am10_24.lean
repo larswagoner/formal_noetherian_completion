@@ -8,6 +8,43 @@ section
 variable {A : Type u} [CommRing A] {I : Ideal A}
 variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
 
+
+lemma IFiltration_I_pow_smul (m n : ℕ) :
+    I^m • F.N n ≤ F.N (n + m) := by
+  revert n
+  induction' m with m ih
+  · simp
+  · intro n
+    have : I • F.N n ≤ F.N (n + 1) := F.smul_le n
+    calc
+      I^(m+1) • F.N n = I^m • (I • F.N n) := Submodule.smul_assoc (I ^ m) I (F.N n)
+      _ ≤ I^m • (F.N (n + 1)) := Submodule.smul_mono (le_refl (I^m)) (F.smul_le n)
+      _ ≤ F.N (n + 1 + m) := ih (n + 1)
+      _ = F.N (n + m + 1) := by rw [Nat.add_right_comm]
+
+lemma IFiltration_mono (m n : ℕ) (h : m ≤ n) :
+    F.N n ≤ F.N m := by
+  have : n = m + (n - m) := (Nat.add_sub_of_le h).symm
+  rw [this]
+  set d := n - m
+  induction' d with d ih
+  · rfl
+  · calc
+      F.N (m + (d + 1)) = F.N (m + d + 1) := by rw [add_assoc]
+        _ ≤ F.N (m + d) := F.mono (m + d)
+        _ ≤ F.N m := ih
+
+lemma IFiltration_I_pow_sub_smul_le (m n : ℕ) :
+    I^(m - n) • F.N n ≤ F.N m := by
+  by_cases h : m < n
+  · rw [Nat.sub_eq_zero_of_le (le_of_lt h)]
+    simp
+    exact IFiltration_mono F m n (le_of_lt h)
+  · have := IFiltration_I_pow_smul F (m - n) n
+    convert this
+    push_neg at h
+    exact (Nat.add_sub_of_le h).symm
+
 def OffSetFiltration (m : ℕ) : I.Filtration M where
   N := fun n ↦ F.N (n - m)
   mono := by
@@ -72,6 +109,10 @@ def DirectProductFiltration (F : ∀ i, I.Filtration (β i)) : I.Filtration (∀
     simp at this
     exact (this i)
 
+lemma DirectProductFiltration_mem_iff {F : ∀ i, I.Filtration (β i)} (n : ℕ) {x : (∀ i, β i)} :
+    x ∈ (DirectProductFiltration ι β F).N n ↔ ∀ i, x i ∈ (F i).N n := by
+  exact { mp := fun a i ↦ a i trivial, mpr := fun a i a_1 ↦ a i }
+
 end
 
 section
@@ -103,16 +144,13 @@ variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
   `yᵢ` is homogeneous of degree `nᵢ
 -/
 lemma AssociatedGradedModule.split (x : AssociatedGradedModule F) :
-   ∃ s : Multiset (AssociatedGradedModule F),
-    x = s.sum ∧ ∀ y ∈ s, ∃ n : ℕ, ∃ y' : F.N n, y = DirectSum.of _ n ⟦y'⟧ₘ := by
+   ∃ s : Multiset ((AssociatedGradedModule F) × (n : ℕ) × (F.N n)),
+    x = (s.map Prod.fst).sum ∧ ∀ x ∈ s, x.1 = DirectSum.of _ x.2.1 ⟦x.2.2⟧ₘ := by
   apply @DirectSum.induction_on ℕ (GradedPiece F) _ _ _ x
   · use ∅
     simp
   · intro i y
-    use {DirectSum.of _ i y}
-    simp
-    use i
-    use y.out
+    use {(DirectSum.of _ i y, Sigma.mk i y.out)}
     simp
   · rintro x y ⟨sx, hx_sum, hx_deg⟩ ⟨sy, hy_sum, hy_deg⟩
     use sx + sy
@@ -124,66 +162,29 @@ lemma AssociatedGradedModule.split (x : AssociatedGradedModule F) :
       · exact hx_deg z hzx
       · exact hy_deg z hzy
 
-
-/-
-  If `G(M)` is finitely generated as a `G(A)`-module, then there exists a finite generating set
-  `{x₁, …, xₙ}`, such that for each `1 ≤ i ≤ n`, `xᵢ = ⟦y⟧ₘ` for some `y : F.N nᵢ`, i.e. each
-  `xᵢ` is homogeneous of degree `nᵢ`.
--/
-lemma AssociatedGradedModule.exists_generators_of_fg
-  [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] :
-   ∃ s : Multiset (AssociatedGradedModule F),
-    (Submodule.span (AssociatedGradedRing I) {x | x ∈ s} : Submodule (AssociatedGradedRing I) (AssociatedGradedModule F)) = ⊤ ∧
-    ∀ x ∈ s, ∃ n : ℕ, ∃ y : F.N n, x = DirectSum.of _ n ⟦y⟧ₘ:= by
-  rcases hFin with ⟨s, hs⟩
-  let β : s → Multiset (AssociatedGradedModule F) := by
-    intro x
-    exact (AssociatedGradedModule.split F x).choose
-
-  have β_spec : ∀ x : s, x = (β x).sum ∧ ∀ y ∈ (β x), ∃ n : ℕ, ∃ y' : F.N n, y = DirectSum.of _ n ⟦y'⟧ₘ := by
-    intro x
-    exact (AssociatedGradedModule.split F x).choose_spec
-
-  use Finset.univ.sum β
-  constructor
-  · apply le_antisymm
-    · exact le_top
-    rw [←hs]
-    apply Submodule.span_le.mpr
-    intro x hx
-    have := (β_spec ⟨x, hx⟩).1
-    simp at this
-    rw [this]
-    have : {z | z ∈ β ⟨x, hx⟩} ⊆ {z | z ∈ Finset.univ.sum β} := by
-      intro z hz
-      simp
-      exact ⟨x, hx, hz⟩
-    apply Submodule.span_mono this
-    apply multiset_sum_mem_span
-  · intro x hx
-    rw [Multiset.mem_sum] at hx
-    rcases hx with ⟨i, i_univ, hx⟩
-    exact (β_spec i).2 x hx
-
 /-
   If `G(M)` is finitely generated as a `G(A)`-module, then there exists a finite generating list
-  `[x₁, …, xₙ]`, such that for each `1 ≤ i ≤ n`, `xᵢ = ⟦y⟧ₘ` for some `y : F.N nᵢ`, i.e. each
+  `[(x₁, n₁, y₁), …, (xₖ, nₖ, yₖ)]`, such that for each `1 ≤ i ≤ k`, `xᵢ = ⟦yᵢ⟧ₘ` where `yᵢ : F.N nᵢ`, i.e. each
   `xᵢ` is homogeneous of degree `nᵢ`.
 -/
 lemma AssociatedGradedModule.exists_generators_as_list_of_fg
   [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] :
-   ∃ s : List (AssociatedGradedModule F),
-    (Submodule.span (AssociatedGradedRing I) {x | x ∈ s} : Submodule (AssociatedGradedRing I) (AssociatedGradedModule F)) = ⊤ ∧
-    ∀ x ∈ s, ∃ n : ℕ, ∃ y : F.N n, x = DirectSum.of _ n ⟦y⟧ₘ:= by
+   ∃ s : List ((AssociatedGradedModule F) × (n : ℕ) × (F.N n)),
+    (Submodule.span (AssociatedGradedRing I) (Prod.fst '' {x | x ∈ s}) : Submodule (AssociatedGradedRing I) (AssociatedGradedModule F)) = ⊤ ∧
+    ∀ x ∈ s, x.1 = DirectSum.of _ x.2.1 ⟦x.2.2⟧ₘ:= by
+  -- Fix a basis `s` of `G(M)`
   rcases hFin with ⟨s, hs⟩
-  let β : s → Multiset (AssociatedGradedModule F) := by
+
+  -- For each `x : s`, split `x` into homogeneous parts
+  let β : s → Multiset ((AssociatedGradedModule F) × (n : ℕ) × (F.N n)) := by
     intro x
     exact (AssociatedGradedModule.split F x).choose
-
-  have β_spec : ∀ x : s, x = (β x).sum ∧ ∀ y ∈ (β x), ∃ n : ℕ, ∃ y' : F.N n, y = DirectSum.of _ n ⟦y'⟧ₘ := by
+  have β_spec : ∀ x : s,
+      x = ((β x).map Prod.fst).sum ∧ ∀ y ∈ (β x), y.1 = DirectSum.of _ y.2.1 ⟦y.2.2⟧ₘ := by
     intro x
     exact (AssociatedGradedModule.split F x).choose_spec
 
+  -- Now unite all elements of `β` into one multiset
   set γ := Finset.univ.sum β
   use γ.toList
   constructor
@@ -195,21 +196,23 @@ lemma AssociatedGradedModule.exists_generators_as_list_of_fg
     have := (β_spec ⟨x, hx⟩).1
     simp at this
     rw [this]
-    have h₁ : {z | z ∈ β ⟨x, hx⟩} ⊆ {z | z ∈ Finset.univ.sum β} := by
+    have : {x | x ∈ γ} = {x | x ∈ γ.toList} := by simp
+    rw [←this]
+    have h₁ : Prod.fst '' {z | z ∈ β ⟨x, hx⟩} ⊆ Prod.fst '' {z | z ∈ Finset.univ.sum β} := by
+      apply Set.image_mono ?_
       intro z hz
       simp
       exact ⟨x, hx, hz⟩
-    have : {x | x ∈ γ} = {x | x ∈ γ.toList} := by simp
-    rw [←this]
     apply Submodule.span_mono h₁
-    apply multiset_sum_mem_span
+    have := multiset_sum_mem_span (AssociatedGradedRing I) ((β ⟨x, hx⟩).map Prod.fst)
+    convert this
+    ext x
+    simp
   · intro x hx
     rw [Multiset.mem_toList] at hx
     rw [Multiset.mem_sum] at hx
     rcases hx with ⟨i, i_univ, hx⟩
     exact (β_spec i).2 x hx
-
-
 
 end
 
@@ -230,31 +233,98 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
     [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] : Module.Finite A M := by
 
   -- Let `s : Multiset (AssociatedGradedModule F)` consist of homogeneous elements that generate `G(M)`.
-  rcases AssociatedGradedModule.exists_generators_of_fg F with ⟨s, s_gen, s_hom⟩
+  rcases AssociatedGradedModule.exists_generators_as_list_of_fg F with ⟨s, s_gen, s_hg⟩
 
   -- Define `R := ⊕ (i : Fin n), A`
-  set ι := Fin s.card
+  set ι := Fin s.length
   set β : ι → Type u := (fun i ↦ A)
   set R : Type u := ∀ i : ι, (β i)
-  set incl_ι : ι → (AssociatedGradedModule F) := by
-    sorry
 
-  set F' : I.Filtration R := DirectProductFiltration ι β (fun i ↦ (OffSetFiltration (CanonicalFiltration I) 2))
+  set d : ι → ℕ := fun i ↦ (s.get i).2.1
+  set y : ι → M := fun i ↦ (s.get i).2.2
 
-  -- Define a map `R → M` by sending `(aᵢ)ᵢ ↦ ∑ᵢ aᵢ ⬝ xᵢ`.
-  set φ : R →ₗ[A] M := by
-    set R' : Type u := DirectSum ι β
-    set ψ : R' →ₗ[A] M :=
-      DirectSum.toModule A ι M (by
-        intro i
-        sorry
-      )
-    set ψ' : R ≃ₗ[A] R' := (DirectSum.linearEquivFunOnFintype A ι β).symm
-    sorry
+  set F' : I.Filtration R := DirectProductFiltration ι β (fun i ↦ (OffSetFiltration (CanonicalFiltration I) (d i)))
 
-  have : ∀ n, (F'.N n) ≤ (F.N n).comap φ := sorry
-  have Gφ : AssociatedGradedModule F' → AssociatedGradedModule F := GradedModuleHom this
-  have : Function.Surjective Gφ := sorry
+  -- Define a map `R → M` by sending `(xᵢ)ᵢ ↦ ∑ᵢ xᵢ ⬝ yᵢ`.
+  set φ : R →ₗ[A] M := {
+    toFun := fun x ↦ ∑ i, x i • y i
+    map_add' := by
+      intro a b
+      rw [←Finset.sum_add_distrib]
+      congr
+      ext i
+      rw [←add_smul]
+      rfl
+    map_smul' := by
+      intro a b
+      rw [Finset.smul_sum]
+      congr
+      ext i
+      rw [smul_smul]
+      rfl
+  }
+  have φ_apply : ∀ x : R, φ x = ∑ i, x i • y i := fun x ↦ rfl
+
+  -- `φ` satisfies `F'.N n ⊆ φ⁻¹(F.N n)` for all n
+  have : ∀ n, (F'.N n) ≤ (F.N n).comap φ := by
+    intro n x hx
+    show ∑ i, x i • y i ∈ F.N n
+    suffices : ∀ i, x i • y i ∈ F.N n
+    · exact Submodule.sum_mem (F.N n) fun c a ↦ this c
+    intro i
+    apply IFiltration_I_pow_sub_smul_le F n (d i)
+    apply Submodule.smul_mem_smul
+    · rw [←canonicalFiltration_eval]
+      exact (DirectProductFiltration_mem_iff ι β n).mp hx i
+    · exact Submodule.coe_mem (s.get i).2.2
+
+  -- `φ` induces a map `Gφ : G(R) → G(M)`
+  set Gφ : AssociatedGradedModule F' →ₗ[AssociatedGradedRing I] AssociatedGradedModule F := GradedModuleHom this
+
+  -- `Gφ` is surjective
+  have : Function.Surjective Gφ := by
+    rw [←LinearMap.range_eq_top]
+    apply le_antisymm (le_top)
+    rw [←s_gen]
+    apply Submodule.span_le.mpr
+    rintro x ⟨p, h₁, rfl⟩
+    simp at h₁
+    have : ∃ i : Fin s.length, s.get i = p := List.mem_iff_get.mp h₁
+    rcases this with ⟨i, rfl⟩
+    simp
+    use (DirectSum.of _ (d i) ⟦⟨fun j ↦ if i = j then 1 else 0, by
+      rw [DirectProductFiltration_mem_iff]
+      intro j
+      by_cases hij : i = j
+      · subst hij
+        simp
+        show 1 ∈ (I^((d i) - (d i)) • ⊤)
+        simp
+      · simp [hij]
+    ⟩⟧ₘ)
+    apply DirectSum.ext
+    intro m
+    rw [s_hg _]
+    rw [GradedModuleHom_apply]
+    by_cases hm : m = d i
+    case neg
+    · push_neg at hm
+      show _ = DirectSum.of (GradedPiece F) (d i) ⟦(s.get i).2.2⟧ₘ m
+      rw [DirectSum.of_eq_of_ne _ _ _ hm.symm]
+      rw [DirectSum.of_eq_of_ne _ _ _ hm.symm]
+      simp
+    subst hm
+    show _ = DirectSum.of (GradedPiece F) (d i) ⟦(s.get i).2.2⟧ₘ (d i)
+    rw [DirectSum.of_eq_same]
+    rw [DirectSum.of_eq_same]
+    show ⟦_⟧ₘ = ⟦_⟧ₘ
+    congr
+    apply Subtype.coe_inj.mp
+    show φ _ = y i
+    simp
+    rw [φ_apply]
+    simp
+    exact h₁
 
   have φ_hat : True → True := sorry
   have : Function.Surjective φ_hat := sorry

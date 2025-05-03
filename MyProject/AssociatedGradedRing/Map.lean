@@ -116,3 +116,6 @@ def GradedModuleHom (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
     · intro x y h₁ h₂
       simp
       rw [h₁, h₂]
+
+lemma GradedModuleHom_apply (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) (n : ℕ) (x : AssociatedGradedModule F₁) :
+    (GradedModuleHom hφ x) n = (GradedPieceHom hφ n (x n)) := rfl
