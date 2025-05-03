@@ -27,3 +27,12 @@ def AddInverseLimitSubgroup [AddInverseSystem f] : AddSubgroup (∀ n : Set.Iio 
 
 instance [AddInverseSystem f] : AddCommGroup (AddInverseLimit f) :=
   AddSubgroup.toAddCommGroup (AddInverseLimitSubgroup f)
+
+
+
+variable {G : ℕ → Type} [∀ i, AddCommGroup (G i)] (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n))
+
+def InverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) : AddInverseLimit f →+ AddInverseLimit g where
+  toFun := sorry
+  map_zero' := sorry
+  map_add' := sorry
