@@ -8,7 +8,5 @@ import Mathlib.Order.DirectedInverseSystem
   ii) If `{Aₙ}` is a surjective system, then `0 ⟶ lim Aₙ ⟶ lim Bₙ ⟶ lim Cₙ ⟶ 0` is exact.
 -/
 
-
-
 lemma am10_2_i : true := sorry
 lemma am10_2_ii : true := sorry

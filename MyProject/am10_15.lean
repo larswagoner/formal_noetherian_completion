@@ -35,15 +35,9 @@ noncomputable def am10_15_i_option_1 :
     AdicCompletion I I ≃ₗ[AdicCompletion I A] TensorProduct A (AdicCompletion I A) I :=
   (AdicCompletion.ofTensorProductEquivOfFiniteNoetherian I I).symm
 
-noncomputable def adicCompletionsAreSame : AdicCompletion I I ≃ₗ[AdicCompletion I A] I.adicCompletion I where
-  toFun := sorry
-  map_add' := sorry
-  map_smul' := sorry
-  invFun := sorry
-  left_inv := sorry
-  right_inv := sorry
 
-noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion I A] TensorProduct A (AdicCompletion I A) I := by sorry
+
+noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion I A] TensorProduct A (AdicCompletion I A) I := sorry
 
 
 
