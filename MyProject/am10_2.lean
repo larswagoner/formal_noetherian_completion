@@ -13,12 +13,12 @@ class AddInverseSystem {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ �
 def ExtendedF (F : ℕ → Type) : ENat → Type := ENat.recTopCoe Unit F
 
 instance (F : ℕ → Type) [h : ∀ i, AddCommGroup (F i)] : ∀ i, AddCommGroup (ExtendedF F i) := by
-  apply ENat.recTopCoe 
+  apply ENat.recTopCoe
   · exact PUnit.addCommGroup
   · exact h
 
 def Extendedf {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) : ∀ ⦃n m⦄, (n ≤ m) → (ExtendedF F m) →+ (ExtendedF F n) := by
-  apply ENat.recTopCoe 
+  apply ENat.recTopCoe
   · intro m h
     show ExtendedF F m →+ Unit
     exact 0
@@ -66,16 +66,30 @@ instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n �
 def AddInverseLimit {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] := InverseSystem.limit (fun _ _ x ↦ Extendedf f x) ⊤
 
 @[simp]
+lemma compatible_entries {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] (x : AddInverseLimit f) {n m : Set.Iio (⊤ : ENat)} (h : n ≤ m) : (Extendedf f h) (x.1 m) = x.1 n := by apply x.2
+
+@[simp]
+lemma compatible_entries₂ {F : ℕ → Type} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AddInverseSystem f] (x : (n : ↑(Set.Iio (⊤ : ENat))) → ExtendedF F ↑n ) (hx : x ∈ AddInverseLimit f) {n m : Set.Iio (⊤ : ENat)} (h : n ≤ m) : (Extendedf f h) (x m) = x n := by apply hx
 
 def AddInverseLimitSubgroup {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : AddSubgroup (∀ n : Set.Iio (⊤ : ENat), ExtendedF F n) where
   carrier := AddInverseLimit f
   add_mem' := by
     rintro a b ha hb n m hnm
+    simp [ha, hb]
+  zero_mem' := by
+    intro a k h
     simp
-    rw [ha, hb]
-    sorry
-  zero_mem' := sorry
-  neg_mem' := sorry
+  neg_mem' := by
+    intro a ha n m hnm
+    simp [ha]
+
+
+instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : AddCommGroup (AddInverseLimit f) :=
+  AddSubgroup.toAddCommGroup (AddInverseLimitSubgroup f)
+
+variable (F G : ℕ → Type) [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
+variable (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n))
+
 
 
 /-
