@@ -60,9 +60,12 @@ instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n �
         · intro c hab hbc x
           exact h.map_map (ENat.coe_le_coe.mp hab) (ENat.coe_le_coe.mp hbc) x
 
-variable (F G : ℕ → Type) [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
 
-/-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system --/
+
+
+variable {F G : ℕ → Type} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
+
+/-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system. -/
 structure AddInverseSystemHom (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)) [AddInverseSystem f] [AddInverseSystem g] where
   protected maps : ∀ n, F n →+ G n
   protected compatible : ∀ ⦃n m⦄, (h : n ≤ m) → (∀ x : F m , maps n (f h x) = g h (maps m x))
