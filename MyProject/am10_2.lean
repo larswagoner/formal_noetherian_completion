@@ -1,4 +1,5 @@
 import MyProject.am2_10
+import Mathlib.Order.DirectedInverseSystem
 
 /-
   # Proposition 10.2
@@ -7,12 +8,78 @@ import MyProject.am2_10
   ii) If `{Aₙ}` is a surjective system, then `0 ⟶ lim Aₙ ⟶ lim Bₙ ⟶ lim Cₙ ⟶ 0` is exact.
 -/
 
+class AddInverseSystem {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) extends InverseSystem (fun _ _ h ↦ f h)
 
-class AddInverseSystem (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)] where
-  transition_morphisms : ∀ i, (ι (i+1)) →+ (ι i)
+def ExtendedF (F : ℕ → Type) : ENat → Type := ENat.recTopCoe Unit F
+
+instance (F : ℕ → Type) [h : ∀ i, AddCommGroup (F i)] : ∀ i, AddCommGroup (ExtendedF F i) := by
+  apply ENat.recTopCoe 
+  · exact PUnit.addCommGroup
+  · exact h
+
+def Extendedf {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) : ∀ ⦃n m⦄, (n ≤ m) → (ExtendedF F m) →+ (ExtendedF F n) := by
+  apply ENat.recTopCoe 
+  · intro m h
+    show ExtendedF F m →+ Unit
+    exact 0
+  · intro a
+    apply ENat.recTopCoe
+    · intro h
+      exact 0
+    · intro b
+      intro h
+      exact f (ENat.coe_le_coe.mp h)
+
+@[simp]
+lemma Extendedf_top (F : ℕ → Type) [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) : ∀ j, ∀ x : ExtendedF F ⊤ , Extendedf f (@le_top _ _ _ j) x = 0 := by
+  apply ENat.recTopCoe
+  · intro x
+    rfl
+  · intro a x
+    rfl
+
+instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [h : AddInverseSystem f] : InverseSystem (fun _ _ x ↦ Extendedf f x) where
+  map_self := by
+    apply ENat.recTopCoe
+    · intro x
+      rfl
+    · exact h.map_self
+  map_map := by
+    apply ENat.recTopCoe
+    · intro _ _ _ _ _
+      rfl
+    · intro a
+      apply ENat.recTopCoe
+      · intro i haj hji x
+        show 0 = _
+        have : i = ⊤ := eq_top_iff.mpr hji
+        subst this
+        simp
+      · intro b
+        apply ENat.recTopCoe
+        · intro hab hjt x
+          simp
+        · intro c hab hbc x
+          exact h.map_map (ENat.coe_le_coe.mp hab) (ENat.coe_le_coe.mp hbc) x
 
 
-def InverseLimit {ι : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (ι i)] (𝒜 : AddInverseSystem ι) : Set (∀ n : ℕ, ι n) :=
+def AddInverseLimit {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] := InverseSystem.limit (fun _ _ x ↦ Extendedf f x) ⊤
+
+@[simp]
+
+def AddInverseLimitSubgroup {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : AddSubgroup (∀ n : Set.Iio (⊤ : ENat), ExtendedF F n) where
+  carrier := AddInverseLimit f
+  add_mem' := by
+    rintro a b ha hb n m hnm
+    simp
+    rw [ha, hb]
+    sorry
+  zero_mem' := sorry
+  neg_mem' := sorry
+
+
+/-
+def InverseLimit {F : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) → (F n)) (𝒜 : AddInverseSystem F) : Set (∀ n : ℕ, ι n) :=
   { f : (∀(n : ℕ), (ι n)) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
 
 
@@ -43,7 +110,7 @@ def InverseLimitSubgroup {ι : ℕ → Type} [entry_is_group : ∀ i, AddCommGro
 
 instance (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)]  (𝒜 : AddInverseSystem ι) : AddCommGroup (InverseLimit 𝒜) :=
     AddSubgroup.toAddCommGroup (InverseLimitSubgroup 𝒜)
-
+-/
 
 
 
