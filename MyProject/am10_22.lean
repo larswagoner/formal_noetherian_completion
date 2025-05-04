@@ -11,21 +11,22 @@ import MyProject.AssociatedGradedRing.Module
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
-/- LARS COMMENTS: delete before pushing to master
--- how to get generators? map them to I/I^2 (F.N 2 or 1) via some canonical map. Then how to get from that to quotient. Maybe A/I noetherian is easy, then A/I [y₁, ..., yₙ] as polynomial ring is noetherian. Then define map out of that with kernel the generators, expressing graded as quotient, hence noetherian via isomorphism.  For map, just need surjection from polynomial to Graded, then noetherian follows. 
+/- Notes for 10.22.i 
+Instead of directly following the approach in AM (which relies on an equality involving G(A) which I think will be annoying to make type check), very open for this option if it ends up being easy. I propose the following approach: 
 
--- theorem isNoetherian_of_surjective
--- what is the map though... A/I [X] → G(A)
--- i need a max of the number of generators.... 
+1. Since I is an ideal of a noetherian ring, it is finitely generated, with generating set S : Finset A. 
+2. Consider the polynomial ring B = A/I [{x_s}_{s∈ S}], with indeterminates indexed by S. This ring is noetherian since A/I is (quotient) and by Hilberts basis theorem
+3. For G(A) to be noetherian, it suffices to give a map B → AssociatedGradedRing I that is a homomorphism and surjective. Such a map is given by sending A/I to the first component I^0/I^1 = A/I, and each variable to the corresponding image of the generator s in the second component I/I^2. 
 
--- maybe dont care about the n, just extract the S from I.FG. Then use algebra adjoin A/I S. Is this a ring structure?
--- maybe given a and I , i make a function that outputs A/I[x,...,x] either as polynomial or with S. 
+Progress so far:
+The proof is outlined. 
+1. Map of scalars: A/I →+* G(A). On paper, we should get this for free with DirectSum.ofZeroRingHom. But the domain for that result needs to be (GradedPiece (CanonicalFiltration I) 0), which is equal to A/I, but one cant just rewrite via this equality. So I have the scalar map as a composition A/I →+* (GradedPiece (CanonicalFiltration I) 0) →+* G(A). Whats missing is the first map, multiplication might be annoying?
+2. Map of variables. Mathematically this would be done as so: send a generator s to its equivalence class in I/I^2, then apply the canonical map to end up in G(A) (DirectSum.of (GradedPiece (CanonicalFiltration I)) 1  should work i think)
+3. Surjectivity: map needs to be defined first. This will basically amount to proving the equality stated in AM
+
 -/
 
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
-
---noncomputable instance : DecidableEq (A ⧸ I) := fun a b ↦ Classical.propDecidable (a = b)
---noncomputable instance : Algebra (A ⧸ I) (A ⧸ I) := Algebra.id (A ⧸ I)
 
 /- Given an ideal I, returns Polynomial ring over A/I with variables indexed by 
 generators of I. Finitely many since A noetherian-/
@@ -36,25 +37,38 @@ noncomputable instance : Semiring (ideal_to_MvPolynomial I) := by
   unfold ideal_to_MvPolynomial
   infer_instance
 
+
 noncomputable instance : IsNoetherianRing (ideal_to_MvPolynomial I) := by
   unfold ideal_to_MvPolynomial
   infer_instance
 
--- Map from Poly to Graded ring -- https://leanprover-community.github.io/mathlib4_docs/Mathlib/Algebra/MvPolynomial/Eval.html#MvPolynomial.eval%E2%82%82
-noncomputable def MvPolynomial_to_AssociatedGradedRing : (ideal_to_MvPolynomial I) → (AssociatedGradedRing I) := sorry
+/- Defining map from polynomial ring to associated graded ring
+  some useful theorems from mathlib
+   DirectSum.ofZeroRingHom (GradedPiece (CanonicalFiltration I)) 
+   DirectSum.of (GradedPiece (CanonicalFiltration I)) 0 
+  -/
+lemma zeroeth_graded_piece : (GradedPiece (CanonicalFiltration I) 0) = (A ⧸ I) := sorry
 
-noncomputable def MvMorphism : (ideal_to_MvPolynomial I) →+* (AssociatedGradedRing I) := sorry
+def zeroeth_morphism : A ⧸ I →+* (GradedPiece (CanonicalFiltration I) 0) := by 
+  sorry
+
+def aux_scalar_morphism : (GradedPiece (CanonicalFiltration I) 0) →+* AssociatedGradedRing I := DirectSum.ofZeroRingHom (GradedPiece (CanonicalFiltration I)) 
+
+def scalar_morphism : A ⧸ I →+* AssociatedGradedRing I := (aux_scalar_morphism I).comp (zeroeth_morphism I)
+
+noncomputable def variable_morphism : (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose → AssociatedGradedRing I := sorry
+
+noncomputable def MvMorphism : (ideal_to_MvPolynomial I) →+* (AssociatedGradedRing I) := MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
+
 
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := sorry
 
 
-
-
+/-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AssociatedGradedRing I) := isNoetherianRing_of_surjective (ideal_to_MvPolynomial I) (AssociatedGradedRing I) (MvMorphism I) (MvMorphism_surjective I)
 
 
-  
 
 /-
   Note, `I.adicCompletion I` is the `Â`-ideal generated by `I`.
