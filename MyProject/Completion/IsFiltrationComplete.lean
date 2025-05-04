@@ -1,6 +1,8 @@
 import MyProject.Completion.FiltrationCompletion
 import MyProject.Filtration.Constructions
 
+section
+
 variable {A : Type*} [CommRing A] {I : Ideal A}
 variable {M : Type*} [AddCommGroup M] [Module A M]
 variable (F : I.Filtration M)
@@ -203,4 +205,122 @@ lemma Complete_iff_offset_Complete (m : ℕ) :
   rw [isFiltrationComplete_iff]
   rw [Haussdorff_iff_offset_Haussdorf F m]
   rw [Precomplete_iff_offset_Precomplete F m]
+  rw [isFiltrationComplete_iff]
+
+end
+
+section
+
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable (ι : Type*) (β : ι → Type*) [∀ i, AddCommGroup (β i)] [∀ i, Module A (β i)]
+variable (F : ∀ i, I.Filtration (β i))
+
+/--
+  Let `{Mₙ}` be collection of modules with filtrations `Fᵢ`. Then `∏ᵢ Mᵢ` is `(∏ᵢ Fᵢ)`-Hausdorff,
+  exactly if each `Mᵢ` is `Fᵢ`-Hausdorff.
+-/
+lemma product_Haussdorf_iff_forall_Haussdorff [DecidableEq ι] :
+    IsFiltrationHausdorff (DirectProductFiltration ι β F) ↔ ∀ i, IsFiltrationHausdorff (F i) := by
+  rw [isFiltrationHausdorff_iff]
+  constructor
+  · intro hHaus j
+    rw [isFiltrationHausdorff_iff]
+    intro x hx
+    set y : ∀ i, β i := fun i ↦ if hij : i = j then (hij ▸ x) else 0
+    by_contra x_ne_0
+    have : y ≠ 0 := by
+      intro h
+      have : y j ≠ 0 := by
+        intro h
+        unfold y at h
+        simp at h
+        exact x_ne_0 h
+      exact this (congrFun h j)
+    apply this
+    apply hHaus
+    intro n
+    rw [DirectProductFiltration_mod_iff]
+    intro i
+    by_cases hij : i = j
+    · subst hij
+      unfold y
+      simp
+      exact hx n
+    · push_neg at hij
+      unfold y
+      simp [hij]
+      rfl
+  · intro hHaus x hx
+    ext i
+    have hi := hHaus i
+    rw [isFiltrationHausdorff_iff] at hi
+    apply hi
+    intro n
+    have := hx n
+    rw [DirectProductFiltration_mod_iff] at this
+    exact this i
+
+/--
+  Let `{Mₙ}` be collection of modules with filtrations `Fᵢ`. Then `∏ᵢ Mᵢ` is `(∏ᵢ Fᵢ)`-Precomplete,
+  exactly if each `Mᵢ` is `Fᵢ`-Precomplete.
+-/
+lemma product_Precomplete_iff_forall_Precomplete [DecidableEq ι] :
+    IsFiltrationPrecomplete (DirectProductFiltration ι β F) ↔ ∀ i, IsFiltrationPrecomplete (F i) := by
+  rw [isFiltrationPrecomplete_iff]
+  constructor
+  · intro hPrec j
+    rw [isFiltrationPrecomplete_iff]
+    intro f hf
+    set g : ℕ → (∀ i, β i) := by
+      intro n i
+      exact if hij : i = j then (hij ▸ (f n)) else 0
+    have : ∀ {m n : ℕ}, m ≤ n → g m ≡ g n [SMOD (DirectProductFiltration ι β F).N m] := by
+      intro m n hmn
+      rw [DirectProductFiltration_mod_iff]
+      intro i
+      by_cases hij : i = j
+      · subst hij
+        unfold g
+        simp
+        exact hf hmn
+      · unfold g
+        simp [hij]
+        rfl
+    rcases hPrec g this with ⟨L, hL⟩
+    use (L j)
+    intro n
+    have := hL n
+    rw [DirectProductFiltration_mod_iff] at this
+    convert (this j)
+    unfold g
+    simp
+  · intro hPrec f hf
+    have : ∀ i : ι, ∃ L : β i, ∀ (n : ℕ), f n i ≡ L [SMOD (F i).N n] := by
+      intro i
+      set fᵢ : ℕ → (β i) := fun n ↦ f n i
+      have : ∀ {m n : ℕ}, m ≤ n → fᵢ m ≡ fᵢ n [SMOD (F i).N m] := by
+        intro m n hmn
+        have := hf hmn
+        rw [DirectProductFiltration_mod_iff] at this
+        exact this i
+      exact (hPrec i).prec' fᵢ this
+    use (fun i ↦ (this i).choose)
+    intro n
+    rw [DirectProductFiltration_mod_iff]
+    intro i
+    exact (this i).choose_spec n
+
+
+/--
+  Let `{Mₙ}` be collection of modules with filtrations `Fᵢ`. Then `∏ᵢ Mᵢ` is `(∏ᵢ Fᵢ)`-Complete,
+  exactly if each `Mᵢ` is `Fᵢ`-Complete
+-/
+lemma product_Complete_iff_forall_Complete [DecidableEq ι] :
+    IsFiltrationComplete (DirectProductFiltration ι β F) ↔ ∀ i, IsFiltrationComplete (F i) := by
+  rw [isFiltrationComplete_iff]
+  rw [product_Haussdorf_iff_forall_Haussdorff ι β F]
+  rw [product_Precomplete_iff_forall_Precomplete ι β F]
+  rw [←forall_and]
+  apply forall_congr'
+  intro a
   rw [isFiltrationComplete_iff]

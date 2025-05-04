@@ -1,4 +1,5 @@
 import Mathlib.RingTheory.Filtration
+import Mathlib.LinearAlgebra.SModEq
 
 section
 
@@ -57,7 +58,7 @@ end
 
 section
 
-variable {R : Type u} {ι : Type x} [CommSemiring R] {φ : ι → Type i} [(i : ι) → AddCommGroup (φ i)]
+variable {R : Type*} {ι : Type*} [CommSemiring R] {φ : ι → Type*} [(i : ι) → AddCommGroup (φ i)]
 variable [(i : ι) → Module R (φ i)]
 
 /--
@@ -87,8 +88,8 @@ end
 
 section
 
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable (ι : Type v) (β : ι → Type u) [∀ i, AddCommGroup (β i)] [∀ i, Module A (β i)]
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable (ι : Type*) (β : ι → Type*) [∀ i, AddCommGroup (β i)] [∀ i, Module A (β i)]
 
 /--
   Given a collection `{Mᵢ}` of modules and an `I`-filtration `Fᵢ` on each module `Mᵢ`, we can form
@@ -108,5 +109,14 @@ def DirectProductFiltration (F : ∀ i, I.Filtration (β i)) : I.Filtration (∀
 lemma DirectProductFiltration_mem_iff {F : ∀ i, I.Filtration (β i)} (n : ℕ) {x : (∀ i, β i)} :
     x ∈ (DirectProductFiltration ι β F).N n ↔ ∀ i, x i ∈ (F i).N n := by
   exact { mp := fun a i ↦ a i trivial, mpr := fun a i a_1 ↦ a i }
+
+lemma DirectProductFiltration_mod_iff {F : ∀ i, I.Filtration (β i)} (n : ℕ) {x y : (∀ i, β i)} :
+    x ≡ y [SMOD (DirectProductFiltration ι β F).N n] ↔ ∀ i, x i ≡ y i [SMOD (F i).N n] := by
+  rw [SModEq.sub_mem]
+  rw [DirectProductFiltration_mem_iff]
+  rw [forall_congr']
+  intro a
+  rw [SModEq.sub_mem]
+  rfl
 
 end
