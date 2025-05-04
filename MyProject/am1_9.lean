@@ -6,7 +6,7 @@ import Mathlib.RingTheory.Jacobson.Ideal
   Then `x ∈ J` if and only if `1 - xy ∈ A*` for all `y ∈ A`.
 -/
 
-lemma am1_9 {R : Type u} [CommRing R] (x : R) :
+lemma am1_9 {R : Type*} [CommRing R] (x : R) :
   x ∈ (⊥ : Ideal R).jacobson ↔ ∀ (y : R), IsUnit (1 - x * y) := by
   rw [Ideal.mem_jacobson_bot]
   constructor

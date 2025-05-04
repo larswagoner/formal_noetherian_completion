@@ -7,10 +7,8 @@ import Mathlib.Algebra.Module.GradedModule
   `A`-module `M` is a `G(A)`-module.
 -/
 
-universe u
-
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type*} [AddCommGroup M] [Module A M] (F : I.Filtration M)
 
 instance : GradedMonoid.GSMul (GradedRingPiece I) (GradedPiece F) where
   smul := graded_smul
