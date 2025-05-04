@@ -2,8 +2,8 @@ import Mathlib.RingTheory.Filtration
 
 section
 
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type*} [AddCommGroup M] [Module A M] (F : I.Filtration M)
 
 lemma IFiltration_I_pow_sub_smul_le (m n : ℕ) :
     I^(m - n) • F.N n ≤ F.N m := by
@@ -20,7 +20,7 @@ lemma IFiltration_I_pow_sub_smul_le (m n : ℕ) :
   Let `M` be a module with a filtration `{Mₙ}ₙ`. Then for any `m : ℕ` we can form the filtration
   given by `{Mₙ₋ₘ}ₙ`.
 -/
-def OffSetFiltration (m : ℕ) : I.Filtration M where
+def OffsetFiltration (m : ℕ) : I.Filtration M where
   N := fun n ↦ F.N (n - m)
   mono := by
     intro i
@@ -39,6 +39,19 @@ def OffSetFiltration (m : ℕ) : I.Filtration M where
     · push_neg at h
       rw [Nat.sub_add_comm h]
       exact F.smul_le (i - m)
+
+@[simp]
+lemma offsetFiltration_eval_add (m n : ℕ) :
+    (OffsetFiltration F m).N (n + m) = F.N n := by
+  unfold OffsetFiltration
+  simp
+
+@[simp]
+lemma offsetFiltration_eval_le {m n : ℕ} (h : n ≤ m) :
+    (OffsetFiltration F m).N n = F.N 0 := by
+  unfold OffsetFiltration
+  simp
+  rw [Nat.sub_eq_zero_of_le h]
 
 end
 

@@ -1,4 +1,5 @@
 import MyProject.Completion.FiltrationCompletion
+import MyProject.Filtration.Constructions
 
 variable {A : Type*} [CommRing A] {I : Ideal A}
 variable {M : Type*} [AddCommGroup M] [Module A M]
@@ -39,6 +40,13 @@ theorem isFiltrationPrecomplete_iff :
         (∀ {m n}, m ≤ n → f m ≡ f n [SMOD F.N m]) →
           ∃ L : M, ∀ n, f n ≡ L [SMOD F.N n] :=
   ⟨fun h => h.1, fun h => ⟨h⟩⟩
+
+theorem isFiltrationComplete_iff :
+    IsFiltrationComplete F ↔
+      IsFiltrationHausdorff F ∧ IsFiltrationPrecomplete F := by
+  constructor
+  · exact fun h ↦ ⟨h.toIsFiltrationHausdorff, h.toIsFiltrationPrecomplete⟩
+  · exact fun ⟨a, b⟩ ↦ { __ := a, __ := b }
 
 end
 
@@ -126,3 +134,73 @@ lemma IsFiltrationComplete_iff_Bijective :
       __ := (IsFiltrationHausdorff_iff_Injective F).mpr inj
       __ := (IsFiltrationPrecomplete_of_Surjective F) surj
     }
+
+/--
+  Let `M` be a module with filtration `F` and `m : ℕ`. Then `M` is `F`-Hausdorff exactly if `M` is
+  `OffsetFiltration F m`-Hausdorff.
+-/
+lemma Haussdorff_iff_offset_Haussdorf (m : ℕ) :
+    IsFiltrationHausdorff F ↔ IsFiltrationHausdorff (OffsetFiltration F m) := by
+  rw [isFiltrationHausdorff_iff]
+  rw [isFiltrationHausdorff_iff]
+  apply forall_congr'
+  intro a
+  constructor
+  · intro h ha
+    apply h
+    intro n
+    convert ha (n + m) using 1
+    simp
+  · intro h ha
+    apply h
+    intro n
+    exact ha (n - m)
+
+/--
+  Let `M` be a module with filtration `F` and `m : ℕ`. Then `M` is `F`-Precomplete exactly if `M` is
+  `OffsetFiltration F m`-Precomplete.
+-/
+lemma Precomplete_iff_offset_Precomplete (m : ℕ) :
+    IsFiltrationPrecomplete F ↔ IsFiltrationPrecomplete (OffsetFiltration F m) := by
+  rw [isFiltrationPrecomplete_iff]
+  rw [isFiltrationPrecomplete_iff]
+  constructor
+  · intro h f hf
+    have : (∀ {i j : ℕ}, i ≤ j → f (i + m) ≡ f (j + m) [SMOD F.N i]) := by
+      intro i j hij
+      convert hf (add_le_add_right hij m) using 1
+      simp
+    rcases h (fun n ↦ f (n + m)) this with ⟨L, hL⟩
+    use L
+    intro i
+    by_cases him : i ≤ m
+    · rw [offsetFiltration_eval_le F him]
+      have h₁ := hf him
+      rw [offsetFiltration_eval_le F him] at h₁
+      apply trans h₁
+      convert hL 0
+      simp
+    · convert (hL (i - m)) using 1
+      push_neg at him
+      rw [Nat.sub_add_cancel (le_of_lt him)]
+  · intro h f hf
+    have : (∀ {i j : ℕ}, i ≤ j → f (i - m) ≡ f (j - m) [SMOD (OffsetFiltration F m).N i]) := by
+      intro i j hij
+      exact hf (Nat.sub_le_sub_right hij m)
+    rcases h (fun n ↦ f (n - m)) this with ⟨L, hL⟩
+    use L
+    intro i
+    convert hL (i + m) using 1
+    simp
+    rw [Nat.add_sub_cancel]
+
+/--
+  Let `M` be a module with filtration `F` and `m : ℕ`. Then `M` is `F`-Complete exactly if `M` is
+  `OffsetFiltration F m`-Complete.
+-/
+lemma Complete_iff_offset_Complete (m : ℕ) :
+    IsFiltrationComplete F ↔ IsFiltrationComplete (OffsetFiltration F m) := by
+  rw [isFiltrationComplete_iff]
+  rw [Haussdorff_iff_offset_Haussdorf F m]
+  rw [Precomplete_iff_offset_Precomplete F m]
+  rw [isFiltrationComplete_iff]
