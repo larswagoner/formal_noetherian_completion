@@ -1,93 +1,7 @@
 import MyProject.am10_23
 import MyProject.adic_completion
 import MyProject.AssociatedGradedRing.Map
-import Mathlib
-
-section
-
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
-
-lemma IFiltration_I_pow_sub_smul_le (m n : ℕ) :
-    I^(m - n) • F.N n ≤ F.N m := by
-  by_cases h : m < n
-  · rw [Nat.sub_eq_zero_of_le (le_of_lt h)]
-    simp
-    exact Ideal.Filtration.antitone F (le_of_lt h)
-  · have := Ideal.Filtration.pow_smul_le F (m - n) n
-    convert this
-    push_neg at h
-    exact (Nat.sub_eq_iff_eq_add h).mp rfl
-
-def OffSetFiltration (m : ℕ) : I.Filtration M where
-  N := fun n ↦ F.N (n - m)
-  mono := by
-    intro i
-    by_cases h : i < m
-    · rw [Nat.sub_eq_zero_of_le h]
-      rw [Nat.sub_eq_zero_of_le (le_of_lt h)]
-    · push_neg at h
-      rw [Nat.sub_add_comm h]
-      exact F.mono (i - m)
-  smul_le := by
-    intro i
-    by_cases h : i < m
-    · rw [Nat.sub_eq_zero_of_le h]
-      rw [Nat.sub_eq_zero_of_le (le_of_lt h)]
-      exact Submodule.smul_le_right
-    · push_neg at h
-      rw [Nat.sub_add_comm h]
-      exact F.smul_le (i - m)
-
-end
-
-section
-
-variable {R : Type u} {ι : Type x} [CommSemiring R] {φ : ι → Type i} [(i : ι) → AddCommGroup (φ i)]
-variable [(i : ι) → Module R (φ i)]
-
-lemma Submodule.pi_smul (I : Set ι) (p : (i : ι) → Submodule R (φ i)) (A : Ideal R) :
-    A • (Submodule.pi I p) ≤ Submodule.pi I (fun i ↦ A • (p i)) := by
-  intro x h i iI
-  simp
-  rw [(span_eq (pi I p)).symm, ←Ideal.span_eq A, span_smul_span] at h
-  revert h x
-  apply Submodule.span_induction
-  · intro x hx
-    simp at hx
-    rcases hx with ⟨_, ha, _, hy, rfl⟩
-    exact smul_mem_smul ha (hy i iI)
-  · simp
-  · intro _ _ _ _ p q
-    simp
-    exact Submodule.add_mem _ p q
-  · intro a _ _ hxj
-    simp
-    exact Submodule.smul_mem _ a hxj
-
-end
-
-section
-
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable (ι : Type v) (β : ι → Type u) [∀ i, AddCommGroup (β i)] [∀ i, Module A (β i)]
-
-def DirectProductFiltration (F : ∀ i, I.Filtration (β i)) : I.Filtration (∀ i, β i) where
-  N := fun n ↦ (Submodule.pi Set.univ (fun i ↦ (F i).N n))
-  mono := fun n x hx i _ ↦ by
-    simp at hx
-    exact (F i).mono n (hx i)
-  smul_le := fun n x hx i _ ↦ by
-    apply (F i).smul_le n
-    have := Submodule.pi_smul _ _ _ hx
-    simp at this
-    exact (this i)
-
-lemma DirectProductFiltration_mem_iff {F : ∀ i, I.Filtration (β i)} (n : ℕ) {x : (∀ i, β i)} :
-    x ∈ (DirectProductFiltration ι β F).N n ↔ ∀ i, x i ∈ (F i).N n := by
-  exact { mp := fun a i ↦ a i trivial, mpr := fun a i a_1 ↦ a i }
-
-end
+import MyProject.Completion.IsFiltrationComplete
 
 section
 
@@ -199,11 +113,9 @@ end
   Then `M` is finitely-generated `A`-module.
 -/
 
--- Will probably use Function.Surjective.of_comp_left
-
-lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
+lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [hA : IsAdicComplete I A]
     {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
-    (hF :  ⨅ n, F.N n = (⊥ : Submodule A M))  -- Best way to add `⋂ₙ Mₙ = 0`?
+    [hF_haus :  IsFiltrationHausdorff F]
     [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] : Module.Finite A M := by
 
   -- Let `s : Multiset (AssociatedGradedModule F)` consist of homogeneous elements that generate `G(M)`.
@@ -217,7 +129,7 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
   set d : ι → ℕ := fun i ↦ (s.get i).2.1
   set y : ι → M := fun i ↦ (s.get i).2.2
 
-  set F' : I.Filtration R := DirectProductFiltration ι β (fun i ↦ (OffSetFiltration (CanonicalFiltration I) (d i)))
+  set F' : I.Filtration R := DirectProductFiltration ι β (fun i ↦ (OffsetFiltration (CanonicalFiltration I) (d i)))
 
   -- Define a map `R → M` by sending `(xᵢ)ᵢ ↦ ∑ᵢ xᵢ ⬝ yᵢ`.
   set φ : R →ₗ[A] M := {
@@ -240,7 +152,7 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
   have φ_apply : ∀ x : R, φ x = ∑ i, x i • y i := fun x ↦ rfl
 
   -- `φ` satisfies `F'.N n ⊆ φ⁻¹(F.N n)` for all n
-  have : ∀ n, (F'.N n) ≤ (F.N n).comap φ := by
+  have hφ : ∀ n, (F'.N n) ≤ (F.N n).comap φ := by
     intro n x hx
     show ∑ i, x i • y i ∈ F.N n
     suffices : ∀ i, x i • y i ∈ F.N n
@@ -253,10 +165,10 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
     · exact Submodule.coe_mem (s.get i).2.2
 
   -- `φ` induces a map `Gφ : G(R) → G(M)`
-  set Gφ : AssociatedGradedModule F' →ₗ[AssociatedGradedRing I] AssociatedGradedModule F := GradedModuleHom this
+  set Gφ : AssociatedGradedModule F' →ₗ[AssociatedGradedRing I] AssociatedGradedModule F := GradedModuleHom hφ
 
   -- `Gφ` is surjective
-  have : Function.Surjective Gφ := by
+  have Gφ_surj : Function.Surjective Gφ := by
     rw [←LinearMap.range_eq_top]
     apply le_antisymm (le_top)
     rw [←s_gen]
@@ -272,8 +184,6 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
       by_cases hij : i = j
       · subst hij
         simp
-        show 1 ∈ (I^((d i) - (d i)) • ⊤)
-        simp
       · simp [hij]
     ⟩⟧ₘ)
     apply DirectSum.ext
@@ -281,27 +191,37 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [IsAdicComplete I A]
     rw [s_hg _]
     rw [GradedModuleHom_apply]
     by_cases hm : m = d i
-    case neg
+    · subst hm
+      show _ = DirectSum.of (GradedPiece F) (d i) ⟦(s.get i).2.2⟧ₘ (d i)
+      rw [DirectSum.of_eq_same]
+      rw [DirectSum.of_eq_same]
+      show ⟦_⟧ₘ = ⟦_⟧ₘ
+      congr
+      apply Subtype.coe_inj.mp
+      show φ _ = y i
+      simp
+      rw [φ_apply]
+      simp
     · push_neg at hm
       show _ = DirectSum.of (GradedPiece F) (d i) ⟦(s.get i).2.2⟧ₘ m
       rw [DirectSum.of_eq_of_ne _ _ _ hm.symm]
       rw [DirectSum.of_eq_of_ne _ _ _ hm.symm]
       simp
-    subst hm
-    show _ = DirectSum.of (GradedPiece F) (d i) ⟦(s.get i).2.2⟧ₘ (d i)
-    rw [DirectSum.of_eq_same]
-    rw [DirectSum.of_eq_same]
-    show ⟦_⟧ₘ = ⟦_⟧ₘ
-    congr
-    apply Subtype.coe_inj.mp
-    show φ _ = y i
-    simp
-    rw [φ_apply]
-    simp
     exact h₁
 
-  have φ_hat : True → True := sorry
-  have : Function.Surjective φ_hat := sorry
-  have : Function.Surjective φ := sorry
+  have : Function.Surjective φ := by
+    apply Function.Surjective.of_comp_left _ ((IsFiltrationHausdorff_iff_Injective F).mp hF_haus)
+    have : (FiltrationCompletion.of F) ∘ φ = (FiltrationCompletionHom.of_comap_le hφ) ∘ (FiltrationCompletion.of F') := by
+      ext t
+      rfl
+    rw [this]
+    apply (Function.Surjective.of_comp_iff _ _).mpr (am10_23_ii hφ Gφ_surj)
+    have : IsFiltrationPrecomplete F' := by
+      rw [product_Precomplete_iff_forall_Precomplete]
+      intro i
+      rw [←Precomplete_iff_offset_Precomplete]
+      rw [←isPrecomplete_iff_isCanonicalPrecomplete]
+      exact hA.toIsPrecomplete
+    apply Surjective_ofIsFiltrationPrecomplete
 
   exact Module.Finite.of_surjective φ this

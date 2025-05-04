@@ -324,3 +324,24 @@ lemma product_Complete_iff_forall_Complete [DecidableEq ι] :
   apply forall_congr'
   intro a
   rw [isFiltrationComplete_iff]
+
+end
+
+section
+
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type*} [AddCommGroup M] [Module A M]
+
+lemma isComplete_iff_isCanonicalComplete :
+    IsAdicComplete I M ↔ IsFiltrationComplete (I.stableFiltration (⊤ : Submodule A M)) :=
+  ⟨fun h ↦ { haus' := h.haus', prec' := h.prec' }, fun h ↦ { haus' := h.haus', prec' := h.prec' }⟩
+
+lemma isHausdorff_iff_isCanonicalHausdorff :
+    IsHausdorff I M ↔ IsFiltrationHausdorff (I.stableFiltration (⊤ : Submodule A M)) :=
+  ⟨fun h ↦ { haus' := h.haus' }, fun h ↦ { haus' := h.haus' }⟩
+
+lemma isPrecomplete_iff_isCanonicalPrecomplete :
+    IsPrecomplete I M ↔ IsFiltrationPrecomplete (I.stableFiltration (⊤ : Submodule A M)) :=
+  ⟨fun h ↦ { prec' := h.prec' }, fun h ↦ { prec' := h.prec' }⟩
+
+end
