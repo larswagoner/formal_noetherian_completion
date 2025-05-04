@@ -87,7 +87,7 @@ def SurjectiveSystemHom (ψ : f →ₛ+ g) : Prop :=
 
 variable {H : ℕ → Type*} [∀ i, AddCommGroup (H i)] {h : ∀ ⦃n m⦄, (n ≤ m) → (H m) →+ (H n)} [AddInverseSystem h]
 
-def SystemHomComposition (ψ : f →ₛ+ g) (ϕ : g →ₛ+ h) : f →ₛ+ h where
+def SystemHomComposition (ϕ : g →ₛ+ h) (ψ : f →ₛ+ g) : f →ₛ+ h where
   maps := fun n ↦ AddMonoidHom.comp (ϕ.maps n) (ψ.maps n)
   compatible := by
     intro n m h x
