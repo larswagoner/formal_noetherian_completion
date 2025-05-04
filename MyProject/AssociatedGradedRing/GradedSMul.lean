@@ -6,10 +6,8 @@ import MyProject.AssociatedGradedRing.Basic
   `A`-module `M` is a `G(A)`-module.
 -/
 
-universe u
-
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M}
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type*} [AddCommGroup M] [Module A M] {F : I.Filtration M}
 
 lemma filtration_smul_deg {m n : ℕ} {x : A} {y : M} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ F.N n) :
     x • y ∈ F.N (m + n) := by
