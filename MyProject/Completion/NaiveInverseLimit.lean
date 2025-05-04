@@ -1,6 +1,6 @@
 import MyProject.Completion.InverseSystem
 
-variable {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n))
+variable {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n))
 
 def NaiveAddInverseLimit [AddInverseSystem f] : Set (∀ n, F n) :=
   {a | ∀ ⦃n m⦄ (h : n ≤ m), f h (a m) = a n}
@@ -14,7 +14,8 @@ lemma naive_compatible_entries₂ [AddInverseSystem f] (x : ∀ n, F n) (hx : x 
   f h (x m) = x n := by apply hx
 
 
-variable {G : ℕ → Type} [∀ i, AddCommGroup (G i)] (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n))
+
+variable {G : ℕ → Type*} [∀ i, AddCommGroup (G i)] (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n))
 
 @[simp]
 lemma NaiveAddInverseLimit_compatible [AddInverseSystem f] [AddInverseSystem g] {ψ : f →ₛ+ g} ⦃n m : ℕ⦄ {h : n ≤ m} {x : NaiveAddInverseLimit f} : (g h) ((ψ.maps m) (x.1 m)) = (ψ.maps n) (x.1 n) := by
