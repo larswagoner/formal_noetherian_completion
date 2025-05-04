@@ -60,6 +60,11 @@ instance {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n 
         · intro c hab hbc x
           exact h.map_map (ENat.coe_le_coe.mp hab) (ENat.coe_le_coe.mp hbc) x
 
+
+def SurjectiveSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : Prop :=
+  ∀ ⦃n m⦄ (h : n ≤ m), (f h).toFun.Surjective
+
+
 variable {F G : ℕ → Type*} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
 
 /-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system. -/
@@ -68,3 +73,29 @@ structure AddInverseSystemHom (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)
   protected compatible : ∀ ⦃n m⦄, (h : n ≤ m) → (∀ x : F m , maps n (f h x) = g h (maps m x))
 
 infixr:25 " →ₛ+ " => AddInverseSystemHom
+
+variable {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} {g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)} [AddInverseSystem f] [AddInverseSystem g]
+
+@[simp]
+lemma AddInverseSystemHom_compatible (ψ : f →ₛ+ g) ⦃n m : ℕ⦄ (h : n ≤ m) (x : F m) : ψ.maps n (f h x) = g h (ψ.maps m x) := ψ.compatible h x
+
+def InjectiveSystemHom (ψ : f →ₛ+ g) : Prop :=
+  ∀ n, (ψ.maps n).toFun.Injective
+
+def SurjectiveSystemHom (ψ : f →ₛ+ g) : Prop :=
+  ∀ n, (ψ.maps n).toFun.Surjective
+
+variable {H : ℕ → Type*} [∀ i, AddCommGroup (H i)] {h : ∀ ⦃n m⦄, (n ≤ m) → (H m) →+ (H n)} [AddInverseSystem h]
+
+def SystemHomComposition (ψ : f →ₛ+ g) (ϕ : g →ₛ+ h) : f →ₛ+ h where
+  maps := fun n ↦ AddMonoidHom.comp (ϕ.maps n) (ψ.maps n)
+  compatible := by
+    intro n m h x
+    simp
+
+
+infixr:25 " ∘ₛ " => SystemHomComposition
+
+
+def ExactAtMiddleSystem (ψ : f →ₛ+ g) (ϕ : g →ₛ+ h) : Prop :=
+  ∀ n, AddMonoidHom.range (ψ.maps n) = AddMonoidHom.ker (ϕ.maps n)
