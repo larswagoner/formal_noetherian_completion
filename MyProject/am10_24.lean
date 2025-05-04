@@ -115,7 +115,7 @@ end
 
 lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [hA : IsAdicComplete I A]
     {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
-    [hF_haus :  IsFiltrationHausdorff F]
+    [hF_haus : IsFiltrationHausdorff F]
     [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] : Module.Finite A M := by
 
   -- Let `s : Multiset (AssociatedGradedModule F)` consist of homogeneous elements that generate `G(M)`.
