@@ -37,12 +37,13 @@ instance : AddInverseSystem (FISTransitionMap F) where
 def FiltrationCompletion : Type v :=
   NaiveAddInverseLimit (FISTransitionMap F)
 
+
 @[ext]
-lemma FiltrationCompletion_ext (x y : FiltrationCompletion F) (h : ∀ n, x.1 n = y.1 n) :
-    x = y := by
-  apply Subtype.coe_inj.mp
-  ext n
-  exact h n
+lemma ext {x y : FiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
+  Subtype.eq (funext h)
+
+lemma FiltrationCompletion.ext_iff {x y : FiltrationCompletion F} : (∀ n, x.1 n = y.1 n) ↔ x = y :=
+  ⟨fun h ↦ Subtype.eq (funext h), fun h n ↦ by rw [h]⟩
 
 instance : AddCommGroup (FiltrationCompletion F) :=
   instAddCommGroupElemForallNaiveAddInverseLimit (FISTransitionMap F)
