@@ -47,15 +47,37 @@ noncomputable instance : IsNoetherianRing (ideal_to_MvPolynomial I) := by
    DirectSum.ofZeroRingHom (GradedPiece (CanonicalFiltration I)) 
    DirectSum.of (GradedPiece (CanonicalFiltration I)) 0 
   -/
-lemma zeroeth_graded_piece : (GradedPiece (CanonicalFiltration I) 0) = (A ⧸ I) := sorry
+--lemma zeroeth_graded_piece : (GradedPiece (CanonicalFiltration I) 0) = (A ⧸ I) := sorry
 
-def zeroeth_morphism : A ⧸ I →+* (GradedPiece (CanonicalFiltration I) 0) := by 
+
+
+
+#check (CanonicalFiltration I).N 0
+
+def aux₁ : A →+ (CanonicalFiltration I).N 0 where
+  toFun := (fun a => ⟨ a , by simp ⟩)
+  map_zero' := rfl
+  map_add' := fun _ _ => rfl
+
+def aux₂ : A ⧸ I →+ (GradedPiece (CanonicalFiltration I) 0) := by
+  simp [GradedPiece]
+  have h : I ≤ ⊤ := le_top
+  have h₁ : I.toAddSubgroup ≤ AddSubgroup.comap (aux₁ I) I.toAddSubgroup := sorry
+  --apply QuotientAddGroup.map _ _
   sorry
+
+def zeroeth_morphism : A ⧸ I →+* (GradedPiece (CanonicalFiltration I) 0) where
+  toFun := aux₂ I
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := AddMonoidHom.map_zero (aux₂ I)
+  map_add' := fun x y => AddMonoidHom.map_add (aux₂ I) x y
 
 def aux_scalar_morphism : (GradedPiece (CanonicalFiltration I) 0) →+* AssociatedGradedRing I := DirectSum.ofZeroRingHom (GradedPiece (CanonicalFiltration I)) 
 
 def scalar_morphism : A ⧸ I →+* AssociatedGradedRing I := (aux_scalar_morphism I).comp (zeroeth_morphism I)
 
+-- Map sending variables to corresponding generator then to image under quotient
 noncomputable def variable_morphism : (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose → AssociatedGradedRing I := sorry
 
 noncomputable def MvMorphism : (ideal_to_MvPolynomial I) →+* (AssociatedGradedRing I) := MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
