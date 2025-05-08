@@ -5,8 +5,19 @@ namespace AssociatedGradedRing
 
 variable {R : Type*} [CommRing R] {A : Type*} [CommRing A] {I : Ideal A} (φ : R →+* AssociatedGradedRing I)
 
-lemma hom_surjective_of_incl_of_incl  (h₀ : (GradedRingPiece I 0) = (((Subring.map φ ⊤)).toAddSubgroup).comap (DirectSum.of (GradedRingPiece I) 0)) (h₁ : (GradedRingPiece I 1) = (DirectSum.of (GradedRingPiece I) 1) ⁻¹' (φ '' ⊤))
-    (h₁ : (GradedRingPiece I 1) = (((Subring.map φ ⊤)).toAddSubgroup).comap (DirectSum.of (GradedRingPiece I) 1)) : Function.Surjective φ := sorry
+lemma hom_surjective_of_eq_of_eq (h₀ : (GradedRingPiece I 0) = (DirectSum.of (GradedRingPiece I) 0) ⁻¹' (φ '' ⊤)) 
+    (h₁ : (GradedRingPiece I 1) = (DirectSum.of (GradedRingPiece I) 1) ⁻¹' (φ '' ⊤)) : Function.Surjective φ := by 
+  
+  unfold Function.Surjective
+  intro x
+  refine DirectSum.induction_on x ?_ ?_ ?_
+  · use 0
+    simp
+  · sorry
+  · rintro _ _ ⟨a, rfl⟩   ⟨b, rfl⟩ 
+    use a + b
+    simp
+    
 
 
 
