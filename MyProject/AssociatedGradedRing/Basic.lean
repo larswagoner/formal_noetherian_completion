@@ -172,26 +172,7 @@ def idealPowerToFiltrationComponent (I : Ideal A) (m : ℕ ): ↥(I^m) →+ (Can
   map_zero' := rfl
   map_add' := fun _ _ => rfl
 
-def aux11 (I : Ideal A) (m : ℕ ): (CanonicalFiltration I).N m →+  ↥(I^m) := sorry
 
-lemma aux1.Bijective (I : Ideal A) (m : ℕ ) : Function.Bijective (idealPowerToFiltrationComponent I m ):= sorry 
-
-noncomputable def GradedRingPiece.toIdealQuotient.map (I : Ideal A) (m : ℕ) : GradedRingPiece I m → I^m/I^(m+1) := by
-  unfold GradedRingPiece GradedPiece CanonicalFiltration
-  simp 
-  intro x
-  refine Classical.indefiniteDescription (Membership.mem (I ^ m / I ^ (m + 1))) ?_
-  refine Subtype.existsOfSubtype ?_
-
-  
-  sorry
-
-noncomputable def GradedRingPiece.toIdealQuotient (I : Ideal A) (m : ℕ) : GradedRingPiece I m →+ I^m/I^(m+1) where
-  toFun := GradedRingPiece.toIdealQuotient.map I m
-  map_zero' := sorry
-  map_add' := sorry
-
-lemma GradedRingPiece.toIdealQuotient.isBijective (I : Ideal A) (m : ℕ) : Function.Bijective (GradedRingPiece.toIdealQuotient I m):= sorry
 
 
 /--
