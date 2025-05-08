@@ -41,12 +41,7 @@ noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion
 
 
 
-noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := by 
-  have h₁ : (I.adicCompletion (I^n)) = (I^n).map (algebraMap A (AdicCompletion I A)) := by rfl   
-
-  have h₂ : (I^n).map (algebraMap A (AdicCompletion I A)) = (I.map (algebraMap A (AdicCompletion I A)))^n := Ideal.map_pow (algebraMap A (AdicCompletion I A)) I n
-  
-  exact id (Eq.symm h₂)
+noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := id (Eq.symm (Ideal.map_pow (algebraMap A (AdicCompletion I A)) I n))
 
 
 
