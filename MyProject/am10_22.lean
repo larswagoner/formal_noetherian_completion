@@ -66,14 +66,18 @@ def aux1 : A →+ (CanonicalFiltration I).N 0 where
 def aux2 : A ⧸ I →+ (GradedPiece (CanonicalFiltration I) 0) := by
   
   --have h₁ : I.toAddSubgroup ≤ AddSubgroup.comap (aux1 I) I.toAddSubgroup := sorry
-  apply QuotientAddGroup.map _ _
-  · sorry
-  · sorry
+  apply QuotientAddGroup.map _ _ (aux1 I) _
+  · intro x hx
+    simp
+    exact hx
+
 
 def zeroeth_morphism : A ⧸ I →+* (GradedPiece (CanonicalFiltration I) 0) where
   toFun := aux2 I
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := rfl
+  map_mul' := by
+    rintro ⟨x⟩ ⟨y⟩ 
+    rfl
   map_zero' := AddMonoidHom.map_zero (aux2 I)
   map_add' := fun x y => AddMonoidHom.map_add (aux2 I) x y
 
@@ -105,6 +109,8 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := sorry
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AssociatedGradedRing I) := isNoetherianRing_of_surjective (ideal_to_MvPolynomial I) (AssociatedGradedRing I) (MvMorphism I) (MvMorphism_surjective I)
+
+
 
 
 
