@@ -32,6 +32,12 @@ variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 generators of I. Finitely many since A noetherian-/
 noncomputable def ideal_to_MvPolynomial : Type u := (MvPolynomial (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose (A ⧸ I))
 
+lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := sorry
+
+lemma whatever₃ : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := sorry
+
+noncomputable def whatever :  Type u := (MvPolynomial (whatever₃ I).choose (GradedRingPiece I 0))
+
 /- Polynomial ring is Noetherian-/
 noncomputable instance : Semiring (ideal_to_MvPolynomial I) := by
   unfold ideal_to_MvPolynomial
@@ -103,8 +109,10 @@ noncomputable def variable_morphism : (((isNoetherianRing_iff_ideal_fg A).mp) hN
 noncomputable def MvMorphism : (ideal_to_MvPolynomial I) →+* (AssociatedGradedRing I) := MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
 
 
-lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := sorry
+lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) :=  sorry
 
+
+#synth Module (GradedRingPiece I 0) (GradedRingPiece I 1)
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
