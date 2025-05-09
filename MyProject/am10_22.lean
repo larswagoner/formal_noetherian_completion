@@ -2,6 +2,7 @@ import MyProject.am7_6
 import MyProject.am10_15
 import MyProject.AssociatedGradedRing.Module
 import MyProject.AssociatedGradedRing.SurjectiveMap
+-- import MyProject.AssociatedGradedRing.Components
 
 /-
   # Proposition 10.22
@@ -36,7 +37,7 @@ lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) :=
 lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := sorry
 
 /-- 
-  Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` (I)
+  Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
   -/
 def AssociatedPolynomialRing :  Type u := (MvPolynomial (GradedRingPiece_FG_of_Noetherian I).choose (GradedRingPiece I 0))
 
