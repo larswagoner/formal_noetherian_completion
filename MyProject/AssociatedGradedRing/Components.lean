@@ -3,8 +3,60 @@ import MyProject.AssociatedGradedRing.Ring
 
 variable {A : Type u} [CommRing A] (I : Ideal A)
 
+-- goal prove that I^m/I^m+1 ≃+ GRP I m, maybe treat case of m=0 differently since ring structure
 
-#check (CanonicalFiltration I).N 0
+/-- `A/I` is isomorphic to `GradedRingPiece I 0` as rings-/
+
+def zero_toFun_aux₁ : A →+ (CanonicalFiltration I).N 0 where
+  toFun := (fun a => ⟨ a , by simp ⟩)
+  map_zero' := rfl
+  map_add' := fun _ _ => rfl
+
+
+def zero_toFun_aux₂ : A ⧸ I →+ (GradedRingPiece I 0) := by
+  apply QuotientAddGroup.map _ _ (zero_toFun_aux₁ I) _
+  · intro x hx
+    simp
+    exact hx
+
+def zero_toFun : A ⧸ I →+* (GradedRingPiece I 0) where
+  __ := zero_toFun_aux₂ I
+  map_one' := rfl
+  map_mul' := by
+    rintro ⟨x⟩ ⟨y⟩ 
+    rfl
+
+def zero_invFun_aux₁: (CanonicalFiltration I).N 0 →+ A where
+  toFun := (fun ⟨a, _⟩ => a)
+  map_zero' := rfl
+  map_add' := fun _ _ => rfl
+
+def zero_invFun_aux₂: GradedRingPiece I 0 →+ A ⧸ I := by
+  apply QuotientAddGroup.map _ _ (zero_invFun_aux₁ I) _
+  intro x hx
+  simp at hx
+  exact hx
+
+
+def zero_invFun : (GradedRingPiece I 0) →+* A ⧸ I where
+  __ := zero_invFun_aux₂ I
+  map_one' := rfl
+  map_mul' := by
+    rintro ⟨x, hx⟩ ⟨ y, hy⟩ 
+    simp
+    rfl
+  
+
+
+
+def zeroeth_isomorphism  : A ⧸ I ≃+* (GradedRingPiece I 0) where
+  __ := zero_toFun I
+  invFun := zero_invFun I
+  left_inv := sorry
+  right_inv := sorry
+
+  
+
 
 def aux1 : A →+ (CanonicalFiltration I).N 0 where
   toFun := (fun a => ⟨ a , by simp ⟩)
