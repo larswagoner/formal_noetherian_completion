@@ -2,7 +2,7 @@ import MyProject.am7_6
 import MyProject.am10_15
 import MyProject.AssociatedGradedRing.Module
 import MyProject.AssociatedGradedRing.SurjectiveMap
--- import MyProject.AssociatedGradedRing.Components
+import MyProject.AssociatedGradedRing.Components
 
 /-
   # Proposition 10.22
@@ -30,7 +30,11 @@ The proof is outlined.
 
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 
-instance : IsNoetherianRing (GradedRingPiece I 0) := sorry
+instance : IsNoetherianRing (A ⧸ I) := by
+  infer_instance
+
+instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
+
 
 lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := sorry
 
@@ -53,14 +57,6 @@ noncomputable instance : CommRing (AssociatedPolynomialRing I) := by
 instance : IsNoetherianRing (AssociatedPolynomialRing I) := by
   unfold AssociatedPolynomialRing
   infer_instance
-
-/- Defining map from polynomial ring to associated graded ring
-  some useful theorems from mathlib
-   DirectSum.ofZeroRingHom (GradedPiece (CanonicalFiltration I)) 
-   DirectSum.of (GradedPiece (CanonicalFiltration I)) 0 
-  -/
---lemma zeroeth_graded_piece : (GradedPiece (CanonicalFiltration I) 0) = (A ⧸ I) := sorry
-
 
 
 def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
