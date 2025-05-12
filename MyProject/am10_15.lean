@@ -41,18 +41,17 @@ noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion
 
 
 
-noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := by sorry
+noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := id (Eq.symm (Ideal.map_pow (algebraMap A (AdicCompletion I A)) I n))
 
 
 
-
-
-
-noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] :  -- uses option 2 for I hat
-    (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) → (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := sorry
+noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] : -- apply one of the isomorphism theorems
+    (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) →+ (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := sorry
 
 lemma am10_15_iii (n : ℕ) : Function.Bijective (am10_15_iii_map n I) := sorry
 
+noncomputable def test :  (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) ≃+ (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := by
+  sorry
 
 
 omit [IsNoetherianRing A] in -- It is not necerssary for `A` to be Noetherian.

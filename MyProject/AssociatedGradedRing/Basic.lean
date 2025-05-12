@@ -169,6 +169,15 @@ lemma mem_filtration_iff_mem_Im (I : Ideal A) (m : ℕ) (x : A) :
 abbrev GradedRingPiece (I : Ideal A) (m : ℕ) :=
   GradedPiece (CanonicalFiltration I) m
 
+
+def idealPowerToFiltrationComponent (I : Ideal A) (m : ℕ ): ↥(I^m) →+ (CanonicalFiltration I).N m where
+  toFun := (fun a => ⟨ a , by simp ⟩)
+  map_zero' := rfl
+  map_add' := fun _ _ => rfl
+
+
+
+
 /--
   The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
 -/
@@ -177,6 +186,14 @@ def AssociatedGradedRing (I : Ideal A) : Type u :=
 
 def AssociatedGradedRing.of {I : Ideal A} {n : ℕ} (x : GradedRingPiece I n) :
   AssociatedGradedRing I := DirectSum.of _ n x
+
+
+/- Map from `Iᵐ/Iᵐ⁺¹` to `AssociatedGradedRing I` -/
+
+def GradedRingPiece.toAssociatedGradedRing (I : Ideal A): GradedRingPiece I m → AssociatedGradedRing I :=  fun a ↦ AssociatedGradedRing.of a
+
+
+
 
 /--
   `G(A)` is an abelian group.
