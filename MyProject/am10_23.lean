@@ -1,5 +1,6 @@
 import MyProject.am10_2
-import MyProject.AssociatedGradedRing.Module
+import MyProject.AssociatedGradedRing.Map
+import MyProject.Completion.FiltrationCompletion
 
 /-
   # Lemma 10.23
@@ -23,5 +24,12 @@ import MyProject.AssociatedGradedRing.Module
 
 -- take particular case of I adic completions of A and B.
 
-lemma am10_23_i : true := sorry
-lemma am10_23_ii : true := sorry
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M M' : Type*} [AddCommGroup M] [Module A M] [AddCommGroup M'] [Module A M']
+variable {F : I.Filtration M} {F' : I.Filtration M'} {φ : M →ₗ[A] M'}
+
+lemma am10_23_i (hφ : ∀ n, F.N n ≤ (F'.N n).comap φ) :
+  Function.Injective (GradedModuleHom hφ) → Function.Injective (FiltrationCompletionHom.of_comap_le hφ) := sorry
+
+lemma am10_23_ii (hφ : ∀ n, F.N n ≤ (F'.N n).comap φ) :
+  Function.Surjective (GradedModuleHom hφ) → Function.Surjective (FiltrationCompletionHom.of_comap_le hφ) := sorry

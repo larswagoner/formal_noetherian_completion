@@ -40,7 +40,7 @@ lemma IsHausdorff_iff_Injective {A : Type u} [CommRing A] (I : Ideal A) (M: Type
 
   This can probably be generalized.
 -/
-lemma quotient_out_eq_transition_map {A : Type u} [CommRing A] {I : Ideal A} {M: Type u} [AddCommGroup M] [Module A M] {m n : ℕ} (m_le_n : m ≤ n) (x : M ⧸ (I ^ n • ⊤ : Submodule A M)) :
+lemma quotient_out_eq_transition_map₁ {A : Type u} [CommRing A] {I : Ideal A} {M: Type u} [AddCommGroup M] [Module A M] {m n : ℕ} (m_le_n : m ≤ n) (x : M ⧸ (I ^ n • ⊤ : Submodule A M)) :
     Submodule.Quotient.mk x.out = AdicCompletion.transitionMap I M m_le_n x := by
   calc
     Submodule.Quotient.mk x.out = AdicCompletion.transitionMap I M m_le_n (Submodule.Quotient.mk x.out) := by simp
@@ -59,7 +59,7 @@ lemma Surjective_ofIsPrecomplete {A : Type u} [CommRing A] (I : Ideal A) (M: Typ
   have : ∀ {m n}, m ≤ n → g m ≡ g n [SMOD (I ^ m • ⊤ : Submodule A M)] := by
     intro m n hmn
     show _ = _
-    rw [quotient_out_eq_transition_map hmn (f n)]
+    rw [quotient_out_eq_transition_map₁ hmn (f n)]
     rw [h hmn]
     exact Quotient.out_eq _
   rcases M_pc.prec' g this with ⟨m, hm⟩
