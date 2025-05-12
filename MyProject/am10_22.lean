@@ -22,21 +22,6 @@ instance : IsNoetherianRing (A ⧸ I) := by
 
 instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
--- delete
-
-instance : Module A (GradedRingPiece I 1) := by 
-  infer_instance
-
-instance : Module.Finite A I := by 
-  infer_instance
-
-instance : Module.Finite A (I^m/I^(m+1)) := by 
-  infer_instance
-
-instance : Module (GradedRingPiece I 0) (GradedRingPiece I 1) := by 
-  infer_instance
---
-
 lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
   sorry
 
