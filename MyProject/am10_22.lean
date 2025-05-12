@@ -13,20 +13,7 @@ import MyProject.AssociatedGradedRing.Components
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
-/- Notes for 10.22.i 
-Instead of directly following the approach in AM (which relies on an equality involving G(A) which I think will be annoying to make type check), very open for this option if it ends up being easy. I propose the following approach: 
-
-1. Since I is an ideal of a noetherian ring, it is finitely generated, with generating set S : Finset A. 
-2. Consider the polynomial ring B = A/I [{x_s}_{s∈ S}], with indeterminates indexed by S. This ring is noetherian since A/I is (quotient) and by Hilberts basis theorem
-3. For G(A) to be noetherian, it suffices to give a map B → AssociatedGradedRing I that is a homomorphism and surjective. Such a map is given by sending A/I to the first component I^0/I^1 = A/I, and each variable to the corresponding image of the generator s in the second component I/I^2. 
-
-Progress so far:
-The proof is outlined. 
-1. Map of scalars: A/I →+* G(A). On paper, we should get this for free with DirectSum.ofZeroRingHom. But the domain for that result needs to be (GradedPiece (CanonicalFiltration I) 0), which is equal to A/I, but one cant just rewrite via this equality. So I have the scalar map as a composition A/I →+* (GradedPiece (CanonicalFiltration I) 0) →+* G(A). Whats missing is the first map, multiplication might be annoying?
-2. Map of variables. Mathematically this would be done as so: send a generator s to its equivalence class in I/I^2, then apply the canonical map to end up in G(A) (DirectSum.of (GradedPiece (CanonicalFiltration I)) 1  should work i think)
-3. Surjectivity: map needs to be defined first. This will basically amount to proving the equality stated in AM
-
--/
+-- construct Polynomial ring over GRP I 0  with variables indexed by generators of GRP I 1, construct surjective morphism, show GRP I 0 noetherian hence polynomial ring is, thus codomain is
 
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 
@@ -35,15 +22,38 @@ instance : IsNoetherianRing (A ⧸ I) := by
 
 instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
+-- delete
 
-lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := sorry
+instance : Module A (GradedRingPiece I 1) := by 
+  infer_instance
 
-lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := sorry
+instance : Module.Finite A I := by 
+  infer_instance
+
+instance : Module.Finite A (I^m/I^(m+1)) := by 
+  infer_instance
+
+instance : Module (GradedRingPiece I 0) (GradedRingPiece I 1) := by 
+  infer_instance
+--
+
+lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
+  sorry
+
+lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := by
+  sorry
+--- get generators of I, map them to I/I^2, then map that to Component 1 then map that to GRP 1.
+--- although seems to be that we need them to be actual generartors of GRP 1...
+-- trick is to show vars generate the other GRP1
+
+#check (GradedRingPiece_FG_of_Noetherian I).choose_spec
+
+noncomputable def vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
 
 /-- 
   Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
   -/
-def AssociatedPolynomialRing :  Type u := (MvPolynomial (GradedRingPiece_FG_of_Noetherian I).choose (GradedRingPiece I 0))
+def AssociatedPolynomialRing :  Type u := (MvPolynomial (vars I) (GradedRingPiece I 0))
 
 /- Polynomial ring is Noetherian-/
 noncomputable instance : Semiring (AssociatedPolynomialRing I) := by
@@ -64,7 +74,7 @@ def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
   map_one' := by simp 
   map_mul' := by simp
 
-def variable_morphism : (GradedRingPiece_FG_of_Noetherian I).choose → AssociatedGradedRing I := fun ⟨x, _⟩ => DirectSum.of _ 1 x
+def variable_morphism : (vars I) → AssociatedGradedRing I := fun ⟨x, _⟩ => DirectSum.of _ 1 x
 
 def MvMorphism : (AssociatedPolynomialRing I) →+* (AssociatedGradedRing I) := MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
 
@@ -80,7 +90,8 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
     
   · ext x
     simp
-    have h₁ : x ∈ Submodule.span (GradedRingPiece I 0) (GradedRingPiece_FG_of_Noetherian I).choose := by
+    have h₁ : x ∈ Submodule.span (GradedRingPiece I 0) (vars I) := by
+      unfold vars
       rw [(GradedRingPiece_FG_of_Noetherian I).choose_spec]
       simp
     refine Submodule.span_induction ?_ ?_ ?_ ?_ h₁
