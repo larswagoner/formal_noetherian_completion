@@ -22,12 +22,49 @@ instance : IsNoetherianRing (A ⧸ I) := by
 
 instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
-
-
 instance : Module.Finite A I := by infer_instance
-  
-instance : Module.Finite (A ⧸ I) (I/I^2) := by sorry
-instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) :=  sorry
+
+--def help : ∃ S, Submodule.span (A ⧸ I) S = (I ⧸ I • (⊤ : Submodule A I) ) := sorry
+-- LinearMap.finite_iff_of_bijective
+-- Module.Finite.of_surjective
+-- R = A, M = I, S = A/I, P = I/I•⊤
+
+ 
+
+
+
+def σ : A →+* (A ⧸ I) where
+  toFun := Submodule.Quotient.mk
+  map_one' := by simp 
+  map_mul' := by simp 
+  map_zero' := by simp 
+  map_add' := by simp
+
+instance : RingHomSurjective (σ I) := by
+  refine { is_surjective := ?_ }
+  apply Quotient.mk''_surjective
+
+def aux₁ : I → (I ⧸ I • (⊤ : Submodule A I) ) := Submodule.Quotient.mk
+
+def auxf₁ : I →ₛₗ[σ I] (I ⧸ I • (⊤ : Submodule A I) ) where
+  toFun := aux₁ I
+  map_add' := fun _ _ => rfl
+  map_smul' := fun _ _ => rfl
+
+
+instance : Module.Finite (A ⧸ I) (I ⧸ I • (⊤ : Submodule A I) ) := by
+  apply Module.Finite.of_surjective (auxf₁ I) _
+  apply Quotient.mk''_surjective
+
+
+def σ₂ : A →+* GradedRingPiece I 0 := sorry
+instance : RingHomSurjective (σ₂ I) := sorry
+
+
+
+instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
+  apply (LinearMap.finite_iff_of_bijective (auxf I) _).mpr
+  sorry
 
 lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := Module.Finite.fg_top
 
@@ -56,6 +93,8 @@ noncomputable def  ImodIsq_generators :  Finset (I/I^2) := by
   sorry
 
 noncomputable def vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
+
+
 
 /-- 
   Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
