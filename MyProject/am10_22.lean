@@ -22,16 +22,38 @@ instance : IsNoetherianRing (A ⧸ I) := by
 
 instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
-lemma whatever₂ : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
-  sorry
 
-lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := by
-  sorry
---- get generators of I, map them to I/I^2, then map that to Component 1 then map that to GRP 1.
---- although seems to be that we need them to be actual generartors of GRP 1...
--- trick is to show vars generate the other GRP1
 
-#check (GradedRingPiece_FG_of_Noetherian I).choose_spec
+instance : Module.Finite A I := by infer_instance
+  
+instance : Module.Finite (A ⧸ I) (I/I^2) := by sorry
+instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) :=  sorry
+
+lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := Module.Finite.fg_top
+
+-- alternative approach, directly get finset of generators via I.
+
+noncomputable def I_generators : Finset A := (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose
+
+
+
+lemma hs : Submodule.span A (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose = I := (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose_spec
+
+-- 
+def final_gens : true := sorry
+
+--lemma xx : Submodule.span (GradedRingPiece I 0) final_gens = (GradedRingPiece I 1) := sorry
+
+
+noncomputable def I_generators_in_I : Finset I := sorry
+
+
+-- would be nice to have if S generates I, then it generates I/I^2, over A and A/I
+noncomputable def  ImodIsq_generators :  Finset (I/I^2) := by
+  have I_gens := I_generators_in_I I
+  --apply (Finset.image (Submodule.Quotient.mk _ (I^2)) I_gens)
+
+  sorry
 
 noncomputable def vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
 
