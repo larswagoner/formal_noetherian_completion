@@ -60,6 +60,8 @@ def GradedRingPiece_zero_isomorphism (I : Ideal A): A ⧸ I ≃+* (GradedRingPie
     simp
     rfl
 
+
+
 /-- `I/I²` is isomorphic to `GradedRingPiece 1`-/  
 def one_toFun_aux₁: ↥(I) →+ (CanonicalFiltration I).N 1 where
   toFun := fun a => ⟨a, by simp⟩

@@ -13,8 +13,6 @@ import MyProject.AssociatedGradedRing.Components
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
--- construct Polynomial ring over GRP I 0  with variables indexed by generators of GRP I 1, construct surjective morphism, show GRP I 0 noetherian hence polynomial ring is, thus codomain is
-
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 
 instance : IsNoetherianRing (A ⧸ I) := by
@@ -23,14 +21,7 @@ instance : IsNoetherianRing (A ⧸ I) := by
 instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
 instance : Module.Finite A I := by infer_instance
-
---def help : ∃ S, Submodule.span (A ⧸ I) S = (I ⧸ I • (⊤ : Submodule A I) ) := sorry
--- LinearMap.finite_iff_of_bijective
--- Module.Finite.of_surjective
--- R = A, M = I, S = A/I, P = I/I•⊤
-
- 
-
+instance : Module (GradedRingPiece I 0) (GradedRingPiece I 1) := by infer_instance
 
 
 def σ : A →+* (A ⧸ I) where
@@ -57,43 +48,47 @@ instance : Module.Finite (A ⧸ I) (I ⧸ I • (⊤ : Submodule A I) ) := by
   apply Quotient.mk''_surjective
 
 
-def σ₂ : A →+* GradedRingPiece I 0 := sorry
-instance : RingHomSurjective (σ₂ I) := sorry
+def σ₂ : (A ⧸ I) →+* GradedRingPiece I 0 := zero_toFun I
+instance : RingHomSurjective (σ₂ I) := by 
+  refine { is_surjective := ?_ }
+  unfold Function.Surjective
+  rintro ⟨ b , hb ⟩
+  use b
+  rfl
 
+def aux₃ : I →+ (CanonicalFiltration I).N 1 where
+  toFun := fun a => ⟨a, by simp⟩
+  map_zero' := by simp
+  map_add' := by simp
+
+
+def aux₂ : (I ⧸ I • (⊤ : Submodule A I) ) →+ GradedRingPiece I 1 := by
+  apply QuotientAddGroup.map _ _ (aux₃ I) _
+  · rintro ⟨x, hI⟩ hx 
+    unfold aux₃
+    simp
+    simp at hx
+    have : 2 = 1+1 := rfl
+    rw[this, Ideal.IsTwoSided.pow_add, pow_one]
+   
+    
+    sorry
+
+
+def auxf₂ : (I ⧸ I • (⊤ : Submodule A I) ) →ₛₗ[σ₂ I] GradedRingPiece I 1 where
+  __ := aux₂ I
+  map_smul' := sorry
 
 
 instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
-  apply (LinearMap.finite_iff_of_bijective (auxf I) _).mpr
-  sorry
+  apply (LinearMap.finite_iff_of_bijective (auxf₂ I) _).mp
+  · exact instFiniteQuotientIdealSubtypeMemSubmoduleHSMulTop_myProject I
+  · sorry
 
 lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := Module.Finite.fg_top
 
--- alternative approach, directly get finset of generators via I.
-
-noncomputable def I_generators : Finset A := (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose
-
-
-
-lemma hs : Submodule.span A (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose = I := (((isNoetherianRing_iff_ideal_fg A).mp) hNA I).choose_spec
-
--- 
-def final_gens : true := sorry
-
---lemma xx : Submodule.span (GradedRingPiece I 0) final_gens = (GradedRingPiece I 1) := sorry
-
-
-noncomputable def I_generators_in_I : Finset I := sorry
-
-
--- would be nice to have if S generates I, then it generates I/I^2, over A and A/I
-noncomputable def  ImodIsq_generators :  Finset (I/I^2) := by
-  have I_gens := I_generators_in_I I
-  --apply (Finset.image (Submodule.Quotient.mk _ (I^2)) I_gens)
-
-  sorry
 
 noncomputable def vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
-
 
 
 /-- 
