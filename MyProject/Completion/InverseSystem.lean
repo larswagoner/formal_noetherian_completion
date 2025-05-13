@@ -4,6 +4,14 @@ import Mathlib.Order.DirectedInverseSystem
 class AddInverseSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) extends
   InverseSystem (fun _ _ h ↦ f h)
 
+@[simp]
+lemma fSelf {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] : ∀ n : ℕ, ∀ x : F n, (f (le_refl n)) x = x := by
+  apply AIS.map_self
+
+@[simp]
+lemma fCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] : ∀ ⦃n m k : ℕ⦄ (hnm : n ≤ m) (hmk : m ≤ k), ∀ x, f hnm (f hmk x) = f (le_trans hnm hmk) x := by
+  apply AIS.map_map
+
 def ExtendedF (F : ℕ → Type u) : ENat → Type u :=
   ENat.recTopCoe PUnit F
 
@@ -63,6 +71,36 @@ instance {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n 
 
 def SurjectiveSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : Prop :=
   ∀ ⦃n m⦄ (h : n ≤ m), (f h).toFun.Surjective
+
+def DerivedMap {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : (∀ i, F i) →+ (∀ i, F i) where
+  toFun := by
+    intro a n
+    have h : n ≤ n+1 := by linarith
+    use (a n) - f h (a (n+1))
+  map_zero' := by
+    simp
+    ext n
+    rfl
+  map_add' := by
+    intro x y
+    ext n
+    simp
+    abel
+
+-- lemma derivedMapCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] {a : ∀ i, F i}: ∀ ⦃n m : ℕ⦄ (h : n ≤ m), f h ((DerivedMap f) a m) = (DerivedMap f) a n := by
+--   intro n m h
+--   induction h using Nat.leRec with
+--   | refl =>
+--     rw [AIS.map_self]
+--   | le_succ_of_le h ih =>
+--     rw [<- ih]
+--     expose_names
+--     unfold DerivedMap
+--     simp
+--     rw [map_]
+--     have h₂ : n ≤ k+1 := by linarith
+
+--     sorry
 
 
 variable {F G : ℕ → Type*} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]

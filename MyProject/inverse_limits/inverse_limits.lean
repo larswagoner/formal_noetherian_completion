@@ -1,8 +1,10 @@
 import Mathlib.Tactic
 import Mathlib.Order.DirectedInverseSystem
 
-class AddInverseSystem {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) extends InverseSystem (fun _ _ h ↦ f h)
+class AddInverseSystem {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄,
+(n ≤ m) → (F m) →+ (F n)) extends InverseSystem (fun _ _ h ↦ f h)
 
+/-- Since inverse limits have been implemented for cardinals, a wrapper is needed to take inverse limits in the naive sense. -/
 def ExtendedF (F : ℕ → Type) : ENat → Type := ENat.recTopCoe Unit F
 
 instance (F : ℕ → Type) [h : ∀ i, AddCommGroup (F i)] : ∀ i, AddCommGroup (ExtendedF F i) := by
@@ -10,6 +12,7 @@ instance (F : ℕ → Type) [h : ∀ i, AddCommGroup (F i)] : ∀ i, AddCommGrou
   · exact PUnit.addCommGroup
   · exact h
 
+/-- Since inverse limits have been implemented for cardinals, a wrapper is needed to take inverse limits in the naive sense. -/
 def Extendedf {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) : ∀ ⦃n m⦄, (n ≤ m) → (ExtendedF F m) →+ (ExtendedF F n) := by
   apply ENat.recTopCoe
   · intro m h
@@ -31,6 +34,7 @@ lemma Extendedf_top (F : ℕ → Type) [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n
   · intro a x
     rfl
 
+/-- Given an additive inverse system, give an instance of an InverseSystem in the Mathlib sense that can be used to take an inverse limit in the naive sense. -/
 instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [h : AddInverseSystem f] : InverseSystem (fun _ _ x ↦ Extendedf f x) where
   map_self := by
     apply ENat.recTopCoe
@@ -55,7 +59,7 @@ instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n �
         · intro c hab hbc x
           exact h.map_map (ENat.coe_le_coe.mp hab) (ENat.coe_le_coe.mp hbc) x
 
-
+/-- The naive inverse limit of an additive invserse system. -/
 def AddInverseLimit {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] := InverseSystem.limit (fun _ _ x ↦ Extendedf f x) ⊤
 
 @[simp]
@@ -70,7 +74,7 @@ def AddInverseLimitSubgroup {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : 
     rintro a b ha hb n m hnm
     simp [ha, hb]
   zero_mem' := by
-    intro a k h
+    intro _ _ _
     simp
   neg_mem' := by
     intro a ha n m hnm
@@ -80,45 +84,13 @@ def AddInverseLimitSubgroup {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : 
 instance {F : ℕ → Type} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : AddCommGroup (AddInverseLimit f) :=
   AddSubgroup.toAddCommGroup (AddInverseLimitSubgroup f)
 
-variable (F G : ℕ → Type) [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
+variable {F G : ℕ → Type} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
 
-/-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system --/
+/-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system. -/
 structure AddInverseSystemHom (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)) [AddInverseSystem f] [AddInverseSystem g] where
   protected maps : ∀ n, F n →+ G n
   protected compatible : ∀ ⦃n m⦄, (h : n ≤ m) → (∀ x : F m , maps n (f h x) = g h (maps m x))
 
 infixr:25 " →ₛ+ " => AddInverseSystemHom
 
-/-
-def InverseLimit {F : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) → (F n)) (𝒜 : AddInverseSystem F) : Set (∀ n : ℕ, ι n) :=
-  { f : (∀(n : ℕ), (ι n)) | ∀ n, (𝒜.transition_morphisms n) (f (n+1)) = f n }
 
-
-instance (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)] : AddCommGroup (∀ n : ℕ, ι n) := by
-  have h : ∀ n, AddCommGroup (ι n) := by
-    intro n
-    apply entry_is_group n
-  apply inferInstanceAs (AddCommGroup (Π n : ℕ, ι n))
-
-variable (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)]
-variable (𝒜 : AddInverseSystem ι)
-
-
-def InverseLimitSubgroup {ι : ℕ → Type} [entry_is_group : ∀ i, AddCommGroup (ι i)] (𝒜 : AddInverseSystem ι) : AddSubgroup (∀ n : ℕ, ι n) where
-  carrier := InverseLimit 𝒜
-  add_mem' := by
-    rintro a b ha hb n
-    simp
-    rw [ha, hb]
-  zero_mem' := by
-    intro n
-    simp
-  neg_mem' := by
-    intro a ha n
-    rw [Pi.neg_apply, Pi.neg_apply]
-    nth_rewrite 2 [<- ha]
-    rw [map_neg]
-
-instance (ι : ℕ → Type) [entry_is_group : ∀ i, AddCommGroup (ι i)]  (𝒜 : AddInverseSystem ι) : AddCommGroup (InverseLimit 𝒜) :=
-    AddSubgroup.toAddCommGroup (InverseLimitSubgroup 𝒜)
--/
