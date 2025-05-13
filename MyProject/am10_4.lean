@@ -1,4 +1,5 @@
 import MyProject.am10_3
+import MyProject.Completion.GroupCompletion
 
 /-
   # Proposition 10.4
@@ -9,12 +10,9 @@ import MyProject.am10_3
 
 section
 
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type v} [AddCommGroup M] [Module A M] (F : I.Filtration M)
-
-variable (n : ℕ)
+variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
 
 def am10_4 (n : ℕ) :
-  (FiltrationCompletion F) ⧸ ((PushforwardFiltration (FiltrationCompletion.of F) F).N n) ≃+ M ⧸ F.N n := sorry
+  (OurFiltrationCompletion F) ⧸ (AddSubgroupCompletion (F.N n) F) ≃+ G ⧸ F.N n := sorry
 
 end

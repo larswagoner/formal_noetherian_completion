@@ -1,6 +1,6 @@
 import MyProject.am10_2
-import MyProject.Filtration.Constructions
-import MyProject.Completion.FiltrationCompletion
+import MyProject.Filtration.FConstructions
+import MyProject.Completion.OurFiltrationCompletion
 import Mathlib.Algebra.Exact
 
 /-
@@ -11,15 +11,14 @@ import Mathlib.Algebra.Exact
   Then `0 ⟶ Ĝ' ⟶ Ĝ ⟶ Ĝ'' ⟶ 0` is exact.
 -/
 
-variable {A : Type*} [CommRing A] {I : Ideal A}
-variable {M N O : Type*} [AddCommGroup M] [Module A M] [AddCommGroup N] [Module A N] [AddCommGroup O] [Module A O]
-variable (q : M →ₗ[A] N) (p : N →ₗ[A] O) (F : I.Filtration N)
+variable {G₁ G₂ G₃ : Type*} [AddCommGroup G₁] [AddCommGroup G₂] [AddCommGroup G₃]
+variable (q : G₁ →+ G₂) (p : G₂ →+ G₃) (F : OurFiltration G₂)
 
-def map₁ : (FiltrationCompletion (PullbackFiltration q F)) →ₗ[A] (FiltrationCompletion F) :=
-  FiltrationCompletionHom.of_comap_le (fun n ↦ by rfl)
+def map₁ : (OurFiltrationCompletion (PullbackOurFiltration q F)) →+ (OurFiltrationCompletion F) :=
+  OurFiltrationCompletionHom.of_comap_le (fun n ↦ by rfl)
 
-def map₂ : (FiltrationCompletion F) →ₗ[A] (FiltrationCompletion (PushforwardFiltration p F)) :=
-  FiltrationCompletionHom.of_comap_le (fun n ↦ Submodule.le_comap_map p (F.N n))
+def map₂ : (OurFiltrationCompletion F) →+ (OurFiltrationCompletion (PushforwardOurFiltration p F)) :=
+  OurFiltrationCompletionHom.of_comap_le (fun n ↦ AddSubgroup.le_comap_map p (F.N n))
 
 -- TODO: How to mention exactness?
 variable (h₁ : Function.Injective q)
