@@ -6,4 +6,15 @@ import MyProject.am10_3
   Then `Ĝ/Ĝₙ ≅ G/Gₙ`.
 -/
 
-lemma am10_4 : true := sorry
+
+section
+
+variable {A : Type u} [CommRing A] {I : Ideal A}
+variable {M : Type v} [AddCommGroup M] [Module A M] (F : I.Filtration M)
+
+variable (n : ℕ)
+
+def am10_4 (n : ℕ) :
+  (FiltrationCompletion F) ⧸ ((PushforwardFiltration (FiltrationCompletion.of F) F).N n) ≃+ M ⧸ F.N n := sorry
+
+end

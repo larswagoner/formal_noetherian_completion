@@ -126,3 +126,5 @@ def FiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).co
 def FiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
   (FiltrationCompletion.of F₂).comp φ =
     (FiltrationCompletionHom.of_comap_le hφ).comp (FiltrationCompletion.of F₁) := rfl
+
+end
