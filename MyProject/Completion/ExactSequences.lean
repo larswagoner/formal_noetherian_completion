@@ -1,8 +1,6 @@
 import Mathlib.Tactic
 import Mathlib.Algebra.Homology.ShortComplex.Basic
 import Mathlib.Algebra.Category.Grp.Basic
---import Mathlib.CategoryTheory.Limits.Shapes.ZeroMorphisms
---import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.Algebra.Category.Grp.Preadditive
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Category.Init
@@ -10,8 +8,16 @@ import Mathlib.CategoryTheory.Category.Init
 
 open CategoryTheory
 
+def groupHomToGrpHom {A B : AddCommGrp} (f : A →+ B) : A ⟶ B := by
+  use f
+  simp
+
 @[simp]
-lemma compIsMonoidComp {A B C : AddCommGrp} (f : A ⟶ B) (g : B ⟶ C) : AddMonoidHom.comp g.hom' f.hom' = (f ≫ g).hom' := by
+lemma compIsMonoidComp {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : (f ≫ g) = groupHomToGrpHom (AddMonoidHom.comp g.hom' f.hom') := by
+  rfl
+
+
+lemma compIsMonoidComp₂ {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : AddMonoidHom.comp g.hom' f.hom' = (f ≫ g).hom' := by
   rfl
 
 section Complexes
@@ -44,7 +50,7 @@ def GroupsToComplex (h : g.comp f = 0) : CategoryTheory.ShortComplex AddCommGrp 
 
 @[simp]
 lemma compIsZero (s : CategoryTheory.ShortComplex AddCommGrp) : AddMonoidHom.comp s.g.hom' s.f.hom' = 0 := by
-  rw [compIsMonoidComp, s.zero]
+  rw [compIsMonoidComp₂, s.zero]
   rfl
 
 lemma compIsZeroFun (s : CategoryTheory.ShortComplex AddCommGrp) : s.g.hom'.toFun ∘ s.f.hom'.toFun = 0 := by
@@ -75,7 +81,7 @@ def GroupsToSES (finj : f.toFun.Injective) (range_eq_ker : AddMonoidHom.range f 
   surjective := gsurj
 
 
-lemma rangeInKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' ≤ AddMonoidHom.ker s.g.hom' := by
+lemma RangeInKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' ≤ AddMonoidHom.ker s.g.hom' := by
   rintro x hx
   rcases hx with ⟨w, hw⟩
   have : s.g.hom' (s.f.hom' w) = 0 := by
@@ -84,7 +90,7 @@ lemma rangeInKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' ≤ AddM
   rw [hw] at this
   exact this
 
-lemma rangeIsKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' = AddMonoidHom.ker s.g.hom' := le_antisymm (rangeInKernel s) (s.middle)
+lemma RangeIsKernel {s : AddCommGroupSES} : s.f.hom'.range = s.g.hom'.ker := le_antisymm (RangeInKernel s) (s.middle)
 
 end Complexes
 
@@ -106,11 +112,13 @@ def productMap (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) : (∀ i, ι₁ i) →+ 
 
 variable {ι₃ : I → Type*} [∀ i, AddCommGroup (ι₃ i)]
 
+@[simp]
 lemma ProductMapCompatible (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps₂ : ∀ i, (ι₂ i) →+ (ι₃ i)) : (productMap maps₂).comp (productMap maps) = productMap (fun i ↦ (maps₂ i).comp (maps i)) := by
   ext x i
   unfold productMap
   simp
 
+@[simp]
 lemma ProductMapCompatibleFun (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps₂ : ∀ i, (ι₂ i) →+ (ι₃ i)) : ((productMap maps₂).comp (productMap maps)).toFun = (productMap (fun i ↦ (maps₂ i).comp (maps i))).toFun := by
   ext x i
   unfold productMap
@@ -126,30 +134,87 @@ lemma ProductMapCompatibleEltInd (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps�
   intro x i
   apply congrFun (ProductMapCompatibleElt maps maps₂ x) i
 
+
+lemma ProductMapKer (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) : ∀ x, x ∈ (productMap maps).ker ↔ ∀ i, x i ∈ (maps i).ker := by
+  intro x
+  constructor
+  · intro hx i
+    unfold productMap at hx
+    simp at hx
+    apply congrFun hx i
+  · intro hi
+    ext i
+    apply hi i
+
+lemma ProductMapRange {maps : ∀ i, (ι₁ i) →+ (ι₂ i)} : ∀ x, x ∈ (productMap maps).range ↔ ∀ i, x i ∈ (maps i).range := by
+  intro x
+  constructor
+  · intro this
+    intro i
+    unfold productMap at this
+    simp at this
+    rcases this with ⟨w,hw⟩
+    use w i
+    exact congrFun hw i
+  · intro this
+    have h : ∀ i, ∃ w, (maps i) w = x i:= by
+      intro i
+      apply this i
+
+    use (fun i ↦ (h i).choose)
+    ext i
+
+    have : ∀ y, (productMap fun i ↦ maps i) y i = (maps i) (y i) := by
+      intro y
+      unfold productMap
+      simp
+
+    rw [this, Exists.choose_spec (h i)]
+
+
 variable {I : Type*} (ι : ∀ (_ : I), AddCommGroupSES)
 
+def productOfSESisSES : AddCommGroupSES where
+  X₁ := AddCommGrp.of (∀ i, (ι i).X₁)
+  X₂ := AddCommGrp.of (∀ i, (ι i).X₂)
+  X₃ := AddCommGrp.of (∀ i, (ι i).X₃)
+  f := by
+    have : (∀ i, (ι i).X₁) →+ (∀ i, (ι i).X₂) := by
+      apply productMap (fun i ↦ (ι i).f.hom')
+    use this
+    intro x y
+    simp
+  g := by
+    have : (∀ i, (ι i).X₂) →+ (∀ i, (ι i).X₃) := by
+      apply productMap (fun i ↦ (ι i).g.hom')
+    use this
+    intro x y
+    simp
+  zero := by
+    simp
+    rfl
+  injective := by
+    intro x y eq
+    simp at eq
+    ext i
+    apply (ι i).injective
+    simp
+    apply congrFun eq
+  middle := by
+    simp
+    intro x hx
+    rw [ProductMapKer] at hx
+    have : ∀ i, x i ∈ (ι i).f.hom'.range := by
+      intro i
+      rw [RangeIsKernel]
+      exact hx i
 
+    exact (ProductMapRange x).mpr this
+  surjective := by
+    simp
+    intro x
+    have : ∀ i, x i ∈ (ι i).g.hom'.range := by
+      intro i
+      apply (ι i).surjective
 
--- def productOfSESisSES : AddCommGroupSES where
---   X₁ := AddCommGrp.of (∀ i, (ι i).X₁)
---   X₂ := AddCommGrp.of (∀ i, (ι i).X₂)
---   X₃ := AddCommGrp.of (∀ i, (ι i).X₃)
---   f := by
---     have : (∀ i, (ι i).X₁) →+ (∀ i, (ι i).X₂) := by
---       apply productMap (fun i ↦ (ι i).f.hom')
---     use this
---     intro x y
---     simp
---   g := by
---     have : (∀ i, (ι i).X₂) →+ (∀ i, (ι i).X₃) := by
---       apply productMap (fun i ↦ (ι i).g.hom')
---     use this
---     intro x y
---     simp
---   zero := by
---     ext x i
---     simp
---     sorry
---   injective := sorry
---   middle := sorry
---   surjective := sorry
+    exact (ProductMapRange x).mpr this
