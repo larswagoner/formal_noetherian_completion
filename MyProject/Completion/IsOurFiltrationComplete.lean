@@ -70,7 +70,7 @@ lemma IsOurFiltrationHausdorff_iff_Injective :
   rw [injective_iff_map_eq_zero (OurFiltrationCompletion.of F)]
   apply forall_congr'
   intro a
-  rw [←OurFiltrationCompletion.ext_iff]
+  rw [OurFiltrationCompletion.ext_iff]
   rfl
 
 
@@ -82,7 +82,7 @@ lemma IsOurFiltrationHausdorff_iff_Injective :
 
   This can probably be generalized.
 -/
-lemma quotient_out_eq_transition_map {m n : ℕ} (m_le_n : m ≤ n) (x : G ⧸ F.N n) :
+lemma quotient_out_eq_our_transition_map {m n : ℕ} (m_le_n : m ≤ n) (x : G ⧸ F.N n) :
     QuotientAddGroup.mk x.out = OFISTransitionMap F m_le_n x := by
   calc
     QuotientAddGroup.mk x.out = OFISTransitionMap F m_le_n (QuotientAddGroup.mk x.out) := rfl
@@ -102,7 +102,7 @@ lemma Surjective_ofIsOurFiltrationPrecomplete [G_pc : IsOurFiltrationPrecomplete
   have : ∀ {m n}, m ≤ n → g m ≡ g n [GMOD F.N m] := by
     intro m n hmn
     show _ = _
-    rw [quotient_out_eq_transition_map F hmn (f n)]
+    rw [quotient_out_eq_our_transition_map F hmn (f n)]
     rw [h hmn]
     exact Quotient.out_eq _
   rcases G_pc.prec' g this with ⟨m, hm⟩
@@ -126,7 +126,7 @@ lemma IsOurFiltrationPrecomplete_of_Surjective (hs : Function.Surjective (OurFil
   rcases hs y with ⟨x, hx⟩
   use x
   intro n
-  exact ((OurFiltrationCompletion.ext_iff F).mpr hx n).symm
+  exact ((OurFiltrationCompletion.ext_iff).mp hx n).symm
 
 /--
   Let `G` be an `F`-filtered group. Then `G` is `F`-complete if and only if the
@@ -151,16 +151,16 @@ section
 variable {A : Type*} [CommRing A] {I : Ideal A}
 variable {M : Type*} [AddCommGroup M] [Module A M]
 
-lemma isComplete_iff_isCanonicalComplete :
-    IsAdicComplete I M ↔ IsOurFiltrationComplete (Filtration.of_ideal_filtration (I.stableFiltration (⊤ : Submodule A M))) :=
+lemma isComplete_iff_isCanonicalOurComplete :
+    IsAdicComplete I M ↔ IsOurFiltrationComplete (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration :=
   ⟨fun h ↦ { haus' := h.haus', prec' := h.prec' }, fun h ↦ { haus' := h.haus', prec' := h.prec' }⟩
 
-lemma isHausdorff_iff_isCanonicalHausdorff :
-    IsHausdorff I M ↔ IsOurFiltrationHausdorff (Filtration.of_ideal_filtration (I.stableFiltration (⊤ : Submodule A M))) :=
+lemma isHausdorff_iff_isCanonicalOurHausdorff :
+    IsHausdorff I M ↔ IsOurFiltrationHausdorff (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration :=
   ⟨fun h ↦ { haus' := h.haus' }, fun h ↦ { haus' := h.haus' }⟩
 
-lemma isPrecomplete_iff_isCanonicalPrecomplete :
-    IsPrecomplete I M ↔ IsOurFiltrationPrecomplete (Filtration.of_ideal_filtration (I.stableFiltration (⊤ : Submodule A M))) :=
+lemma isPrecomplete_iff_isCanonicalOurPrecomplete :
+    IsPrecomplete I M ↔ IsOurFiltrationPrecomplete (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration :=
   ⟨fun h ↦ { prec' := h.prec' }, fun h ↦ { prec' := h.prec' }⟩
 
 end

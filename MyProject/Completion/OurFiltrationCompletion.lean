@@ -29,12 +29,8 @@ def OurFiltrationCompletion : Type u :=
   NaiveAddInverseLimit (OFISTransitionMap F)
 
 @[ext]
-lemma ext {x y : OurFiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
+lemma OurFiltrationCompletion.ext {x y : OurFiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
   Subtype.eq (funext h)
-
-lemma OurFiltrationCompletion.ext_iff {x y : OurFiltrationCompletion F} :
-    (∀ n, x.1 n = y.1 n) ↔ x = y :=
-  ⟨fun h ↦ Subtype.eq (funext h), fun h n ↦ by rw [h]⟩
 
 instance : AddCommGroup (OurFiltrationCompletion F) :=
   instAddCommGroupElemForallNaiveAddInverseLimit (OFISTransitionMap F)
@@ -55,7 +51,7 @@ variable (F : I.Filtration M)
 
 lemma AdicCompletion_eq_OurFiltrationCompletion :
   AdicCompletion I M =
-    OurFiltrationCompletion (Filtration.of_ideal_filtration (I.stableFiltration (⊤ : Submodule A M))) := rfl
+    OurFiltrationCompletion (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration := rfl
 
 end
 
@@ -75,7 +71,7 @@ def OurFiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n)
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
   InverseLimitHom (OFISystemHom.of_comap_le hφ)
 
-def FiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OurFiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
   (OurFiltrationCompletion.of F₂).comp φ =
     (OurFiltrationCompletionHom.of_comap_le hφ).comp (OurFiltrationCompletion.of F₁) := rfl
 

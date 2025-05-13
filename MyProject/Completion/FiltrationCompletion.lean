@@ -39,11 +39,8 @@ def FiltrationCompletion : Type v :=
 
 
 @[ext]
-lemma ext {x y : FiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
+lemma FiltrationCompletion.ext {x y : FiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
   Subtype.eq (funext h)
-
-lemma FiltrationCompletion.ext_iff {x y : FiltrationCompletion F} : (∀ n, x.1 n = y.1 n) ↔ x = y :=
-  ⟨fun h ↦ Subtype.eq (funext h), fun h n ↦ by rw [h]⟩
 
 instance : AddCommGroup (FiltrationCompletion F) :=
   instAddCommGroupElemForallNaiveAddInverseLimit (FISTransitionMap F)

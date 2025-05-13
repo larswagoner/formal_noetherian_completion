@@ -16,11 +16,11 @@ section
 variable {A : Type u} [CommRing A] {I : Ideal A}
 variable {M : Type v} [AddCommGroup M] [Module A M]
 
-def Filtration.of_ideal_filtration (F : I.Filtration M) : OurFiltration M where
+def Ideal.Filtration.toOurFiltration (F : I.Filtration M) : OurFiltration M where
   N := fun n ↦ (F.N n).toAddSubgroup
   mono := fun n ↦ F.mono n
 
-def Ideal.Filtration.of_filtration (F : OurFiltration M)
+def Ideal.Filtration.ofOurFiltration (F : OurFiltration M)
   (h₁ : ∀ n : ℕ, ∀ (c : A) {x : M}, x ∈ F.N n → c • x ∈ F.N n)
   (h₂ : ∀ n : ℕ, I • ({ toAddSubmonoid := (F.N n).toAddSubmonoid, smul_mem' := h₁ n } : Submodule A M) ≤ { toAddSubmonoid := (F.N (n+1)).toAddSubmonoid, smul_mem' := h₁ (n+1) })
     :
