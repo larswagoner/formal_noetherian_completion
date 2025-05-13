@@ -1,7 +1,7 @@
 import MyProject.AssociatedGradedRing.Map
 
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M]
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type*} [AddCommGroup M] [Module A M]
 
 /--
   Given an `A`-module `M`, a submodule `M' ⊆ M` and an `I`-filtration `F` on `M`, we can define

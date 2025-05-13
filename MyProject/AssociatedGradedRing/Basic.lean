@@ -19,31 +19,34 @@ import Mathlib.RingTheory.GradedAlgebra.Basic
 
 open DirectSum
 
+section GradedPiece
+
+variable {A : Type u} [CommRing A] {I : Ideal A}
+variable {M : Type v} [AddCommGroup M] [Module A M]
+
 /--
   The `n`-th summand of `G(M)` is given by `Mₙ/Mₙ₊₁`. We use Submodule.comap to pull back the
   submodule `F.N (n + 1) = Mₙ₊₁ ⊆ M` along the map `(F.N n).subtype : Mₙ ⟶ M`.
 -/
-def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
-    Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
+def GradedPiece(F : I.Filtration M) (n : ℕ) :
+    Type v := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
 
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+instance (F : I.Filtration M) (n : ℕ) :
     AddCommGroup (GradedPiece F n) := by
   unfold GradedPiece
   infer_instance
 
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+instance (F : I.Filtration M) (n : ℕ) :
     Module A (GradedPiece F n) := by
   unfold GradedPiece
   infer_instance
 
-abbrev GradedPiece_mk {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {n : ℕ} (x : F.N n) :
+abbrev GradedPiece_mk {F : I.Filtration M} {n : ℕ} (x : F.N n) :
     GradedPiece F n := ⟦x⟧
 
 notation "⟦" x "⟧ₘ" => GradedPiece_mk x
 
-section GradedPiece
-
-variable {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {m : ℕ}
+variable {F : I.Filtration M} {m : ℕ}
 
 @[simp]
 lemma GradedPiece_mk_out (x : GradedPiece F m) :
@@ -93,13 +96,13 @@ end GradedPiece
 section AssociatedGradedModule
 
 variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M]
+variable {M : Type v} [AddCommGroup M] [Module A M]
 
 /--
   The associated graded module is defined by `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`.
 -/
 def AssociatedGradedModule (F : I.Filtration M) :
-    Type u := ⨁ n : ℕ, GradedPiece F n
+    Type v := ⨁ n : ℕ, GradedPiece F n
 
 def AssociatedGradedModule.of {F : I.Filtration M} {n : ℕ} (x : GradedPiece F n) :
   AssociatedGradedModule F := DirectSum.of (GradedPiece F) n x
