@@ -87,21 +87,6 @@ def DerivedMap {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m�
     simp
     abel
 
--- lemma derivedMapCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] {a : ∀ i, F i}: ∀ ⦃n m : ℕ⦄ (h : n ≤ m), f h ((DerivedMap f) a m) = (DerivedMap f) a n := by
---   intro n m h
---   induction h using Nat.leRec with
---   | refl =>
---     rw [AIS.map_self]
---   | le_succ_of_le h ih =>
---     rw [<- ih]
---     expose_names
---     unfold DerivedMap
---     simp
---     rw [map_]
---     have h₂ : n ≤ k+1 := by linarith
-
---     sorry
-
 
 variable {F G : ℕ → Type*} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
 
