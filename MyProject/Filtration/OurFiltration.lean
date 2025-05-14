@@ -2,6 +2,7 @@ import Mathlib.RingTheory.FilteredAlgebra.Basic
 import Mathlib.Algebra.Group.Subgroup.Defs
 import Mathlib.RingTheory.Filtration
 
+@[ext]
 structure OurFiltration (G : Type u) [AddCommGroup G] : Type u  where
   N : ℕ → AddSubgroup G
   mono : ∀ i, N (i + 1) ≤ N i
