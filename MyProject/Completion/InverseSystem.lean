@@ -88,6 +88,8 @@ def DerivedMap {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m�
     abel
 
 
+section ExactnessProperties
+
 variable {F G : ℕ → Type*} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)]
 
 /-- A morphism of inverse systems consists of a group homomorphism at each entry, compatible with the maps of the inverse system. -/
@@ -122,3 +124,11 @@ infixr:25 " ∘ₛ " => SystemHomComposition
 
 def ExactAtMiddleSystem (ψ : f →ₛ+ g) (ϕ : g →ₛ+ h) : Prop :=
   ∀ n, AddMonoidHom.range (ψ.maps n) = AddMonoidHom.ker (ϕ.maps n)
+
+
+structure AddInverseSystemSES where
+  ψ : f →ₛ+ g
+  ϕ : g →ₛ+ h
+  inj : InjectiveSystemHom ψ
+  mid : ExactAtMiddleSystem ψ ϕ
+  surj : SurjectiveSystemHom ϕ

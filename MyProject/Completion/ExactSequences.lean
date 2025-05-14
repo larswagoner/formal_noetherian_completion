@@ -4,13 +4,20 @@ import Mathlib.Algebra.Category.Grp.Basic
 import Mathlib.Algebra.Category.Grp.Preadditive
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Algebra.Exact
 
+
+-- Should have done this earlier
+lemma congrHom {A B : Type*} [AddCommGroup A] [AddCommGroup B] {f g : A →+ B} (h : f = g) (x : A) : f x = g x := by
+  have : f.toFun = g.toFun := by
+    rw [h]
+  apply congrFun this x
 
 open CategoryTheory
 
 def groupHomToGrpHom {A B : AddCommGrp} (f : A →+ B) : A ⟶ B := by
   use f
-  simp
+  simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add, implies_true]
 
 @[simp]
 lemma compIsMonoidComp {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : (f ≫ g) = groupHomToGrpHom (AddMonoidHom.comp g.hom' f.hom') := by
@@ -32,14 +39,14 @@ def GroupsToComplex (h : g.comp f = 0) : CategoryTheory.ShortComplex AddCommGrp 
   X₃ := AddCommGrp.of C
   f := by
     use f
-    simp
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add, implies_true]
   g := by
     use g
-    simp
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add, implies_true]
   zero := by
     simp
     ext x
-    simp
+    simp only [AddCommGrp.hom_zero, AddMonoidHom.zero_apply]
     have MonoidCompisFuncComp : g (f x) = (AddMonoidHom.comp g f) x := by
       rfl
     have compIsZero : g (f x) = 0 := by
@@ -49,9 +56,16 @@ def GroupsToComplex (h : g.comp f = 0) : CategoryTheory.ShortComplex AddCommGrp 
 
 
 @[simp]
-lemma compIsZero (s : CategoryTheory.ShortComplex AddCommGrp) : AddMonoidHom.comp s.g.hom' s.f.hom' = 0 := by
+lemma compIsZero (s : CategoryTheory.ShortComplex AddCommGrp) : s.g.hom'.comp s.f.hom' = 0 := by
   rw [compIsMonoidComp₂, s.zero]
   rfl
+
+@[simp]
+lemma compIsZeroElt (s : CategoryTheory.ShortComplex AddCommGrp) : ∀ x, s.g.hom' (s.f.hom' x) = 0 := by
+  intro x
+  have : s.g.hom' (s.f.hom' x) = s.g.hom'.comp s.f.hom' x := rfl
+  rw [this, compIsZero]
+  simp only [AddMonoidHom.zero_apply]
 
 lemma compIsZeroFun (s : CategoryTheory.ShortComplex AddCommGrp) : s.g.hom'.toFun ∘ s.f.hom'.toFun = 0 := by
   have : s.g.hom'.toFun ∘ s.f.hom'.toFun = (AddMonoidHom.comp s.g.hom' s.f.hom').toFun := rfl
@@ -67,10 +81,13 @@ structure AddCommGroupSES extends CategoryTheory.ShortComplex AddCommGrp where
 
 lemma rangeEqKerToCompEqZero (range_eq_ker : AddMonoidHom.range f = AddMonoidHom.ker g) : g.comp f = 0 := by
   ext x
-  simp
+  simp only [AddMonoidHom.coe_comp, Function.comp_apply, AddMonoidHom.zero_apply]
   have : f x ∈ f.range := by use x
   rw [range_eq_ker] at this
   apply this
+
+lemma zeroOfMapZero (s : AddCommGroupSES) : ∀ x, s.f.hom' x = 0 → x = 0 := by
+  apply (injective_iff_map_eq_zero s.f.hom').mp s.injective
 
 def GroupsToComp₂ (range_eq_ker : AddMonoidHom.range f = AddMonoidHom.ker g) : CategoryTheory.ShortComplex AddCommGrp := GroupsToComplex (rangeEqKerToCompEqZero range_eq_ker)
 
@@ -103,12 +120,12 @@ def productMap (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) : (∀ i, ι₁ i) →+ 
     intro x i
     apply (maps i).toFun (x i)
   map_zero' := by
-    simp
+    simp only [Pi.zero_apply, ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, map_zero]
     rfl
   map_add' := by
     intro x y
     ext i
-    simp
+    simp only [Pi.add_apply, ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, map_add]
 
 variable {ι₃ : I → Type*} [∀ i, AddCommGroup (ι₃ i)]
 
@@ -116,13 +133,15 @@ variable {ι₃ : I → Type*} [∀ i, AddCommGroup (ι₃ i)]
 lemma ProductMapCompatible (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps₂ : ∀ i, (ι₂ i) →+ (ι₃ i)) : (productMap maps₂).comp (productMap maps) = productMap (fun i ↦ (maps₂ i).comp (maps i)) := by
   ext x i
   unfold productMap
-  simp
+  simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.coe_comp,
+    AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply]
 
 @[simp]
 lemma ProductMapCompatibleFun (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps₂ : ∀ i, (ι₂ i) →+ (ι₃ i)) : ((productMap maps₂).comp (productMap maps)).toFun = (productMap (fun i ↦ (maps₂ i).comp (maps i))).toFun := by
   ext x i
   unfold productMap
-  simp
+  simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.coe_comp,
+    AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply]
 
 @[simp]
 lemma ProductMapCompatibleElt (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps₂ : ∀ i, (ι₂ i) →+ (ι₃ i)) : ∀ x, (productMap maps₂).comp (productMap maps) x = productMap (fun i ↦ (maps₂ i).comp (maps i)) x := by
@@ -135,12 +154,13 @@ lemma ProductMapCompatibleEltInd (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) (maps�
   apply congrFun (ProductMapCompatibleElt maps maps₂ x) i
 
 
-lemma ProductMapKer (maps : ∀ i, (ι₁ i) →+ (ι₂ i)) : ∀ x, x ∈ (productMap maps).ker ↔ ∀ i, x i ∈ (maps i).ker := by
+lemma ProductMapKer {maps : ∀ i, (ι₁ i) →+ (ι₂ i)} : ∀ x, x ∈ (productMap maps).ker ↔ ∀ i, x i ∈ (maps i).ker := by
   intro x
   constructor
   · intro hx i
     unfold productMap at hx
-    simp at hx
+    simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.mem_ker,
+      AddMonoidHom.coe_mk, ZeroHom.coe_mk] at hx
     apply congrFun hx i
   · intro hi
     ext i
@@ -152,7 +172,8 @@ lemma ProductMapRange {maps : ∀ i, (ι₁ i) →+ (ι₂ i)} : ∀ x, x ∈ (p
   · intro this
     intro i
     unfold productMap at this
-    simp at this
+    simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.mem_range,
+      AddMonoidHom.coe_mk, ZeroHom.coe_mk] at this
     rcases this with ⟨w,hw⟩
     use w i
     exact congrFun hw i
@@ -167,7 +188,8 @@ lemma ProductMapRange {maps : ∀ i, (ι₁ i) →+ (ι₂ i)} : ∀ x, x ∈ (p
     have : ∀ y, (productMap fun i ↦ maps i) y i = (maps i) (y i) := by
       intro y
       unfold productMap
-      simp
+      simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.coe_mk,
+        ZeroHom.coe_mk]
 
     rw [this, Exists.choose_spec (h i)]
 
@@ -183,25 +205,25 @@ def productOfSESisSES : AddCommGroupSES where
       apply productMap (fun i ↦ (ι i).f.hom')
     use this
     intro x y
-    simp
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add]
   g := by
     have : (∀ i, (ι i).X₂) →+ (∀ i, (ι i).X₃) := by
       apply productMap (fun i ↦ (ι i).g.hom')
     use this
     intro x y
-    simp
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add]
   zero := by
-    simp
+    simp only [AddMonoidHom.mk_coe, compIsMonoidComp, ProductMapCompatible, compIsZero]
     rfl
   injective := by
     intro x y eq
-    simp at eq
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe] at eq
     ext i
     apply (ι i).injective
-    simp
+    simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe]
     apply congrFun eq
   middle := by
-    simp
+    simp only [AddMonoidHom.mk_coe]
     intro x hx
     rw [ProductMapKer] at hx
     have : ∀ i, x i ∈ (ι i).f.hom'.range := by
@@ -211,10 +233,147 @@ def productOfSESisSES : AddCommGroupSES where
 
     exact (ProductMapRange x).mpr this
   surjective := by
-    simp
+    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe]
     intro x
     have : ∀ i, x i ∈ (ι i).g.hom'.range := by
       intro i
       apply (ι i).surjective
 
     exact (ProductMapRange x).mpr this
+
+end Products
+
+
+section CommDiaOfSES
+
+structure CommDiagramOfSES where
+  s₁ : AddCommGroupSES
+  s₂ : AddCommGroupSES
+  v₁ : s₁.X₁ ⟶ s₂.X₁
+  v₂ : s₁.X₂ ⟶ s₂.X₂
+  v₃ : s₁.X₃ ⟶ s₂.X₃
+  commleft : s₁.f ≫ v₂ = v₁ ≫ s₂.f
+  commright : s₁.g ≫ v₃ = v₂ ≫ s₂.g
+
+lemma CommLeft (dia : CommDiagramOfSES) : dia.v₂.hom'.comp dia.s₁.f.hom' = dia.s₂.f.hom'.comp dia.v₁.hom' := by
+  repeat rw [compIsMonoidComp₂]
+  suffices dia.s₁.f ≫ dia.v₂ = dia.v₁ ≫ dia.s₂.f by
+    rw [this]
+  apply dia.commleft
+
+lemma CommLeftElt (dia : CommDiagramOfSES) : ∀ x, dia.v₂.hom'.comp dia.s₁.f.hom' x = dia.s₂.f.hom'.comp dia.v₁.hom' x := by
+  intro x
+  apply congrHom (CommLeft dia) x
+
+
+lemma CommRight (dia : CommDiagramOfSES) : dia.v₃.hom'.comp dia.s₁.g.hom' = dia.s₂.g.hom'.comp dia.v₂.hom' := by
+  repeat rw [compIsMonoidComp₂]
+  suffices dia.s₁.g ≫ dia.v₃ = dia.v₂ ≫ dia.s₂.g by
+    rw [this]
+  apply dia.commright
+
+lemma CommRightElt (dia : CommDiagramOfSES) : ∀ x, dia.v₃.hom'.comp dia.s₁.g.hom' x = dia.s₂.g.hom'.comp dia.v₂.hom' x := by
+  intro x
+  apply congrHom (CommRight dia) x
+
+
+def inducedMap₁ (dia : CommDiagramOfSES) : dia.v₁.hom'.ker →+ dia.v₂.hom'.ker where
+  toFun := by
+    intro x
+    use dia.s₁.f.hom' x
+    have : dia.s₂.f.hom'.comp dia.v₁.hom' x = 0 := by
+      simp only [AddMonoidHom.coe_comp, Function.comp_apply]
+      rw [x.2, map_zero]
+    rw [<- CommLeftElt dia] at this
+    simp only [AddMonoidHom.coe_comp, Function.comp_apply] at this
+    exact this
+  map_zero' := by simp only [ZeroMemClass.coe_zero, map_zero, AddSubgroup.mk_eq_zero]
+  map_add' := by simp only [AddSubgroup.coe_add, map_add, AddMemClass.mk_add_mk, implies_true]
+
+
+lemma induced₁ToKernel {dia : CommDiagramOfSES} : ∀ x : ↥dia.v₁.hom'.ker, dia.s₁.f.hom' x.1 ∈ dia.v₂.hom'.ker := by
+  intro x
+  have : dia.s₂.f.hom'.comp dia.v₁.hom' x = 0 := by
+    simp only [AddMonoidHom.coe_comp, Function.comp_apply]
+    rw [x.2]
+    simp only [map_zero]
+  rw [<- CommLeftElt] at this
+  simp only [AddMonoidHom.coe_comp, Function.comp_apply] at this
+  exact this
+
+@[simp]
+lemma induced₁Coincide {dia : CommDiagramOfSES} : ∀ x, (inducedMap₁ dia) x = ⟨dia.s₁.f.hom' x.1, induced₁ToKernel x⟩ := by
+  unfold inducedMap₁
+  simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, implies_true]
+
+
+theorem inducedMap₁Injective {dia : CommDiagramOfSES} : (inducedMap₁ dia).toFun.Injective := by
+  intro x y hxy
+  unfold inducedMap₁ at hxy
+  simp only [Subtype.mk.injEq] at hxy
+  apply dia.s₁.injective at hxy
+  ext
+  exact hxy
+
+
+def inducedMap₂ (dia : CommDiagramOfSES) : dia.v₂.hom'.ker →+ dia.v₃.hom'.ker where
+  toFun := by
+    intro x
+    use dia.s₁.g.hom' x
+    have : dia.s₂.g.hom'.comp dia.v₂.hom' x = 0 := by
+      simp only [AddMonoidHom.coe_comp, Function.comp_apply]
+      rw [x.2, map_zero]
+    rw [<- CommRightElt dia] at this
+    simp only [AddMonoidHom.coe_comp, Function.comp_apply] at this
+    exact this
+  map_zero' := by simp only [ZeroMemClass.coe_zero, map_zero, AddSubgroup.mk_eq_zero]
+  map_add' := by simp only [AddSubgroup.coe_add, map_add, AddMemClass.mk_add_mk, implies_true]
+
+lemma induced₂ToKernel {dia : CommDiagramOfSES} : ∀ x : ↥dia.v₂.hom'.ker, dia.s₁.g.hom' x.1 ∈ dia.v₃.hom'.ker := by
+  intro x
+  have : dia.s₂.g.hom'.comp dia.v₂.hom' x = 0 := by
+    simp only [AddMonoidHom.coe_comp, Function.comp_apply]
+    rw [x.2]
+    simp only [map_zero]
+  rw [<- CommRightElt] at this
+  simp only [AddMonoidHom.coe_comp, Function.comp_apply] at this
+  exact this
+
+@[simp]
+lemma induced₂Coincide {dia : CommDiagramOfSES} : ∀ x, inducedMap₂ dia x = ⟨dia.s₁.g.hom' x.1, induced₂ToKernel x⟩ := by
+  unfold inducedMap₂
+  simp
+
+theorem inducedMap₁inducedMap₂Exact {dia : CommDiagramOfSES} : Function.Exact (inducedMap₁ dia).toFun (inducedMap₂ dia).toFun := by
+  apply AddMonoidHom.exact_iff.mpr
+  ext x
+  constructor
+  · intro hx
+    have : x.1 ∈ dia.s₁.g.hom'.ker := by
+      simp only [AddMonoidHom.mem_ker, induced₂Coincide, AddSubgroup.mk_eq_zero] at hx
+      exact hx
+    rw [<- RangeIsKernel] at this
+    rcases this with ⟨w, hw⟩
+    have : dia.v₂.hom'.comp dia.s₁.f.hom' w = 0 := by
+      simp only [AddMonoidHom.coe_comp, Function.comp_apply]
+      rw [hw]
+      exact x.2
+    have : w ∈ dia.v₁.hom'.ker := by
+      rw [CommLeftElt dia] at this
+      simp only [AddMonoidHom.coe_comp, Function.comp_apply] at this
+      apply zeroOfMapZero at this
+      exact this
+    use ⟨w, this⟩
+    simp only [induced₁Coincide, hw, Subtype.coe_eta]
+  · intro hx
+    rcases hx with ⟨w,hw⟩
+    rw [<- hw]
+    simp only [induced₁Coincide, AddMonoidHom.mem_ker, induced₂Coincide, compIsZeroElt,
+      AddSubgroup.mk_eq_zero]
+
+
+theorem inducedMap₁RangeEqinducedMap₂Ker {dia : CommDiagramOfSES} : (inducedMap₁ dia).range = (inducedMap₂ dia).ker := by
+  apply (AddMonoidHom.exact_iff.mp inducedMap₁inducedMap₂Exact).symm
+
+
+end CommDiaOfSES
