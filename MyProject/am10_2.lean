@@ -57,7 +57,10 @@ lemma converter (x : NaiveAddInverseLimit f) : x.1 ∈ (DerivedMap f).ker := by
 
 def NaiveInvLimToKer (x : NaiveAddInverseLimit f) : (DerivedMap f).ker := ⟨x.1, converter x⟩
 
-theorem NaiveInvLimToKerInj : ∀ x y : NaiveAddInverseLimit f, NaiveInvLimToKer x = NaiveInvLimToKer y → x = y := by sorry
+theorem NaiveInvLimToKerInj : ∀ x y : NaiveAddInverseLimit f, NaiveInvLimToKer x = NaiveInvLimToKer y → x = y := by
+  intro x y hxy
+  apply SetCoe.ext
+  apply SetCoe.ext_iff.mpr hxy
 
 
 -- variable {G : ℕ → Type*} [∀ i, AddCommGroup (G i)] {g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)} [AddInverseSystem g]
