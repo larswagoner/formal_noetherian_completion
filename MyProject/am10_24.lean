@@ -1,5 +1,4 @@
 import MyProject.am10_23
-import MyProject.adic_completion
 import MyProject.AssociatedGradedRing.Map
 import MyProject.Completion.IsFiltrationComplete
 
