@@ -10,7 +10,8 @@ import MyProject.Completion.IdealCompletion
 
 section
 
-variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
+variable {G : Type u} [AddCommGroup G]
+variable {σ : Type*} [SetLike σ G] [AddSubgroupClass σ G] (F : OurFiltration G σ)
 
 lemma am10_5 : Function.Bijective
   (OurFiltrationCompletion.of (CompletedFiltration F)) := sorry

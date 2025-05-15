@@ -12,13 +12,14 @@ import Mathlib.Algebra.Exact
 -/
 
 variable {G₁ G₂ G₃ : Type*} [AddCommGroup G₁] [AddCommGroup G₂] [AddCommGroup G₃]
-variable (q : G₁ →+ G₂) (p : G₂ →+ G₃) (F : OurFiltration G₂)
+variable (q : G₁ →+ G₂) (p : G₂ →+ G₃)
+variable {σ : Type*} [SetLike σ G₂] [AddSubgroupClass σ G₂] (F : OurFiltration G₂ σ)
 
 def map₁ : (OurFiltrationCompletion (PullbackOurFiltration q F)) →+ (OurFiltrationCompletion F) :=
-  OurFiltrationCompletionHom.of_comap_le (fun n ↦ by rfl)
+  OurFiltrationCompletionHom.of_comap_le q (fun n ↦ by rfl)
 
 def map₂ : (OurFiltrationCompletion F) →+ (OurFiltrationCompletion (PushforwardOurFiltration p F)) :=
-  OurFiltrationCompletionHom.of_comap_le (fun n ↦ AddSubgroup.le_comap_map p (F.N n))
+  OurFiltrationCompletionHom.of_comap_le p (fun _ ↦ AddSubgroup.le_comap_map p _)
 
 -- TODO: How to mention exactness?
 variable (h₁ : Function.Injective q)
