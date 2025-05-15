@@ -1,6 +1,6 @@
 import MyProject.am10_4
 import MyProject.Completion.IsOurFiltrationComplete
-import MyProject.adic_completion
+import MyProject.Completion.IdealCompletion
 
 /-
   # Proposition 10.5
@@ -18,18 +18,5 @@ lemma am10_5 : Function.Bijective
 lemma am10_5' : IsOurFiltrationComplete (CompletedFiltration F) := by
   rw [IsOurFiltrationComplete_iff_Bijective]
   exact am10_5 F
-
-end
-
-section
-
-variable {A : Type u} [CommRing A] (I : Ideal A)
-variable {M : Type v} [AddCommGroup M] [Module A M]
-
-instance : IsAdicComplete (I.adicCompletion I) (AdicCompletion I M) := by
-  rw [isComplete_iff_isCanonicalOurComplete]
-  have := am10_5' (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration
-  convert this
-  sorry
 
 end
