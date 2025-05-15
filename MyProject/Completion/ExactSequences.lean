@@ -135,7 +135,7 @@ lemma RangeInKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' ≤ AddM
   rw [hw] at this
   exact this
 
-lemma RangeIsKernel {s : AddCommGroupSES} : s.f.hom'.range = s.g.hom'.ker := le_antisymm (RangeInKernel s) (s.middle)
+lemma RangeIsKernel (s : AddCommGroupSES) : s.f.hom'.range = s.g.hom'.ker := le_antisymm (RangeInKernel s) (s.middle)
 
 end Complexes
 

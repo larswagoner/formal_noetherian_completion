@@ -55,7 +55,36 @@ lemma converter (x : NaiveAddInverseLimit f) : x.1 ∈ (DerivedMap f).ker := by
   -- rw [kernelDerivedEqNaiveInverseLimit] Does not work????
   apply lemmathatsomehowworks this kernelDerivedEqNaiveInverseLimit.symm
 
-def NaiveInvLimToKer (x : NaiveAddInverseLimit f) : (DerivedMap f).ker := ⟨x.1, converter x⟩
+def NaiveInvLimToKer : (NaiveAddInverseLimit f) →+ (DerivedMap f).ker where
+  toFun := fun x ↦ ⟨x.1, converter x⟩
+  map_zero' := rfl
+  map_add' := by
+    intro x y
+    rfl
+
+lemma converter₂ (x : (DerivedMap f).ker) : x.1 ∈ NaiveAddInverseLimit f := by
+  have : x.1 ∈ (DerivedMap f).ker := x.2
+  -- rw [kernelDerivedEqNaiveInverseLimit] Does not work????
+  apply lemmathatsomehowworks this kernelDerivedEqNaiveInverseLimit
+
+def KerToNaiveInvLim : (DerivedMap f).ker →+ (NaiveAddInverseLimit f) where
+  toFun := fun x ↦ ⟨x.1, converter₂ x⟩
+  map_zero' := rfl
+  map_add' := by
+    intro x y
+    rfl
+
+def NaiveIsomKer : NaiveAddInverseLimit f ≃+ (DerivedMap f).ker where
+  toFun := NaiveInvLimToKer
+  invFun := KerToNaiveInvLim
+  left_inv := by
+    intro x
+    rfl
+  right_inv := by
+    intro x
+    rfl
+  map_add' := NaiveInvLimToKer.map_add'
+
 
 theorem NaiveInvLimToKerInj : ∀ x y : NaiveAddInverseLimit f, NaiveInvLimToKer x = NaiveInvLimToKer y → x = y := by
   intro x y hxy
@@ -147,7 +176,54 @@ lemma am10_2_i_inj (AIS_SES : AddInverseSystemSES f g h) : Function.Injective (I
   apply NaiveInvLimToKerInj
   exact inducedMap₁Injective eq
 
-lemma am10_2_i_exactMiddle (AIS_SES : AddInverseSystemSES f g h) : Function.Exact (InducedNaiveInverseLimitHom AIS_SES.ψ) (InducedNaiveInverseLimitHom AIS_SES.ϕ) := sorry
+lemma am10_2_i_exactMiddle (AIS_SES : AddInverseSystemSES f g h) : Function.Exact (InducedNaiveInverseLimitHom AIS_SES.ψ) (InducedNaiveInverseLimitHom AIS_SES.ϕ) := by
+  let dia := InducedDiagramOfSES AIS_SES
+
+  /- The following 4 haves should probably be separate lemmas -/
+  have comm₁ : ∀ x, NaiveInvLimToKer ((InducedNaiveInverseLimitHom AIS_SES.ψ) x) = (inducedMap₁ dia) (NaiveInvLimToKer x) := by intro x; rfl
+  have comm₂ : ∀ x, NaiveInvLimToKer ((InducedNaiveInverseLimitHom AIS_SES.ϕ) x) = (inducedMap₂ dia) (NaiveInvLimToKer x) := by intro x; rfl
+  have ker : ∀ x, x ∈ (InducedNaiveInverseLimitHom AIS_SES.ϕ).ker ↔ NaiveInvLimToKer x ∈ (inducedMap₂ dia).ker := by
+    intro x
+    constructor
+    · intro hx
+      simp
+      suffices NaiveInvLimToKer ((InducedNaiveInverseLimitHom AIS_SES.ϕ) x) = 0 by
+        rw [comm₂] at this
+        exact this
+      rw [hx]
+      simp
+    · intro hx
+      have : NaiveInvLimToKer ((InducedNaiveInverseLimitHom AIS_SES.ϕ) x) = 0 := by
+        rw [comm₂]
+        exact hx
+      rw [<- map_zero NaiveInvLimToKer] at this
+      apply NaiveInvLimToKerInj at this
+      exact this
+
+  have range : ∀ x, x ∈ (InducedNaiveInverseLimitHom AIS_SES.ψ).range ↔ NaiveInvLimToKer x ∈ (inducedMap₁ dia).range := by
+    intro x
+    constructor
+    · intro hx
+      rcases hx with ⟨w, hw⟩
+      use NaiveInvLimToKer w
+      rw [<- comm₁]
+      rw [hw]
+    · intro hx
+      rcases hx with ⟨w, hw⟩
+      use KerToNaiveInvLim w
+      have : w = NaiveInvLimToKer (KerToNaiveInvLim w) := rfl
+      rw [this, <- comm₁] at hw
+      apply NaiveInvLimToKerInj at hw
+      exact hw
+
+  apply AddMonoidHom.exact_iff.mpr
+  ext x
+  rw [ker]
+  have : NaiveInvLimToKer x ∈ (inducedMap₂ dia).ker ↔ NaiveInvLimToKer x ∈ (inducedMap₁ dia).range := by
+    rw [inducedMap₁RangeEqinducedMap₂Ker]
+  rw [this, range]
+
+
 lemma am10_2_ii (AIS_SES : AddInverseSystemSES f g h) (firstSystemSurj : SurjectiveSystem f) : Function.Surjective (InducedNaiveInverseLimitHom AIS_SES.ϕ) := sorry
 
 
