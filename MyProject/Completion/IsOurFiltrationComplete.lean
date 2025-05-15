@@ -3,17 +3,17 @@ import MyProject.Filtration.FConstructions
 
 section
 
-variable {G : Type*} [AddCommGroup G] (H : AddSubgroup G)
+variable {G : Type*} [AddCommGroup G] {σ : Type v} [SetLike σ G] [AddSubgroupClass σ G] (H : σ)
 
 /-- A predicate saying two elements of a group are equivalent modulo a subgroup. -/
 def GModEq (x y : G)  : Prop :=
-  (QuotientAddGroup.mk x : G ⧸ H) = (QuotientAddGroup.mk y)
+  (QuotientAddGroup.mk x : G ⧸ (AddSubgroup.ofClass H)) = (QuotientAddGroup.mk y)
 
 @[inherit_doc] notation:50 x " ≡ " y " [GMOD " H "]" => GModEq H x y
 
 section
 
-variable {G : Type*} [AddCommGroup G] (F : OurFiltration G)
+variable {G : Type*} [AddCommGroup G] {σ : Type v} [SetLike σ G] [AddSubgroupClass σ G] (F : OurFiltration G σ)
 
 /-- A group `G` is Hausdorff with respect to a filtration `Gₙ` if `⋂ Gₙ = 0`. -/
 class IsOurFiltrationHausdorff : Prop where
@@ -82,7 +82,7 @@ lemma IsOurFiltrationHausdorff_iff_Injective :
 
   This can probably be generalized.
 -/
-lemma quotient_out_eq_our_transition_map {m n : ℕ} (m_le_n : m ≤ n) (x : G ⧸ F.N n) :
+lemma quotient_out_eq_our_transition_map {m n : ℕ} (m_le_n : m ≤ n) (x : G ⧸ (AddSubgroup.ofClass (F.N n))) :
     QuotientAddGroup.mk x.out = OFISTransitionMap F m_le_n x := by
   calc
     QuotientAddGroup.mk x.out = OFISTransitionMap F m_le_n (QuotientAddGroup.mk x.out) := rfl

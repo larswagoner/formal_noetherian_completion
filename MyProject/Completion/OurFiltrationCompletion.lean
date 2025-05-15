@@ -4,9 +4,9 @@ import Mathlib.RingTheory.AdicCompletion.Algebra
 
 section
 
-variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
+variable {G : Type u} [AddCommGroup G] {σ : Type v} [SetLike σ G] [AddSubgroupClass σ G] (F : OurFiltration G σ)
 
-def OurFiltrationIS : ℕ → Type u := fun n ↦ G ⧸ (F.N n)
+def OurFiltrationIS : ℕ → Type _ := fun n ↦ G ⧸ (AddSubgroup.ofClass (F.N n))
 
 instance (i : ℕ) : AddCommGroup (OurFiltrationIS F i) := by
   unfold OurFiltrationIS
@@ -15,7 +15,7 @@ instance (i : ℕ) : AddCommGroup (OurFiltrationIS F i) := by
 def OFISTransitionMap :
     ∀ ⦃n m⦄, n ≤ m → OurFiltrationIS F m →+ OurFiltrationIS F n :=
   fun n m h ↦
-    QuotientAddGroup.map (F.N m) (F.N n) (AddMonoidHom.id G) (OurFiltration_antitone F h)
+    QuotientAddGroup.map (AddSubgroup.ofClass (F.N m)) (AddSubgroup.ofClass (F.N n)) (AddMonoidHom.id G) (by sorry) --OurFiltration_antitone F h)
 
 instance : AddInverseSystem (OFISTransitionMap F) where
   map_self := by
@@ -58,21 +58,23 @@ end
 section
 
 variable {G₁ G₂ : Type*} [AddCommGroup G₁] [AddCommGroup G₂]
-variable {F₁ : OurFiltration G₁} {F₂ : OurFiltration G₂} {φ : G₁ →+ G₂}
+variable {σ₁ σ₂ : Type*} [SetLike σ₁ G₁] [AddSubgroupClass σ₁ G₁] [SetLike σ₂ G₂] [AddSubgroupClass σ₂ G₂]
+variable {F₁ : OurFiltration G₁ σ₁} {F₂ : OurFiltration G₂ σ₂} (φ : G₁ →+ G₂)
+variable (hφ : ∀ n, (AddSubgroup.ofClass (F₁.N n)) ≤ (AddSubgroup.ofClass (F₂.N n)).comap φ)
 
-def OFISystemHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OFISystemHom.of_comap_le :
     AddInverseSystemHom (OFISTransitionMap F₁) (OFISTransitionMap F₂) where
   maps := fun n ↦ (QuotientAddGroup.map _ _ φ (hφ n))
   compatible := by
     rintro _ _ _ ⟨x⟩
     rfl
 
-def OurFiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OurFiltrationCompletionHom.of_comap_le :
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
-  InverseLimitHom (OFISystemHom.of_comap_le hφ)
+  InverseLimitHom (OFISystemHom.of_comap_le φ hφ)
 
-def OurFiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OurFiltrationCompletionHom.comm :
   (OurFiltrationCompletion.of F₂).comp φ =
-    (OurFiltrationCompletionHom.of_comap_le hφ).comp (OurFiltrationCompletion.of F₁) := rfl
+    (OurFiltrationCompletionHom.of_comap_le φ hφ).comp (OurFiltrationCompletion.of F₁) := rfl
 
 end
