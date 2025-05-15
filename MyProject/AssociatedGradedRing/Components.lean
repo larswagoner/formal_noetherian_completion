@@ -88,17 +88,23 @@ def GradedRingPiece_one_isomorphism (I : Ideal A): I/I^2 ≃+ (GradedRingPiece I
 
 
 /-- `Iᵐ/Iᵐ⁺¹` is isomorphic to `GradedRingPiece I m` as modules -/
-def m_toFun_aux₁: ↥(I^m) →+ (CanonicalFiltration I).N m where
-  toFun := by -- do this without rewrite!
-    rintro ⟨x, hx⟩
-    rw [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top]
-    exact ⟨x, hx⟩   
-  map_zero' := sorry
-  map_add' := sorry
+def m_toFun_aux₁ (m : ℕ): ↥(I^m) →+ (CanonicalFiltration I).N m where
+  toFun x := ⟨x, by simp⟩
+  map_zero' := by simp
+  map_add' := by simp
 
-def m_toFun (I : Ideal A) (m : ℕ) : I^m/I^(m+1) →+ GradedRingPiece I m := sorry
+def m_toFun (I : Ideal A) (m : ℕ) : (↥(I^m) ⧸ I • (⊤ : Submodule A ↥(I^m))) →+ GradedRingPiece I m := by
+  apply QuotientAddGroup.map _ _ (m_toFun_aux₁ I m) _
+  rintro ⟨x, hx⟩ p
+  simpa [Submodule.mem_smul_top_iff I, ← pow_succ'] using p
 
-def m_invFun_aux₁:(CanonicalFiltration I).N m →+ ↥(I^m):= sorry
+
+  
+
+def m_invFun_aux₁:(CanonicalFiltration I).N m →+ ↥(I^m)where
+  toFun x := ⟨x, by simpa using x.2⟩ 
+  map_zero' := by simp
+  map_add' := by simp
 
 def m_invFun (I : Ideal A) (m : ℕ): GradedRingPiece I m →+ I^m/I^(m+1) := sorry
 
