@@ -18,7 +18,8 @@ variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 instance : IsNoetherianRing (A ⧸ I) := by
   infer_instance
 
-instance : IsNoetherianRing (GradedRingPiece I 0) := isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
+instance : IsNoetherianRing (GradedRingPiece I 0) := 
+  isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 
 instance : Module.Finite A I := by infer_instance
 instance : Module (GradedRingPiece I 0) (GradedRingPiece I 1) := by infer_instance
@@ -35,16 +36,27 @@ instance : RingHomSurjective (σ I) := by
   refine { is_surjective := ?_ }
   apply Quotient.mk''_surjective
 
-def aux₁ : I → (I ⧸ I • (⊤ : Submodule A I) ) := Submodule.Quotient.mk
 
+-- replace
 def auxf₁ : I →ₛₗ[σ I] (I ⧸ I • (⊤ : Submodule A I) ) where
-  toFun := aux₁ I
+  toFun := Submodule.Quotient.mk
   map_add' := fun _ _ => rfl
   map_smul' := fun _ _ => rfl
 
-
+--replace
 instance : Module.Finite (A ⧸ I) (I ⧸ I • (⊤ : Submodule A I) ) := by
   apply Module.Finite.of_surjective (auxf₁ I) _
+  apply Quotient.mk''_surjective
+
+
+
+def auxf₂ : ↥(I^1) →ₛₗ[σ I] (↥(I^1) ⧸ I • (⊤ : Submodule A ↥(I^1))) where
+  toFun := Submodule.Quotient.mk
+  map_add' := fun _ _ => rfl
+  map_smul' := fun _ _ => rfl
+
+instance : Module.Finite (A ⧸ I) (↥(I^1) ⧸ I • (⊤ : Submodule A ↥(I^1))) := by
+  apply Module.Finite.of_surjective (auxf₂ I) _
   apply Quotient.mk''_surjective
 
 
@@ -81,11 +93,13 @@ def auxf₂ : (I ⧸ I • (⊤ : Submodule A I) ) →ₛₗ[σ₂ I] GradedRing
     rintro ⟨ m⟩ ⟨ x , hx⟩ 
     rfl
 
+-- NOTE FOR LARS: use the maps in components, in particular the bijective thing.
 instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
   apply (LinearMap.finite_iff_of_bijective (auxf₂ I) _).mp
   · exact instFiniteQuotientIdealSubtypeMemSubmoduleHSMulTop_myProject I
   · constructor 
     · unfold Function.Injective
+    
       rintro ⟨ a , ha⟩ ⟨ b , hb⟩ p
       congr 0
       unfold auxf₂ at p
@@ -129,6 +143,7 @@ noncomputable instance : CommRing (AssociatedPolynomialRing I) := by
 instance : IsNoetherianRing (AssociatedPolynomialRing I) := by
   unfold AssociatedPolynomialRing
   infer_instance
+
 
 
 def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
