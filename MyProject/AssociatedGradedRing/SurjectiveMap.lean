@@ -14,7 +14,10 @@ lemma hom_surjective_of_eq_of_eq (h₀ : (DirectSum.of (GradedRingPiece I) 0) �
   · use 0
     simp
   · rintro n
-    induction' n with n hn I
+    induction' n using Nat.strong_induction_on with n hn I
+    · sorry
+    
+    /-
     · intro x
       have h₃ : x ∈ (⊤ : Set ((GradedRingPiece I) 0)) := by 
         exact trivial
@@ -22,10 +25,11 @@ lemma hom_surjective_of_eq_of_eq (h₀ : (DirectSum.of (GradedRingPiece I) 0) �
       simp at h₃
       obtain ⟨b, hb⟩ := h₃
       use b
+      -/
       
-    · -- trick is to write goal x as I-linear combination of elements in IH n.
-      
-      sorry
+     -- trick is to write goal x as I-linear combination of elements in IH n.
+      -- maybe use strong induction and then a homogeneous element of degree n is an A-linear combination of products of elements of lower degrees
+
     -- hz says that z is in Iⁿ
     
     -- so this y is an element of Iⁿ/Iⁿ⁺¹
