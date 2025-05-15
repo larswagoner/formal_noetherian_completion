@@ -19,31 +19,34 @@ import Mathlib.RingTheory.GradedAlgebra.Basic
 
 open DirectSum
 
+section GradedPiece
+
+variable {A : Type u} [CommRing A] {I : Ideal A}
+variable {M : Type v} [AddCommGroup M] [Module A M]
+
 /--
   The `n`-th summand of `G(M)` is given by `Mₙ/Mₙ₊₁`. We use Submodule.comap to pull back the
   submodule `F.N (n + 1) = Mₙ₊₁ ⊆ M` along the map `(F.N n).subtype : Mₙ ⟶ M`.
 -/
-def GradedPiece {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
-    Type u := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
+def GradedPiece(F : I.Filtration M) (n : ℕ) :
+    Type v := (F.N n) ⧸ (Submodule.comap (F.N n).subtype (F.N (n + 1)))
 
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+instance (F : I.Filtration M) (n : ℕ) :
     AddCommGroup (GradedPiece F n) := by
   unfold GradedPiece
   infer_instance
 
-instance {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M) (n : ℕ) :
+instance (F : I.Filtration M) (n : ℕ) :
     Module A (GradedPiece F n) := by
   unfold GradedPiece
   infer_instance
 
-abbrev GradedPiece_mk {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {n : ℕ} (x : F.N n) :
+abbrev GradedPiece_mk {F : I.Filtration M} {n : ℕ} (x : F.N n) :
     GradedPiece F n := ⟦x⟧
 
 notation "⟦" x "⟧ₘ" => GradedPiece_mk x
 
-section GradedPiece
-
-variable {A : Type u} [CommRing A] {I : Ideal A} {M : Type u} [AddCommGroup M] [Module A M] {F : I.Filtration M} {m : ℕ}
+variable {F : I.Filtration M} {m : ℕ}
 
 @[simp]
 lemma GradedPiece_mk_out (x : GradedPiece F m) :
@@ -93,13 +96,13 @@ end GradedPiece
 section AssociatedGradedModule
 
 variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M : Type u} [AddCommGroup M] [Module A M]
+variable {M : Type v} [AddCommGroup M] [Module A M]
 
 /--
   The associated graded module is defined by `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`.
 -/
 def AssociatedGradedModule (F : I.Filtration M) :
-    Type u := ⨁ n : ℕ, GradedPiece F n
+    Type v := ⨁ n : ℕ, GradedPiece F n
 
 def AssociatedGradedModule.of {F : I.Filtration M} {n : ℕ} (x : GradedPiece F n) :
   AssociatedGradedModule F := DirectSum.of (GradedPiece F) n x
@@ -166,6 +169,15 @@ lemma mem_filtration_iff_mem_Im (I : Ideal A) (m : ℕ) (x : A) :
 abbrev GradedRingPiece (I : Ideal A) (m : ℕ) :=
   GradedPiece (CanonicalFiltration I) m
 
+
+def idealPowerToFiltrationComponent (I : Ideal A) (m : ℕ ): ↥(I^m) →+ (CanonicalFiltration I).N m where
+  toFun := (fun a => ⟨ a , by simp ⟩)
+  map_zero' := rfl
+  map_add' := fun _ _ => rfl
+
+
+
+
 /--
   The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
 -/
@@ -174,6 +186,14 @@ def AssociatedGradedRing (I : Ideal A) : Type u :=
 
 def AssociatedGradedRing.of {I : Ideal A} {n : ℕ} (x : GradedRingPiece I n) :
   AssociatedGradedRing I := DirectSum.of _ n x
+
+
+/- Map from `Iᵐ/Iᵐ⁺¹` to `AssociatedGradedRing I` -/
+
+def GradedRingPiece.toAssociatedGradedRing (I : Ideal A): GradedRingPiece I m → AssociatedGradedRing I :=  fun a ↦ AssociatedGradedRing.of a
+
+
+
 
 /--
   `G(A)` is an abelian group.

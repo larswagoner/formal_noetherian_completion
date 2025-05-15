@@ -1,4 +1,5 @@
 import MyProject.am10_3
+import MyProject.Completion.GroupCompletion
 
 /-
   # Proposition 10.4
@@ -6,4 +7,12 @@ import MyProject.am10_3
   Then `Ĝ/Ĝₙ ≅ G/Gₙ`.
 -/
 
-lemma am10_4 : true := sorry
+
+section
+
+variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
+
+def am10_4 (n : ℕ) :
+  (OurFiltrationCompletion F) ⧸ (AddSubgroupCompletion (F.N n) F) ≃+ G ⧸ F.N n := sorry
+
+end

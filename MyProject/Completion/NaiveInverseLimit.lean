@@ -43,13 +43,14 @@ instance [AddInverseSystem f] : AddCommGroup (NaiveAddInverseLimit f) :=
 
 
 variable {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} {g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)}
+variable [AddInverseSystem f] [AddInverseSystem g]
 
-lemma NaiveAddInverseLimit_compatible₃ [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) (n : ℕ) {x y : NaiveAddInverseLimit f} : (ψ.maps n ((x + y).1 n)) = ψ.maps n (x.1 n + y.1 n) := by
+lemma NaiveAddInverseLimit_compatible₃ (ψ : f →ₛ+ g) (n : ℕ) {x y : NaiveAddInverseLimit f} : (ψ.maps n ((x + y).1 n)) = ψ.maps n (x.1 n + y.1 n) := by
   suffices (x+y).1 n = x.1 n + y.1 n by rfl
   rfl
 
 
-def InducedNaiveInverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
+def InducedNaiveInverseLimitHom (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
   toFun := by
     intro x
     use fun n ↦ ψ.maps n (x.1 n)
@@ -69,9 +70,9 @@ def InducedNaiveInverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : 
 
 
 @[simp]
-lemma NaiveInverseLimitHom_compatible [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) (n : ℕ) :
+lemma NaiveInverseLimitHom_compatible (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) (n : ℕ) :
   ((InducedNaiveInverseLimitHom ψ) x).1 n = ψ.maps n (x.1 n) := rfl
 
 @[simp]
-lemma NaiveInverseLimitHom_compatible₂ [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) ⦃n m : ℕ⦄ (h : n ≤ m) :
+lemma NaiveInverseLimitHom_compatible₂ (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) ⦃n m : ℕ⦄ (h : n ≤ m) :
   g h (((InducedNaiveInverseLimitHom ψ) x).1 m) = ψ.maps n (x.1 n) := by simp

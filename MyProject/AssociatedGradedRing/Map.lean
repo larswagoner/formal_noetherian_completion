@@ -6,8 +6,8 @@ import MyProject.AssociatedGradedRing.Module
   there is an induced map `G(φ) : G(M₁) →ₗ[G(A)] G(M₂)`.
 -/
 
-variable {A : Type u} [CommRing A] {I : Ideal A}
-variable {M₁ M₂ : Type u} [AddCommGroup M₁] [Module A M₁]
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M₁ M₂ : Type*} [AddCommGroup M₁] [Module A M₁]
 variable [AddCommGroup M₂] [Module A M₂]
 variable {φ : M₁ →ₗ[A] M₂}
 variable {F₁ : I.Filtration M₁} {F₂ : I.Filtration M₂}
@@ -116,3 +116,6 @@ def GradedModuleHom (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
     · intro x y h₁ h₂
       simp
       rw [h₁, h₂]
+
+lemma GradedModuleHom_apply (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) (n : ℕ) (x : AssociatedGradedModule F₁) :
+    (GradedModuleHom hφ x) n = (GradedPieceHom hφ n (x n)) := rfl

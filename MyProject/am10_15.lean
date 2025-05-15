@@ -2,7 +2,6 @@ import MyProject.am1_9
 import MyProject.am10_4
 import MyProject.am10_5
 import MyProject.am10_13
-import MyProject.adic_completion
 
 
 /-
@@ -41,18 +40,29 @@ noncomputable def am10_15_i_option_2 : I.adicCompletion I  ≃ₗ[AdicCompletion
 
 
 
-noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := by sorry
+noncomputable def am10_15_ii (n : ℕ) :(I.adicCompletion I)^n = I.adicCompletion (I^n) := id (Eq.symm (Ideal.map_pow (algebraMap A (AdicCompletion I A)) I n))
 
+section
 
+variable {A : Type u} [CommRing A] (I : Ideal A)
+variable {M : Type v} [AddCommGroup M] [Module A M]
 
+-- This should now be possible: use 10_5 and that Î = Â • I
+instance : IsAdicComplete (I.adicCompletion I) (AdicCompletion I M) := by
+  rw [isComplete_iff_isCanonicalOurComplete]
+  have := am10_5' (I.stableFiltration (⊤ : Submodule A M)).toOurFiltration
+  convert this
+  sorry
 
+end
 
-
-noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] :  -- uses option 2 for I hat
-    (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) → (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := sorry
+noncomputable def am10_15_iii_map (n : ℕ) {A: Type*} [CommRing A] (I : Ideal A) [hN : IsNoetherianRing A] : -- apply one of the isomorphism theorems
+    (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) →+ (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := sorry
 
 lemma am10_15_iii (n : ℕ) : Function.Bijective (am10_15_iii_map n I) := sorry
 
+noncomputable def test :  (↥(I^n)⧸(I•⊤ : Submodule A ↥(I^n))) ≃+ (↥((I.adicCompletion I)^n) ⧸ ((I.adicCompletion I) • ⊤ : Submodule (AdicCompletion I A) ↥((I.adicCompletion I)^n))) := by
+  sorry
 
 
 omit [IsNoetherianRing A] in -- It is not necerssary for `A` to be Noetherian.
