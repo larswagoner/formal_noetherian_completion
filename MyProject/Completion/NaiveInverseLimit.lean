@@ -49,7 +49,7 @@ lemma NaiveAddInverseLimit_compatible₃ [AddInverseSystem f] [AddInverseSystem 
   rfl
 
 
-def NaiveInverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
+def InducedNaiveInverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
   toFun := by
     intro x
     use fun n ↦ ψ.maps n (x.1 n)
@@ -70,8 +70,8 @@ def NaiveInverseLimitHom [AddInverseSystem f] [AddInverseSystem g] (ψ : f →�
 
 @[simp]
 lemma NaiveInverseLimitHom_compatible [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) (n : ℕ) :
-  ((NaiveInverseLimitHom ψ) x).1 n = ψ.maps n (x.1 n) := rfl
+  ((InducedNaiveInverseLimitHom ψ) x).1 n = ψ.maps n (x.1 n) := rfl
 
 @[simp]
 lemma NaiveInverseLimitHom_compatible₂ [AddInverseSystem f] [AddInverseSystem g] (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) ⦃n m : ℕ⦄ (h : n ≤ m) :
-  g h (((NaiveInverseLimitHom ψ) x).1 m) = ψ.maps n (x.1 n) := by simp
+  g h (((InducedNaiveInverseLimitHom ψ) x).1 m) = ψ.maps n (x.1 n) := by simp

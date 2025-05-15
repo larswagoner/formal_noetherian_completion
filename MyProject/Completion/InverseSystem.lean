@@ -1,5 +1,7 @@
 import Mathlib.Tactic
 import Mathlib.Order.DirectedInverseSystem
+import MyProject.Completion.ExactSequences
+
 
 class AddInverseSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) extends
   InverseSystem (fun _ _ h ↦ f h)
@@ -104,6 +106,13 @@ variable {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} {g : ∀ ⦃n m⦄,
 @[simp]
 lemma AddInverseSystemHom_compatible (ψ : f →ₛ+ g) ⦃n m : ℕ⦄ (h : n ≤ m) (x : F m) : ψ.maps n (f h x) = g h (ψ.maps m x) := ψ.compatible h x
 
+theorem derivedMapCommutes {ψ : f →ₛ+ g} : (productMap ψ.maps).comp (DerivedMap f) = (DerivedMap g).comp (productMap ψ.maps) := by
+  ext x n
+  simp only [productMap, DerivedMap, ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe, AddMonoidHom.coe_comp,
+    AddMonoidHom.coe_mk, ZeroHom.coe_mk, Function.comp_apply, map_sub,
+    AddInverseSystemHom_compatible]
+
+
 def InjectiveSystemHom (ψ : f →ₛ+ g) : Prop :=
   ∀ n, (ψ.maps n).toFun.Injective
 
@@ -125,6 +134,13 @@ infixr:25 " ∘ₛ " => SystemHomComposition
 def ExactAtMiddleSystem (ψ : f →ₛ+ g) (ϕ : g →ₛ+ h) : Prop :=
   ∀ n, AddMonoidHom.range (ψ.maps n) = AddMonoidHom.ker (ϕ.maps n)
 
+end ExactnessProperties
+
+variable {F G H : ℕ → Type*} [∀ i, AddCommGroup (F i)] [∀ i, AddCommGroup (G i)] [∀ i, AddCommGroup (H i)]
+
+variable (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n))  [AddInverseSystem f]
+variable (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)) [AddInverseSystem g]
+variable (h : ∀ ⦃n m⦄, (n ≤ m) → (H m) →+ (H n)) [AddInverseSystem h]
 
 structure AddInverseSystemSES where
   ψ : f →ₛ+ g

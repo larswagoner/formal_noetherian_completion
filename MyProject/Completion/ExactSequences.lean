@@ -17,7 +17,24 @@ open CategoryTheory
 
 def groupHomToGrpHom {A B : AddCommGrp} (f : A →+ B) : A ⟶ B := by
   use f
-  simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add, implies_true]
+  exact f.map_add
+
+@[simp]
+lemma GrpHomZero {A B : AddCommGrp} : groupHomToGrpHom (0 : A →+ B) = 0 := by
+  unfold groupHomToGrpHom
+  rfl
+
+@[simp]
+lemma groupHomCompatible {A B : AddCommGrp} (f : A →+ B) : (groupHomToGrpHom f).hom' = f := by
+  ext x
+  unfold groupHomToGrpHom
+  simp only [AddMonoidHom.mk_coe]
+
+@[simp]
+lemma groupHomCompatibleElt {A B : AddCommGrp} (f : A →+ B) : ∀ x, (groupHomToGrpHom f).hom' x = f x := by
+  intro x
+  exact congrHom (groupHomCompatible f) x
+
 
 @[simp]
 lemma compIsMonoidComp {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : (f ≫ g) = groupHomToGrpHom (AddMonoidHom.comp g.hom' f.hom') := by
@@ -26,6 +43,17 @@ lemma compIsMonoidComp {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : (f ≫
 
 lemma compIsMonoidComp₂ {A B C : AddCommGrp} {f : A ⟶ B} {g : B ⟶ C} : AddMonoidHom.comp g.hom' f.hom' = (f ≫ g).hom' := by
   rfl
+
+@[simp]
+theorem groupHomCompatibleComp {A B C : AddCommGrp} (g : B →+ C) (f : A →+ B) : ((groupHomToGrpHom f) ≫ (groupHomToGrpHom g)).hom' = g.comp f := by
+  ext x
+  simp only [compIsMonoidComp, groupHomCompatible, AddMonoidHom.coe_comp, Function.comp_apply]
+
+@[simp]
+theorem groupHomCompatibleComp₂ {A B C : AddCommGrp} (g : B →+ C) (f : A →+ B) : ∀ x, ((groupHomToGrpHom f) ≫ (groupHomToGrpHom g)).hom' x = g.comp f x:= by
+  intro x
+  exact congrHom (groupHomCompatibleComp g f) x
+
 
 section Complexes
 
@@ -203,17 +231,13 @@ def productOfSESisSES : AddCommGroupSES where
   f := by
     have : (∀ i, (ι i).X₁) →+ (∀ i, (ι i).X₂) := by
       apply productMap (fun i ↦ (ι i).f.hom')
-    use this
-    intro x y
-    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add]
+    apply groupHomToGrpHom this
   g := by
     have : (∀ i, (ι i).X₂) →+ (∀ i, (ι i).X₃) := by
       apply productMap (fun i ↦ (ι i).g.hom')
-    use this
-    intro x y
-    simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe, map_add]
+    apply groupHomToGrpHom this
   zero := by
-    simp only [AddMonoidHom.mk_coe, compIsMonoidComp, ProductMapCompatible, compIsZero]
+    simp only [compIsMonoidComp, groupHomCompatible, ProductMapCompatible, compIsZero]
     rfl
   injective := by
     intro x y eq
@@ -225,6 +249,7 @@ def productOfSESisSES : AddCommGroupSES where
   middle := by
     simp only [AddMonoidHom.mk_coe]
     intro x hx
+    simp only [groupHomCompatible] at hx
     rw [ProductMapKer] at hx
     have : ∀ i, x i ∈ (ι i).f.hom'.range := by
       intro i
