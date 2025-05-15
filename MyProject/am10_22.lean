@@ -62,28 +62,49 @@ def aux₃ : I →+ (CanonicalFiltration I).N 1 where
   map_add' := by simp
 
 
+
 def aux₂ : (I ⧸ I • (⊤ : Submodule A I) ) →+ GradedRingPiece I 1 := by
   apply QuotientAddGroup.map _ _ (aux₃ I) _
-  · rintro ⟨x, hI⟩ hx 
+  · rintro ⟨x, hI⟩ hx
     unfold aux₃
     simp
     simp at hx
-    have : 2 = 1+1 := rfl
-    rw[this, Ideal.IsTwoSided.pow_add, pow_one]
-   
-    
-    sorry
+    rw [(Submodule.mem_smul_top_iff I)] at hx
+    simp at hx
+    rw [sq]
+    exact hx
 
 
 def auxf₂ : (I ⧸ I • (⊤ : Submodule A I) ) →ₛₗ[σ₂ I] GradedRingPiece I 1 where
   __ := aux₂ I
-  map_smul' := sorry
-
+  map_smul' := by
+    rintro ⟨ m⟩ ⟨ x , hx⟩ 
+    rfl
 
 instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
   apply (LinearMap.finite_iff_of_bijective (auxf₂ I) _).mp
   · exact instFiniteQuotientIdealSubtypeMemSubmoduleHSMulTop_myProject I
-  · sorry
+  · constructor 
+    · unfold Function.Injective
+      rintro ⟨ a , ha⟩ ⟨ b , hb⟩ p
+      congr 0
+      unfold auxf₂ at p
+      simp at p
+      
+      sorry
+    · unfold Function.Surjective
+      unfold GradedRingPiece GradedPiece
+      simp
+      intro b
+     /- -- LOOK AT THE LEMMAS IN BASIC.LEAN
+     
+      use b 
+      rintro c
+      unfold GradedRingPiece GradedPiece at c
+      simp at c
+      rcases c
+      --use b -/
+      sorry
 
 lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := Module.Finite.fg_top
 
@@ -128,7 +149,6 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
     use MvPolynomial.C x
     have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
     exact this
-    
   · ext x
     simp
     have h₁ : x ∈ Submodule.span (GradedRingPiece I 0) (vars I) := by

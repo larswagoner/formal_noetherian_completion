@@ -13,7 +13,25 @@ lemma hom_surjective_of_eq_of_eq (h₀ : (DirectSum.of (GradedRingPiece I) 0) �
   refine DirectSum.induction_on x ?_ ?_ ?_
   · use 0
     simp
-  · sorry
+  · rintro n
+    induction' n with n hn I
+    · intro x
+      have h₃ : x ∈ (⊤ : Set ((GradedRingPiece I) 0)) := by 
+        exact trivial
+      rw[← h₀] at h₃
+      simp at h₃
+      obtain ⟨b, hb⟩ := h₃
+      use b
+      
+    · -- trick is to write goal x as I-linear combination of elements in IH n.
+      
+      sorry
+    -- hz says that z is in Iⁿ
+    
+    -- so this y is an element of Iⁿ/Iⁿ⁺¹
+    --- I^n can be written as a a finite sum of things I^n-1 over I, for al  n, use induction, work with quotients, pull stuff out. 
+    
+
   · rintro _ _ ⟨a, rfl⟩   ⟨b, rfl⟩ 
     use a + b
     simp
