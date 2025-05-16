@@ -46,6 +46,41 @@ theorem kernelDerivedEqNaiveInverseLimit : (DerivedMap f).ker = NaiveAddInverseL
     simp [hx]
 
 
+theorem temp (n : ℕ) : n ≤ n+1 := by norm_num
+
+noncomputable def recursiveSolution (surj_sys : SurjectiveSystem f) (y : (i : ℕ) → F i) : (i : ℕ) → F i := fun
+| 0 => 0
+| n+1 => (surj_sys (temp n) ((recursiveSolution surj_sys y) n - y n)).choose
+
+
+theorem test (surj_sys : SurjectiveSystem f) (y : (i : ℕ) → F i) : f (temp 0) ((surj_sys (temp 0) ((recursiveSolution surj_sys y) 0 - y 0)).choose) = (recursiveSolution surj_sys y) 0 - y 0 := by sorry
+
+theorem recursiveSolutionIsSolution (surj_sys : SurjectiveSystem f) : ∀ y, (DerivedMap f) (recursiveSolution surj_sys y) = y := by
+  intro y
+  have : ∀ n, (recursiveSolution surj_sys y) n - (f (temp n) ((recursiveSolution surj_sys y) (n+1))) = y n := by
+    intro n
+    induction n
+    · unfold recursiveSolution
+      simp
+
+      sorry
+    · sorry
+
+
+  ext n
+  induction n
+  · unfold DerivedMap
+    simp
+
+    sorry
+  · sorry
+
+theorem derivedSurjOfSystemSurj (surj_sys : SurjectiveSystem f) : Function.Surjective (DerivedMap f) := by
+  intro y
+  use recursiveSolution surj_sys y
+  exact recursiveSolutionIsSolution surj_sys y
+
+
 lemma lemmathatsomehowworks {M : Type*} {A B : Set M} {x : M} (xx : x ∈ A) (h : A = B) : x ∈ B := by
   rw [<- h]
   exact xx
