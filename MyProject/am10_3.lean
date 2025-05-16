@@ -15,10 +15,7 @@ section aux
 
 section
 
-variable {G H : Type*} [AddCommGroup G] [AddCommGroup H] {N : AddSubgroup G} {N' : AddSubgroup H}
-variable {φ : G →+ H} (hφ : N ≤ N'.comap φ)
-
-
+variable {G H : Type*} [AddCommGroup G] [AddCommGroup H] {N' : AddSubgroup H}
 /--
   For map `φ : G →+ H`, and `N' ⊆ H`, the map `G'/φ⁻¹N' → H/N'` is injective.
   NOTE: This should probably be a standard result somewhere, but I could not find it.
@@ -30,6 +27,8 @@ lemma QutoientAddGroup.map_injective_of_comap (φ : G →+ H) :
   rintro ⟨a⟩ ha
   apply (QuotientAddGroup.eq_zero_iff _).mpr
   exact (QuotientAddGroup.eq_zero_iff (φ a)).mp ha
+
+variable {N : AddSubgroup G} {φ : G →+ H} (hφ : N ≤ N'.comap φ)
 
 /--
   Let `φ : G →+ H` be surjective. Then for any `N ⊆ G, N' ⊆ H` with `N ⊆ φ⁻¹ N'`, the induced map

@@ -11,22 +11,18 @@ def AddSubgroupCompletion :
 
 lemma AddSubgroupCompletion_of_le {H H': AddSubgroup G} (h : H ≤ H') :
     AddSubgroupCompletion H F ≤ AddSubgroupCompletion H' F := by
-  let Hc := OurFiltrationCompletion (PullbackOurFiltration H.subtype F)
-  let H'c := OurFiltrationCompletion (PullbackOurFiltration H'.subtype F)
-  let Gc := OurFiltrationCompletion F
+  let HF := PullbackOurFiltration H.subtype F
+  let H'F := PullbackOurFiltration H'.subtype F
 
-  let g₁ : Hc →+ H'c := OurFiltrationCompletionHom.of_comap_le _ _ (AddSubgroup.inclusion h) (fun n ↦ by rfl)
-  let g₂ : H'c →+ Gc := OurFiltrationCompletionHom.of_comap_le _ _ H'.subtype (fun n ↦ by rfl)
-  let g₃ : Hc →+ Gc := OurFiltrationCompletionHom.of_comap_le _ _ H.subtype (fun n ↦ by rfl)
+  let g₁ := OurFiltrationCompletionHom.of_comap_le HF H'F (AddSubgroup.inclusion h) (fun n ↦ by rfl)
+  let g₂ := OurFiltrationCompletionHom.of_comap_le H'F F H'.subtype (fun n ↦ by rfl)
+  let g₃ := OurFiltrationCompletionHom.of_comap_le HF F H.subtype (fun n ↦ by rfl)
 
-  have : g₃ = g₂.comp g₁ := by
-    ext x n
-    unfold g₃
-    unfold OurFiltrationCompletionHom.of_comap_le
-    sorry
+  have h₁ : g₃ = g₂.comp g₁ := OurFiltrationCompletionHom.of_comap_le_comp_eq
+    (PullbackOurFiltration H.subtype F) (PullbackOurFiltration H'.subtype F) F (AddSubgroup.inclusion h) H'.subtype (fun n ↦ by rfl) (fun n ↦ by rfl)
 
   show g₃.range ≤ g₂.range
-  rw [this]
+  rw [h₁]
   exact Set.range_comp_subset_range g₁ g₂
 
 lemma AddSubgroupCompletion_le_comap :
