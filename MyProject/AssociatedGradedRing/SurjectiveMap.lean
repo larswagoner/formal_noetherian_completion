@@ -53,11 +53,14 @@ def MvMorphism (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPie
       MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism embedding)
 
 /-- `A/I[xᵢ] → G(A)` is surjective -/
-lemma MvMorphism.Surjective : Function.Surjective ⇑(MvMorphism I vars embedding) := by
+lemma MvMorphism.Surjective (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : Function.Surjective ⇑(MvMorphism I vars embedding) := by
+  unfold Function.Surjective
   sorry 
 
 
 /- SECTION II -/
+
+-- maybe define this in terms
 instance : Algebra (GradedRingPiece I 0) (AssociatedGradedRing I) where
   smul a x := (scalar_morphism I a)*x
   algebraMap := scalar_morphism I
@@ -69,6 +72,12 @@ instance : Algebra (GradedRingPiece I 0) (AssociatedGradedRing I) where
 lemma AssociatedGradedRing_generated : Algebra.adjoin (GradedRingPiece I 0) (Set.range (variable_morphism embedding)) = ⊤ := by
   ext x
   simp
+  have ⟨a, ha⟩ := MvMorphism.Surjective I vars embedding x
+  rw[← ha]
+  unfold MvMorphism
+  simp
+
+
   sorry
 
 
