@@ -76,3 +76,16 @@ lemma NaiveInverseLimitHom_compatible (ψ : f →ₛ+ g) (x : NaiveAddInverseLim
 @[simp]
 lemma NaiveInverseLimitHom_compatible₂ (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) ⦃n m : ℕ⦄ (h : n ≤ m) :
   g h (((InducedNaiveInverseLimitHom ψ) x).1 m) = ψ.maps n (x.1 n) := by simp
+
+def InducedNaiveInverseLimitIso_of_AddInverseSystemIso (ψ : AddInverseSystemIso f g) :
+    NaiveAddInverseLimit f ≃+ NaiveAddInverseLimit g where
+  __ := InducedNaiveInverseLimitHom ψ.toHom
+  invFun := InducedNaiveInverseLimitHom ψ.invHom
+  left_inv := by
+    intro x
+    ext n
+    exact ψ.left_inv n (x.1 n)
+  right_inv := by
+    intro x
+    ext n
+    exact ψ.right_inv n (x.1 n)

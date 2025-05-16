@@ -7,8 +7,6 @@ import MyProject.Completion.GroupCompletion
   Then `Ĝ/Ĝₙ ≅ G/Gₙ`.
 -/
 
-
-
 section aux
 
 variable {G : Type u} [AddCommGroup G] (H : AddSubgroup G)
@@ -132,6 +130,23 @@ end aux
 
 variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
 
+lemma am10_4_aux (n : ℕ) (x : OurFiltrationCompletion F) :
+  QuotientAddGroup.map (F.N n) (AddSubgroupCompletion (F.N n) F)
+        (OurFiltrationCompletion.of F) (AddSubgroupCompletion_le_comap (F.N n) F) (x.1 n) =
+    ⟦x⟧ := by
+  rw [show x.1 n = ⟦ (x.1 n).out ⟧ by rw [Quotient.out_eq]]
+  show ⟦ _ ⟧ = _
+  rw [QuotientAddGroup.eq_iff_sub_mem]
+  rw [←AddSubgroupCompletion_ker_def_eq_range_def]
+  rw [AddSubgroupCompletion_ker_def_eq_filtration_ker_def]
+  unfold AddSubgroupCompletion_filtration_ker_def AddSubgroupCompletion_filtration_ker_def_map
+  show _ - x.1 n = 0
+  suffices : ((OurFiltrationCompletion.of F) (x.1 n).out).1 n = x.1 n
+  exact sub_eq_zero_of_eq this
+  rw [OurFiltrationCompletion.of_apply]
+  exact Quotient.out_eq (x.1 n)
+
+
 /--
   The isomorphism `G/Gₙ ≃ G^/(Gₙ)^`.
 -/
@@ -153,16 +168,13 @@ def am10_4 (n : ℕ) :
     rintro ⟨x⟩
     simp [AddSubgroupCompletion_filtration_ker_def_map]
     show _ = ⟦ _ ⟧
-    let y := (x.1 n).out
-    rw [show x.1 n = ⟦ y ⟧ by rw [Quotient.out_eq]]
-    show ⟦ _ ⟧ = _
-    rw [QuotientAddGroup.eq_iff_sub_mem]
-    rw [←AddSubgroupCompletion_ker_def_eq_range_def]
-    rw [AddSubgroupCompletion_ker_def_eq_filtration_ker_def]
-    unfold AddSubgroupCompletion_filtration_ker_def AddSubgroupCompletion_filtration_ker_def_map
-    simp
-    show _ - x.1 n = 0
-    suffices : ((OurFiltrationCompletion.of F) y).1 n = x.1 n
-    exact sub_eq_zero_of_eq this
-    rw [OurFiltrationCompletion.of_apply]
-    exact Quotient.out_eq (x.1 n)
+    exact am10_4_aux F n x
+
+lemma am10_4_apply (n : ℕ) (x : G) :
+  am10_4 F n ⟦x⟧ = ⟦OurFiltrationCompletion.of F x⟧ := rfl
+
+lemma am10_4_of_n_eq_self (n : ℕ) (x : OurFiltrationCompletion F) :
+  am10_4 F n (x.1 n) = ⟦x⟧ := am10_4_aux F n x
+
+lemma am10_4_inv_apply (n : ℕ) (x : OurFiltrationCompletion F) :
+  (am10_4 F n).symm ⟦x⟧ = x.1 n := rfl
