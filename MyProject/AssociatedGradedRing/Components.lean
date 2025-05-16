@@ -4,8 +4,6 @@ import Mathlib.Algebra.Module.Torsion
 
 variable {A : Type u} [CommRing A] (I : Ideal A)
 
--- goal prove that I^m/I^m+1 ≃+ GRP I m, maybe treat case of m=0 differently since ring structure
-
 open QuotientAddGroup
 
 /-- `A/I` is isomorphic to `GradedRingPiece I 0` as rings-/
@@ -73,20 +71,14 @@ def GradedRingPiece_m_iso (I : Ideal A) (m : ℕ) :
   left_inv := (·.inductionOn fun _ ↦ rfl)
   right_inv x := x.inductionOn fun _ ↦ rfl
 
-
 lemma GradedRingPiece_m_iso.bijective (I : Ideal A) (m : ℕ) : 
     Function.Bijective (GradedRingPiece_m_iso I m) := AddEquiv.bijective (GradedRingPiece_m_iso I m)
 
 
 
 /-- Module structures -/
--- define from A first, then take quotient
---def smul_aux₁ : A → ↥(I / I ^ 2) → ↥(I / I ^ 2)
-
 instance : Module A I := by infer_instance
 instance : Module A (I/I^2) := by infer_instance
 instance : Module (GradedRingPiece I 0) (GradedRingPiece I 1) := by infer_instance
-
-
 instance : Module (A ⧸ I) (I ⧸ I • (⊤ : Submodule A I)):=  Module.instQuotientIdealSubmoduleHSMulTop ↥I I
 

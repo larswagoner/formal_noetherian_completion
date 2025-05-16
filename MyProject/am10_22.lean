@@ -37,19 +37,6 @@ instance : RingHomSurjective (σ I) := by
   apply Quotient.mk''_surjective
 
 
--- replace
-def auxf₁ : I →ₛₗ[σ I] (I ⧸ I • (⊤ : Submodule A I) ) where
-  toFun := Submodule.Quotient.mk
-  map_add' := fun _ _ => rfl
-  map_smul' := fun _ _ => rfl
-
---replace
-instance : Module.Finite (A ⧸ I) (I ⧸ I • (⊤ : Submodule A I) ) := by
-  apply Module.Finite.of_surjective (auxf₁ I) _
-  apply Quotient.mk''_surjective
-
-
-
 def auxf₂ : ↥(I^1) →ₛₗ[σ I] (↥(I^1) ⧸ I • (⊤ : Submodule A ↥(I^1))) where
   toFun := Submodule.Quotient.mk
   map_add' := fun _ _ => rfl
@@ -63,87 +50,41 @@ instance : Module.Finite (A ⧸ I) (↥(I^1) ⧸ I • (⊤ : Submodule A ↥(I^
 def σ₂ : (A ⧸ I) →+* GradedRingPiece I 0 := zero_toFun I
 instance : RingHomSurjective (σ₂ I) := by 
   refine { is_surjective := ?_ }
-  unfold Function.Surjective
-  rintro ⟨ b , hb ⟩
+  rintro ⟨ b , _⟩
   use b
   rfl
 
-def aux₃ : I →+ (CanonicalFiltration I).N 1 where
-  toFun := fun a => ⟨a, by simp⟩
-  map_zero' := by simp
-  map_add' := by simp
-
-
-
-def aux₂ : (I ⧸ I • (⊤ : Submodule A I) ) →+ GradedRingPiece I 1 := by
-  apply QuotientAddGroup.map _ _ (aux₃ I) _
-  · rintro ⟨x, hI⟩ hx
-    unfold aux₃
+def oneToFun (I : Ideal A) :(↥(I^1) ⧸ I • (⊤ : Submodule A ↥(I^1))) →ₛₗ[σ₂ I] GradedRingPiece I 1 where
+  toFun := (GradedRingPiece_m_iso I 1).toFun
+  map_add' := by 
+    rintro ⟨_⟩ ⟨_⟩ 
     simp
-    simp at hx
-    rw [(Submodule.mem_smul_top_iff I)] at hx
-    simp at hx
-    rw [sq]
-    exact hx
-
-
-def auxf₂ : (I ⧸ I • (⊤ : Submodule A I) ) →ₛₗ[σ₂ I] GradedRingPiece I 1 where
-  __ := aux₂ I
   map_smul' := by
-    rintro ⟨ m⟩ ⟨ x , hx⟩ 
+    rintro ⟨_⟩ ⟨_⟩ 
     rfl
 
--- NOTE FOR LARS: use the maps in components, in particular the bijective thing.
 instance : Module.Finite (GradedRingPiece I 0) (GradedRingPiece I 1) := by
-  apply (LinearMap.finite_iff_of_bijective (auxf₂ I) _).mp
-  · exact instFiniteQuotientIdealSubtypeMemSubmoduleHSMulTop_myProject I
-  · constructor 
-    · unfold Function.Injective
-    
-      rintro ⟨ a , ha⟩ ⟨ b , hb⟩ p
-      congr 0
-      unfold auxf₂ at p
-      simp at p
-      
-      sorry
-    · unfold Function.Surjective
-      unfold GradedRingPiece GradedPiece
-      simp
-      intro b
-     /- -- LOOK AT THE LEMMAS IN BASIC.LEAN
-     
-      use b 
-      rintro c
-      unfold GradedRingPiece GradedPiece at c
-      simp at c
-      rcases c
-      --use b -/
-      sorry
+  apply (LinearMap.finite_iff_of_bijective (oneToFun I) _).mp
+  · exact instFiniteQuotientIdealSubtypeMemHPowNatOfNatSubmoduleHSMulTop_myProject I
+  · exact GradedRingPiece_m_iso.bijective I 1
+   
 
 lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) (GradedRingPiece I 1)).FG := Module.Finite.fg_top
 
 
-noncomputable def vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
+noncomputable abbrev vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
 
 
 /-- 
   Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
-  -/
-def AssociatedPolynomialRing :  Type u := (MvPolynomial (vars I) (GradedRingPiece I 0))
+-/
+
+--def embedding : vars I → GradedRingPiece I 1 := by a
+
 
 /- Polynomial ring is Noetherian-/
-noncomputable instance : Semiring (AssociatedPolynomialRing I) := by
-  unfold AssociatedPolynomialRing
+instance : IsNoetherianRing (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) := by
   infer_instance
-
-noncomputable instance : CommRing (AssociatedPolynomialRing I) := by
-  unfold AssociatedPolynomialRing
-  infer_instance
-
-instance : IsNoetherianRing (AssociatedPolynomialRing I) := by
-  unfold AssociatedPolynomialRing
-  infer_instance
-
 
 
 def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
@@ -153,7 +94,8 @@ def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
 
 def variable_morphism : (vars I) → AssociatedGradedRing I := fun ⟨x, _⟩ => DirectSum.of _ 1 x
 
-def MvMorphism : (AssociatedPolynomialRing I) →+* (AssociatedGradedRing I) := MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
+def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+* (AssociatedGradedRing I) := 
+  MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
 
 
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
@@ -183,7 +125,7 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
       simp
       rw[ha, hb]
     · intro a x hx ⟨p , hp ⟩
-      let a_poly : AssociatedPolynomialRing I := MvPolynomial.C a
+      let a_poly : AssociatedGradedRing.AssociatedPolynomialRing I (vars I) := MvPolynomial.C a
       use a_poly * p
       simp
       rw [hp]
@@ -193,7 +135,8 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
-  IsNoetherianRing (AssociatedGradedRing I) := isNoetherianRing_of_surjective (AssociatedPolynomialRing I) (AssociatedGradedRing I) (MvMorphism I) (MvMorphism_surjective I)
+  IsNoetherianRing (AssociatedGradedRing I) := 
+    isNoetherianRing_of_surjective (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) (AssociatedGradedRing I) (MvMorphism I) (MvMorphism_surjective I)
 
 
 

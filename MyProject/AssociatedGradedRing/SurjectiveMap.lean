@@ -9,7 +9,7 @@ import MyProject.AssociatedGradedRing.Components
 
 namespace AssociatedGradedRing
 
-variable {R : Type*} [CommRing R] {A : Type*} [CommRing A] {I : Ideal A} (φ : R →+* AssociatedGradedRing I)
+variable {R : Type u} [CommRing R] {A : Type u} [CommRing A] {I : Ideal A} {φ : R →+* AssociatedGradedRing I}
 
 /-- Copyright (c) 2022 Christian Merten-/
 lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
@@ -17,16 +17,39 @@ lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
       MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x := sorry
 /- end of copyright -/
 
+/-
+--okey doke, here is the plan. Let vars be a set of generators of I (variable), construct map from polynomial ring to associated graded ring, show that this one is surjective (maybe the map can be given by eval polynomial) using chris' lemma. Then as a corrollary we have finiteness as algebra, then we can deduce main lemma. this is all independent of noetherian ness. so in am_10_22.lean we import this file, and then use as input the finite generating set.
+
+Pracitcally, this lemma wont be used in 10_22.... right? i guess we could keep it, or we could use the surjection from polynomial ring directly... can decide later.
+
+-/
+
 
 -- first that `A/I[xᵢ] → G(A)` is surjective, using Ideal.mem_span_pow'
+universe u v w
+
+variable {vars : Type v} {embedding : vars → GradedRingPiece I 1}  {vars_generate : Submodule.span (GradedRingPiece I 0) (Set.range embedding) = ⊤}
+
+abbrev AssociatedPolynomialRing (I : Ideal A) (vars : Type v) : Type (max u v) := MvPolynomial (vars) (GradedRingPiece I 0)
+
+noncomputable instance : Semiring (AssociatedPolynomialRing I vars) := by
+  unfold AssociatedPolynomialRing
+  infer_instance
+
+noncomputable instance : CommRing (AssociatedPolynomialRing I vars) := by
+  unfold AssociatedPolynomialRing
+  infer_instance
 
 
--- Okay so mix it all together lmao
-
-def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
+def scalar_morphism (I : Ideal A): GradedRingPiece I 0 →+* AssociatedGradedRing I where
   __ := DirectSum.of _ _
   map_one' := by simp 
   map_mul' := by simp
+
+--compose embedding with DirectSum.of
+def variable_morphism : (vars) → AssociatedGradedRing I := sorry
+
+
 
 -- generators of I
 /-
