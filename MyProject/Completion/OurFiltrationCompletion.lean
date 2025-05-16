@@ -41,6 +41,9 @@ def OurFiltrationCompletion.of :
   map_add' := fun _ _ ↦ rfl
   map_zero' := rfl
 
+lemma OurFiltrationCompletion.of_apply (x : G) (n : ℕ) :
+  (OurFiltrationCompletion.of F x).1 n = ⟦x⟧ := rfl
+
 end
 
 section
