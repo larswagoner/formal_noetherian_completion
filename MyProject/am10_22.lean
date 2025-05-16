@@ -83,8 +83,11 @@ noncomputable abbrev vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_
 
 
 /- Polynomial ring is Noetherian-/
+
+
 instance : IsNoetherianRing (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) := by
   infer_instance
+
 
 
 def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
@@ -100,12 +103,6 @@ def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+
 
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
   apply AssociatedGradedRing.hom_surjective_of_eq_of_eq _
-  · ext x
-    simp
-    unfold MvMorphism
-    use MvPolynomial.C x
-    have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
-    exact this
   · ext x
     simp
     have h₁ : x ∈ Submodule.span (GradedRingPiece I 0) (vars I) := by
@@ -132,6 +129,13 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
       unfold a_poly
       have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) a
       congr 1
+  · ext x
+    simp
+    unfold MvMorphism
+    use MvPolynomial.C x
+    have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
+    exact this
+  
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :

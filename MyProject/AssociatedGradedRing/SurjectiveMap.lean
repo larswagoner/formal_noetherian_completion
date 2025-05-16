@@ -47,7 +47,7 @@ def scalar_morphism (I : Ideal A): GradedRingPiece I 0 →+* AssociatedGradedRin
   map_mul' := by simp
 
 --compose embedding with DirectSum.of
-def variable_morphism : (vars) → AssociatedGradedRing I := sorry
+--def variable_morphism : (vars) → AssociatedGradedRing I := sorry
 
 
 
