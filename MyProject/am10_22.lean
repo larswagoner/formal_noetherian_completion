@@ -99,7 +99,7 @@ def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+
 
 
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
-  apply AssociatedGradedRing.hom_surjective_of_eq_of_eq (MvMorphism I)
+  apply AssociatedGradedRing.hom_surjective_of_eq_of_eq _
   · ext x
     simp
     unfold MvMorphism
