@@ -79,12 +79,9 @@ noncomputable abbrev vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_
   Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
 -/
 
---def embedding : vars I → GradedRingPiece I 1 := by a
 
 
 /- Polynomial ring is Noetherian-/
-
-
 instance : IsNoetherianRing (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) := by
   infer_instance
 
@@ -97,10 +94,12 @@ def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
 
 def variable_morphism : (vars I) → AssociatedGradedRing I := fun ⟨x, _⟩ => DirectSum.of _ 1 x
 
+
+-- call from surjective map
 def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+* (AssociatedGradedRing I) := 
   MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
 
-
+-- call from surjective map
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
   apply AssociatedGradedRing.hom_surjective_of_eq_of_eq _
   · ext x
