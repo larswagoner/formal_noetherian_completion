@@ -108,13 +108,13 @@ def FISystemHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
 
 def FiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
   FiltrationCompletion F₁ →ₗ[A] FiltrationCompletion F₂ := {
-    __ := InverseLimitHom (FISystemHom.of_comap_le hφ)
+    __ := InducedNaiveInverseLimitHom (FISystemHom.of_comap_le hφ)
     map_smul' := by
       intro a m
       simp
       ext n
       show _ = a • _
-      rw [InverseLimitHom_apply]
+      rw [NaiveInverseLimitHom_compatible]
       show (Submodule.mapQ _ _ φ (hφ n)) (a • m.1 n) = _
       rw [(Submodule.mapQ _ _ φ (hφ n)).map_smul]
       rfl

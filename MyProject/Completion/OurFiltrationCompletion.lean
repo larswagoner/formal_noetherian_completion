@@ -70,7 +70,7 @@ def OFISystemHom.of_comap_le :
 
 def OurFiltrationCompletionHom.of_comap_le :
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
-  InverseLimitHom (OFISystemHom.of_comap_le φ hφ)
+  InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le φ hφ)
 
 def OurFiltrationCompletionHom.of_comap_le_apply (x : OurFiltrationCompletion F₁) (n : ℕ) :
     (OurFiltrationCompletionHom.of_comap_le φ hφ x).1 n =
