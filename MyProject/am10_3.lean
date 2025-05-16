@@ -90,8 +90,7 @@ lemma QuotientAddGroup.map_exact_of_exact (h : Function.Exact f g) :
 end aux
 
 variable {G₁ G₂ G₃ : Type u} [AddCommGroup G₁] [AddCommGroup G₂] [AddCommGroup G₃]
-variable (p : G₁ →+ G₂) (q : G₂ →+ G₃)
-variable (F : OurFiltration G₂)
+variable {p : G₁ →+ G₂} {q : G₂ →+ G₃} (F : OurFiltration G₂)
 
 def am10_3AddInverseSystemSES (h₂ : Function.Exact p q) (h₃ : Function.Surjective q) :
   AddInverseSystemSES
@@ -106,18 +105,18 @@ def am10_3AddInverseSystemSES (h₂ : Function.Exact p q) (h₃ : Function.Surje
 
 lemma am10_3_inj (h₂ : Function.Exact p q) (h₃ : Function.Surjective q) :
     Function.Injective (OurFiltrationCompletionHom.of_comap_le (PullbackOurFiltration p F) F p (fun n ↦ by rfl)) :=
-  am10_2_i_inj (am10_3AddInverseSystemSES p q F h₂ h₃)
+  am10_2_i_inj (am10_3AddInverseSystemSES F h₂ h₃)
 
 lemma am10_3_exact (h₂ : Function.Exact p q) (h₃ : Function.Surjective q) :
     Function.Exact
       (OurFiltrationCompletionHom.of_comap_le (PullbackOurFiltration p F) F p (fun n ↦ by rfl))
       (OurFiltrationCompletionHom.of_comap_le F (PushforwardOurFiltration q F) q (fun _ ↦ AddSubgroup.le_comap_map q _)) :=
-  am10_2_i_exactMiddle (am10_3AddInverseSystemSES p q F h₂ h₃)
+  am10_2_i_exactMiddle (am10_3AddInverseSystemSES F h₂ h₃)
 
 lemma am10_3_surj (h₂ : Function.Exact p q) (h₃ : Function.Surjective q) :
     Function.Surjective
       (OurFiltrationCompletionHom.of_comap_le F (PushforwardOurFiltration q F) q (fun _ ↦ AddSubgroup.le_comap_map q _)) := by
-  apply am10_2_ii (am10_3AddInverseSystemSES p q F h₂ h₃)
+  apply am10_2_ii (am10_3AddInverseSystemSES F h₂ h₃)
   unfold SurjectiveSystem
   intro n m h
   apply QuotientAddGroup.map_surjective_of_surjective
