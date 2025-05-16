@@ -58,7 +58,7 @@ end
 section
 
 variable {G₁ G₂ : Type*} [AddCommGroup G₁] [AddCommGroup G₂]
-variable {F₁ : OurFiltration G₁} {F₂ : OurFiltration G₂} (φ : G₁ →+ G₂)
+variable (F₁ : OurFiltration G₁) (F₂ : OurFiltration G₂) (φ : G₁ →+ G₂)
 variable (hφ : ∀ n, (F₁.N n) ≤ (F₂.N n).comap φ)
 
 def OFISystemHom.of_comap_le :
@@ -70,15 +70,15 @@ def OFISystemHom.of_comap_le :
 
 def OurFiltrationCompletionHom.of_comap_le :
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
-  InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le φ hφ)
+  InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le F₁ F₂ φ hφ)
 
 def OurFiltrationCompletionHom.of_comap_le_apply (x : OurFiltrationCompletion F₁) (n : ℕ) :
-    (OurFiltrationCompletionHom.of_comap_le φ hφ x).1 n =
+    (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ x).1 n =
       QuotientAddGroup.map _ _ φ (hφ n) (x.1 n) :=
   rfl
 
 def OurFiltrationCompletionHom.comm :
   (OurFiltrationCompletion.of F₂).comp φ =
-    (OurFiltrationCompletionHom.of_comap_le φ hφ).comp (OurFiltrationCompletion.of F₁) := rfl
+    (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ).comp (OurFiltrationCompletion.of F₁) := rfl
 
 end
