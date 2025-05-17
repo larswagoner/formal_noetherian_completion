@@ -148,3 +148,29 @@ structure AddInverseSystemSES where
   inj : InjectiveSystemHom ψ
   mid : ExactAtMiddleSystem ψ ϕ
   surj : SurjectiveSystemHom ϕ
+
+structure AddInverseSystemIso (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)) [AddInverseSystem f] [AddInverseSystem g] where
+  protected toHom : f →ₛ+ g
+  protected invHom : g →ₛ+ f
+  protected left_inv : ∀ n, Function.LeftInverse (invHom.maps n) (toHom.maps n)
+  protected right_inv : ∀ n, Function.RightInverse (invHom.maps n) (toHom.maps n)
+
+def AddInverseSystemIso_of_iso (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)) [AddInverseSystem f] [AddInverseSystem g]
+  (ψ : ∀ n, F n ≃+ G n) (ψ_comp : ∀ ⦃n m⦄, (h : n ≤ m) → (∀ x : F m , ψ n (f h x) = g h (ψ m x))) :
+    AddInverseSystemIso f g where
+  toHom := {
+    maps := fun n ↦ ψ n
+    compatible := ψ_comp
+  }
+  invHom := {
+    maps := fun n ↦ (ψ n).symm
+    compatible := by
+      intro n m hnm x
+      have := ψ_comp hnm ((ψ m).symm x)
+      calc
+        (ψ n).symm (g hnm x) = (ψ n).symm (g hnm (ψ m ((ψ m).symm x))) := by simp
+        _ =  (ψ n).symm (ψ n (f hnm ((ψ m).symm x))) := by rw [ψ_comp hnm ((ψ m).symm x)]
+        _ = f hnm ((ψ m).symm x) := by simp
+  }
+  left_inv := fun n ↦ by simp [Function.LeftInverse]
+  right_inv := fun n ↦ by simp [Function.RightInverse, Function.LeftInverse]

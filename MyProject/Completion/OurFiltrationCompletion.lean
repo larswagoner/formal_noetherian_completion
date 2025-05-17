@@ -6,7 +6,7 @@ section
 
 variable {G : Type u} [AddCommGroup G] (F : OurFiltration G)
 
-def OurFiltrationIS : ℕ → Type u := fun n ↦ G ⧸ (F.N n)
+def OurFiltrationIS : ℕ → Type _ := fun n ↦ G ⧸ (F.N n)
 
 instance (i : ℕ) : AddCommGroup (OurFiltrationIS F i) := by
   unfold OurFiltrationIS
@@ -41,6 +41,9 @@ def OurFiltrationCompletion.of :
   map_add' := fun _ _ ↦ rfl
   map_zero' := rfl
 
+lemma OurFiltrationCompletion.of_apply (x : G) (n : ℕ) :
+  (OurFiltrationCompletion.of F x).1 n = ⟦x⟧ := rfl
+
 end
 
 section
@@ -57,22 +60,38 @@ end
 
 section
 
-variable {G₁ G₂ : Type*} [AddCommGroup G₁] [AddCommGroup G₂]
-variable {F₁ : OurFiltration G₁} {F₂ : OurFiltration G₂} {φ : G₁ →+ G₂}
+variable {G₁ G₂ G₃ : Type*} [AddCommGroup G₁] [AddCommGroup G₂] [AddCommGroup G₃]
+variable (F₁ : OurFiltration G₁) (F₂ : OurFiltration G₂) (F₃ : OurFiltration G₃)
+variable (φ : G₁ →+ G₂) (ψ : G₂ →+ G₃)
+variable (hφ : ∀ n, (F₁.N n) ≤ (F₂.N n).comap φ) (hψ : ∀ n, (F₂.N n) ≤ (F₃.N n).comap ψ)
 
-def OFISystemHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OFISystemHom.of_comap_le :
     AddInverseSystemHom (OFISTransitionMap F₁) (OFISTransitionMap F₂) where
   maps := fun n ↦ (QuotientAddGroup.map _ _ φ (hφ n))
   compatible := by
     rintro _ _ _ ⟨x⟩
     rfl
 
-def OurFiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+def OurFiltrationCompletionHom.of_comap_le :
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
-  InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le hφ)
+  InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le F₁ F₂ φ hφ)
 
-def OurFiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
+lemma OurFiltrationCompletionHom.of_comap_le_apply (x : OurFiltrationCompletion F₁) (n : ℕ) :
+    (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ x).1 n =
+      QuotientAddGroup.map _ _ φ (hφ n) (x.1 n) :=
+  rfl
+
+lemma OurFiltrationCompletionHom.of_comap_le_comp_eq :
+  OurFiltrationCompletionHom.of_comap_le F₁ F₃ (ψ.comp φ) (fun n _ a ↦ hψ n (hφ n a)) =
+    (OurFiltrationCompletionHom.of_comap_le F₂ F₃ ψ hψ).comp
+      (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ) := by
+  ext x n
+  simp
+  repeat rw [OurFiltrationCompletionHom.of_comap_le_apply]
+  rw [QuotientAddGroup.map_map]
+
+lemma OurFiltrationCompletionHom.comm :
   (OurFiltrationCompletion.of F₂).comp φ =
-    (OurFiltrationCompletionHom.of_comap_le hφ).comp (OurFiltrationCompletion.of F₁) := rfl
+    (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ).comp (OurFiltrationCompletion.of F₁) := rfl
 
 end
