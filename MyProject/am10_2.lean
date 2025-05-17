@@ -240,7 +240,56 @@ lemma am10_2_i_exactMiddle (AIS_SES : AddInverseSystemSES f g h) : Function.Exac
   rw [this, range]
 
 
-lemma am10_2_ii (AIS_SES : AddInverseSystemSES f g h) (firstSystemSurj : SurjectiveSystem f) : Function.Surjective (InducedNaiveInverseLimitHom AIS_SES.ϕ) := sorry
+lemma CokerOfSurjMorphismIsTrivial {A B : Type*} [AddCommGroup A] [AddCommGroup B] {ψ : A →+ B} (ψsurj : Function.Surjective ψ): ∀ x : cokernel ψ, x = 0 := by
+  intro x
+  unfold cokernel at x
+  rcases (QuotientAddGroup.mk'_surjective ψ.range x) with ⟨w, hw⟩
+  rw [<- hw]
+  apply (QuotientAddGroup.eq_zero_iff w).mpr
+  apply ψsurj
+
+lemma kerOfMorphismToCokerOfSurjMorphism {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C] {ψ : A →+ B} (ψsurj : Function.Surjective ψ) {ϕ : C →+ cokernel ψ} : ∀ x, ϕ x = 0 := by
+  intro x
+  exact CokerOfSurjMorphismIsTrivial ψsurj (ϕ x)
+
+
+lemma am10_2_ii (AIS_SES : AddInverseSystemSES f g h) (firstSystemSurj : SurjectiveSystem f) : Function.Surjective (InducedNaiveInverseLimitHom AIS_SES.ϕ) := by
+  let dia := InducedDiagramOfSES AIS_SES
+  have : Function.Surjective (inducedMap₂ dia) := by
+    apply AddMonoidHom.range_eq_top.mp
+    rw [<- AddMonoidHom.exact_iff.mp (DeltaExact dia)]
+    ext x
+    constructor
+    · intro hx
+      exact AddSubgroup.mem_top x
+    · intro hx
+      exact kerOfMorphismToCokerOfSurjMorphism (derivedSurjOfSystemSurj firstSystemSurj) x
+
+  /- Two haves (basically) copied from the proof of am10_2_i -/
+  have comm₂ : ∀ x, NaiveInvLimToKer ((InducedNaiveInverseLimitHom AIS_SES.ϕ) x) = (inducedMap₂ dia) (NaiveInvLimToKer x) := by intro x; rfl
+  have range : ∀ x, x ∈ (InducedNaiveInverseLimitHom AIS_SES.ϕ).range ↔ NaiveInvLimToKer x ∈ (inducedMap₂ dia).range := by
+    intro x
+    constructor
+    · intro hx
+      rcases hx with ⟨w, hw⟩
+      use NaiveInvLimToKer w
+      rw [<- comm₂]
+      rw [hw]
+    · intro hx
+      rcases hx with ⟨w, hw⟩
+      use KerToNaiveInvLim w
+      have : w = NaiveInvLimToKer (KerToNaiveInvLim w) := rfl
+      rw [this, <- comm₂] at hw
+      apply NaiveInvLimToKerInj at hw
+      exact hw
+
+  apply AddMonoidHom.range_eq_top.mp
+  ext x
+  rw [range]
+  constructor
+  all_goals intro hx
+  · exact AddSubgroup.mem_top x
+  · exact this (NaiveInvLimToKer x)
 
 
 def InverseLimitsExact (AIS_SES : AddInverseSystemSES f g h) (firstSystemSurj : SurjectiveSystem f) : AddCommGroupSES where
