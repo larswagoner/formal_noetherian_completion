@@ -45,35 +45,22 @@ theorem kernelDerivedEqNaiveInverseLimit : (DerivedMap f).ker = NaiveAddInverseL
     unfold DerivedMap
     simp [hx]
 
-
-theorem temp (n : ℕ) : n ≤ n+1 := by norm_num
-
 noncomputable def recursiveSolution (surj_sys : SurjectiveSystem f) (y : (i : ℕ) → F i) : (i : ℕ) → F i := fun
 | 0 => 0
-| n+1 => (surj_sys (temp n) ((recursiveSolution surj_sys y) n - y n)).choose
-
-
-theorem test (surj_sys : SurjectiveSystem f) (y : (i : ℕ) → F i) : f (temp 0) ((surj_sys (temp 0) ((recursiveSolution surj_sys y) 0 - y 0)).choose) = (recursiveSolution surj_sys y) 0 - y 0 := by sorry
+| n+1 => (surj_sys (by norm_num) ((recursiveSolution surj_sys y) n - y n)).choose
 
 theorem recursiveSolutionIsSolution (surj_sys : SurjectiveSystem f) : ∀ y, (DerivedMap f) (recursiveSolution surj_sys y) = y := by
   intro y
-  have : ∀ n, (recursiveSolution surj_sys y) n - (f (temp n) ((recursiveSolution surj_sys y) (n+1))) = y n := by
+  have : ∀ n, (recursiveSolution surj_sys y) n - (f (by norm_num) ((recursiveSolution surj_sys y) (n+1))) = y n := by
     intro n
-    induction n
-    · unfold recursiveSolution
-      simp
-
-      sorry
-    · sorry
-
-
+    /- Only unfolding once is quite hard apparently -/
+    change _ - (f (by norm_num)) (surj_sys (by norm_num) ((recursiveSolution surj_sys y) n - y n)).choose = _
+    rw [Exists.choose_spec (surj_sys (by norm_num) ((recursiveSolution surj_sys y) n - y n))]
+    abel
   ext n
-  induction n
-  · unfold DerivedMap
-    simp
-
-    sorry
-  · sorry
+  unfold DerivedMap
+  simp
+  exact this n
 
 theorem derivedSurjOfSystemSurj (surj_sys : SurjectiveSystem f) : Function.Surjective (DerivedMap f) := by
   intro y
@@ -126,12 +113,6 @@ theorem NaiveInvLimToKerInj : ∀ x y : NaiveAddInverseLimit f, NaiveInvLimToKer
   apply SetCoe.ext
   apply SetCoe.ext_iff.mpr hxy
 
-
--- variable {G : ℕ → Type*} [∀ i, AddCommGroup (G i)] {g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n)} [AddInverseSystem g]
-
--- @[simp]
--- theorem NaiveInvLimToKerCompatible (x : NaiveAddInverseLimit f) {xx : x.1 ∈ (DerivedMap f).ker} (ϕ : (DerivedMap f).ker →+ (DerivedMap g).ker) : ϕ (NaiveInvLimToKer x) = (ϕ ⟨x.1, xx⟩) := by
---   congr
 
 end DerivedMap
 

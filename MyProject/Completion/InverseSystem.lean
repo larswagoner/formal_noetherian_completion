@@ -72,7 +72,7 @@ instance {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n 
 
 
 def SurjectiveSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : Prop :=
-  ∀ ⦃n m⦄ (h : n ≤ m), (f h).toFun.Surjective
+  ∀ ⦃n m⦄ (h : n ≤ m), Function.Surjective (f h)
 
 def DerivedMap {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : (∀ i, F i) →+ (∀ i, F i) where
   toFun := by

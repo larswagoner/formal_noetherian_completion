@@ -5,6 +5,8 @@ import Mathlib.Algebra.Category.Grp.Preadditive
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Category.Init
 import Mathlib.Algebra.Exact
+import Mathlib.GroupTheory.Coset.Defs
+import Mathlib.Algebra.Module.SnakeLemma
 
 
 -- Should have done this earlier
@@ -102,9 +104,9 @@ lemma compIsZeroFun (s : CategoryTheory.ShortComplex AddCommGrp) : s.g.hom'.toFu
 
 
 structure AddCommGroupSES extends CategoryTheory.ShortComplex AddCommGrp where
-  injective : f.hom'.toFun.Injective
+  injective : Function.Injective f.hom'
   middle : AddMonoidHom.ker g.hom' ≤ AddMonoidHom.range f.hom'
-  surjective : g.hom'.toFun.Surjective
+  surjective : Function.Surjective g.hom'
 
 
 lemma rangeEqKerToCompEqZero (range_eq_ker : AddMonoidHom.range f = AddMonoidHom.ker g) : g.comp f = 0 := by
@@ -136,6 +138,8 @@ lemma RangeInKernel (s : AddCommGroupSES) : AddMonoidHom.range s.f.hom' ≤ AddM
   exact this
 
 lemma RangeIsKernel (s : AddCommGroupSES) : s.f.hom'.range = s.g.hom'.ker := le_antisymm (RangeInKernel s) (s.middle)
+
+lemma MiddleExact (s : AddCommGroupSES) : Function.Exact s.f.hom' s.g.hom' := AddMonoidHom.exact_iff.mpr (RangeIsKernel s).symm
 
 end Complexes
 
@@ -244,7 +248,6 @@ def productOfSESisSES : AddCommGroupSES where
     simp only [ZeroHom.toFun_eq_coe, ZeroHom.coe_coe] at eq
     ext i
     apply (ι i).injective
-    simp only [ZeroHom.toFun_eq_coe, AddMonoidHom.toZeroHom_coe]
     apply congrFun eq
   middle := by
     simp only [AddMonoidHom.mk_coe]
@@ -400,5 +403,126 @@ theorem inducedMap₁inducedMap₂Exact {dia : CommDiagramOfSES} : Function.Exac
 theorem inducedMap₁RangeEqinducedMap₂Ker {dia : CommDiagramOfSES} : (inducedMap₁ dia).range = (inducedMap₂ dia).ker := by
   apply (AddMonoidHom.exact_iff.mp inducedMap₁inducedMap₂Exact).symm
 
+
+lemma kernelExact {A B : AddCommGrp} (f : A ⟶ B) : Function.Exact f.hom'.ker.subtype f.hom' := by
+  apply AddMonoidHom.exact_iff.mpr
+  ext x
+  constructor
+  · intro hx
+    use ⟨x, hx⟩
+    rfl
+  · intro hx
+    rcases hx with ⟨w, hw⟩
+    have : w.1 = x := by rw [<- hw]; rfl
+    rw [<- this]
+    exact w.2
+
+
+@[reducible, inline]
+def cokernel {A B : Type*} [AddCommGroup A] [AddCommGroup B] (f : A →+ B) := B ⧸ AddMonoidHom.range f
+
+def cokernelHom {A B : AddCommGrp} (f : A ⟶ B) : B →+ (cokernel f.hom') where
+  toFun := QuotientAddGroup.mk
+  map_zero' := rfl
+  map_add' := fun _ _ ↦ by rfl
+
+lemma cokernelHomKer {A B : AddCommGrp} (f : A ⟶ B) : (cokernelHom f).ker = f.hom'.range := by
+  ext x
+  constructor
+  · intro hx
+    simp [cokernelHom] at hx
+    exact hx
+  . intro hx
+    simp [cokernelHom]
+    exact hx
+
+
+lemma cokernelExact {A B : AddCommGrp} (f : A ⟶ B) : Function.Exact f.hom' (cokernelHom f) := by
+  apply AddMonoidHom.exact_iff.mpr
+  ext x
+  constructor
+  · intro hx
+    rw [<- cokernelHomKer f]
+    exact hx
+  . intro hx
+    rw [cokernelHomKer f]
+    exact hx
+
+def ModuleHomToGroupHom {R A B : Type*} [CommRing R] [AddCommGroup A] [AddCommGroup B] [Module R A] [Module R B] (f : A →ₗ[R] B) : A →+ B := by exact
+  f.toAddMonoidHom
+
+noncomputable def SnakeLemmaDelta (dia : CommDiagramOfSES) : dia.v₃.hom'.ker →+ cokernel dia.v₁.hom' := by
+  let i₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₂.X₁ := dia.v₁.hom'.toIntLinearMap
+  let i₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₂.X₂ := dia.v₂.hom'.toIntLinearMap
+  let i₃ : dia.s₁.X₃ →ₗ[ℤ] dia.s₂.X₃ := dia.v₃.hom'.toIntLinearMap
+  let f₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₁.X₂ := dia.s₁.f.hom'.toIntLinearMap
+  let f₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₁.X₃ := dia.s₁.g.hom'.toIntLinearMap
+  have hf : Function.Exact f₁ f₂ := by exact MiddleExact dia.s₁
+  let g₁ : dia.s₂.X₁ →ₗ[ℤ] dia.s₂.X₂ := dia.s₂.f.hom'.toIntLinearMap
+  let g₂ : dia.s₂.X₂ →ₗ[ℤ] dia.s₂.X₃ := dia.s₂.g.hom'.toIntLinearMap
+  have hg : Function.Exact g₁ g₂ := by exact MiddleExact dia.s₂
+  have h₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
+    ext x
+    simp
+    exact (CommLeftElt dia x).symm
+  have h₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
+    ext x
+    simp
+    exact (CommRightElt dia x).symm
+  let σ : dia.s₁.X₃ → dia.s₁.X₂ := (Function.Surjective.hasRightInverse dia.s₁.surjective).choose
+  have hσ : f₂ ∘ σ = id := by
+    ext x
+    apply Exists.choose_spec (Function.Surjective.hasRightInverse dia.s₁.surjective)
+  let ρ : dia.s₂.X₂ → dia.s₂.X₁ := (Function.Injective.hasLeftInverse dia.s₂.injective).choose
+  have hρ : ρ ∘ g₁ = id := by
+    ext x
+    apply Exists.choose_spec (Function.Injective.hasLeftInverse dia.s₂.injective)
+  let ι₃ : dia.v₃.hom'.ker →ₗ[ℤ] dia.s₁.X₃ := dia.v₃.hom'.ker.subtype.toIntLinearMap
+  have hι₃ : Function.Exact ι₃ i₃ := kernelExact dia.v₃
+  let π₁ : dia.s₂.X₁ →ₗ[ℤ] (cokernel dia.v₁.hom') := (cokernelHom dia.v₁).toIntLinearMap
+  have hπ₁ : Function.Exact i₁ π₁ := cokernelExact dia.v₁
+  apply (SnakeLemma.δ i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ σ hσ ρ hρ ι₃ hι₃ π₁ hπ₁).toAddMonoidHom
+
+theorem DeltaExact (dia : CommDiagramOfSES) : Function.Exact (inducedMap₂ dia) (SnakeLemmaDelta dia) := by
+  let i₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₂.X₁ := dia.v₁.hom'.toIntLinearMap
+  let i₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₂.X₂ := dia.v₂.hom'.toIntLinearMap
+  let i₃ : dia.s₁.X₃ →ₗ[ℤ] dia.s₂.X₃ := dia.v₃.hom'.toIntLinearMap
+  let f₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₁.X₂ := dia.s₁.f.hom'.toIntLinearMap
+  let f₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₁.X₃ := dia.s₁.g.hom'.toIntLinearMap
+  have hf : Function.Exact f₁ f₂ := by exact MiddleExact dia.s₁
+  let g₁ : dia.s₂.X₁ →ₗ[ℤ] dia.s₂.X₂ := dia.s₂.f.hom'.toIntLinearMap
+  let g₂ : dia.s₂.X₂ →ₗ[ℤ] dia.s₂.X₃ := dia.s₂.g.hom'.toIntLinearMap
+  have hg : Function.Exact g₁ g₂ := by exact MiddleExact dia.s₂
+  have h₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
+    ext x
+    simp
+    exact (CommLeftElt dia x).symm
+  have h₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
+    ext x
+    simp
+    exact (CommRightElt dia x).symm
+  let σ : dia.s₁.X₃ → dia.s₁.X₂ := (Function.Surjective.hasRightInverse dia.s₁.surjective).choose
+  have hσ : f₂ ∘ σ = id := by
+    ext x
+    apply Exists.choose_spec (Function.Surjective.hasRightInverse dia.s₁.surjective)
+  let ρ : dia.s₂.X₂ → dia.s₂.X₁ := (Function.Injective.hasLeftInverse dia.s₂.injective).choose
+  have hρ : ρ ∘ g₁ = id := by
+    ext x
+    apply Exists.choose_spec (Function.Injective.hasLeftInverse dia.s₂.injective)
+  let ι₂ : dia.v₂.hom'.ker →ₗ[ℤ] dia.s₁.X₂ := dia.v₂.hom'.ker.subtype.toIntLinearMap
+  have hι₂ : Function.Exact ι₂ i₂ := kernelExact dia.v₂
+  let ι₃ : dia.v₃.hom'.ker →ₗ[ℤ] dia.s₁.X₃ := dia.v₃.hom'.ker.subtype.toIntLinearMap
+  have hι₃ : Function.Exact ι₃ i₃ := kernelExact dia.v₃
+  let π₁ : dia.s₂.X₁ →ₗ[ℤ] (cokernel dia.v₁.hom') := (cokernelHom dia.v₁).toIntLinearMap
+  have hπ₁ : Function.Exact i₁ π₁ := cokernelExact dia.v₁
+  let F : dia.v₂.hom'.ker →ₗ[ℤ] dia.v₃.hom'.ker := (inducedMap₂ dia).toIntLinearMap
+  have hF : f₂ ∘ₗ ι₂ = ι₃ ∘ₗ F := by
+    ext x
+    simp [f₂, ι₂, ι₃, F]
+  have h : Function.Injective ι₃ := by
+    intro x y hxy
+    simp [ι₃] at hxy
+    exact hxy
+  exact SnakeLemma.exact_δ_right i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ σ hσ ρ hρ ι₂ hι₂ ι₃ hι₃ π₁ hπ₁ F hF h
 
 end CommDiaOfSES
