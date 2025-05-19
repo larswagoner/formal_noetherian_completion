@@ -110,6 +110,7 @@ def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+
 
 -- call from surjective map
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
+ -- idk why this breaks
   apply AssociatedGradedRing.hom_surjective_of_eq_of_eq _
   · ext x
     simp
@@ -143,7 +144,7 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
     use MvPolynomial.C x
     have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
     exact this-/
-  
+
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
