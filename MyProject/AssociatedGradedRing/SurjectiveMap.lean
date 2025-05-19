@@ -79,7 +79,7 @@ def aux_scalar_morphism (I : Ideal A) : A →+* GradedRingPiece I 0 where
   map_add' _ _ := rfl
 
 
-noncomputable def phi (I: Ideal A) (vars : Type v) : (AuxiliaryPolynomialRing A vars) → (AssociatedPolynomialRing I vars) := by
+noncomputable def phi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): (AuxiliaryPolynomialRing A vars) → (AssociatedPolynomialRing I vars) := by
   refine MvPolynomial.eval₂ ?_ MvPolynomial.X
   · --exact MvPolynomial.C ∘ (aux_scalar_morphism₂ I)
     
@@ -100,19 +100,19 @@ def psi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1):
 
 
 /- `ψ` surjective (use Christian's lemma) -/
-def psi.Surjective (I: Ideal A) (vars : Type v) : Function.Surjective (psi I vars) := sorry
+def psi.Surjective (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): Function.Surjective (psi I vars embedding) := sorry
 
 /- `μ ∘ φ = ψ` -/
-def auxiliary_composition (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars) := sorry
+def auxiliary_composition (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars embedding) := sorry
 
 
 /- `μ` surjective -/
-lemma MvMorphism.Surjective (I : Ideal A) (vars : Type v) {embedding : vars → GradedRingPiece I 1} : Function.Surjective ⇑(MvMorphism I vars embedding) := by
-  have h₁ : psi I vars = (MvMorphism I vars embedding) ∘ (phi I vars) := by
+lemma MvMorphism.Surjective (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : Function.Surjective ⇑(MvMorphism I vars embedding) := by
+  have h₁ : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars embedding) := by
     rw [auxiliary_composition I vars embedding]
-  have h₂: Function.Surjective ((MvMorphism I vars embedding) ∘ (phi I vars)) := by 
+  have h₂: Function.Surjective ((MvMorphism I vars embedding) ∘ (phi I vars embedding)) := by 
     rw[← h₁]
-    exact psi.Surjective I vars
+    exact psi.Surjective I vars embedding
 
   exact Function.Surjective.of_comp h₂
 
