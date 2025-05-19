@@ -18,15 +18,6 @@ lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
 /- end of copyright -/
 
 
-
-/-
---okey doke, here is the plan. Let vars be a set of generators of I (variable), construct map from polynomial ring to associated graded ring, show that this one is surjective (maybe the map can be given by eval polynomial) using chris' lemma. Then as a corrollary we have finiteness as algebra, then we can deduce main lemma. this is all independent of noetherian ness. so in am_10_22.lean we import this file, and then use as input the finite generating set.
-
-Pracitcally, this lemma wont be used in 10_22.... right? i guess we could keep it, or we could use the surjection from polynomial ring directly... can decide later.
-
--/
-
-
 /- SECTION I -/
 universe u v w
 
@@ -59,19 +50,11 @@ def MvMorphism (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPie
       MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism embedding)
 
 /- `A/I[xᵢ] → G(A)` is surjective -/
-
--- have vars be a subset of I? or first embed in I then in GRP 1?
-
 /- APPROACH 1-/
-
 def AuxiliaryPolynomialRing (A : Type u) [CommRing A] (vars : Type v):= MvPolynomial vars A
 
 -- `φ : A[xᵢ] → AssociatedPolynomialRing I vars`
-
-
---zero_toFun_aux₁ : A →+ (CanonicalFiltration I).N 0 
-
-def aux_scalar_morphism (I : Ideal A) : A →+* GradedRingPiece I 0 where
+def aux_constant_morphism (I : Ideal A) : A →+* GradedRingPiece I 0 where
   toFun := GradedPiece_mk ∘ zero_toFun_aux₁ I
   map_one' := rfl
   map_mul' _ _ := rfl
@@ -79,38 +62,49 @@ def aux_scalar_morphism (I : Ideal A) : A →+* GradedRingPiece I 0 where
   map_add' _ _ := rfl
 
 
-noncomputable def phi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): (AuxiliaryPolynomialRing A vars) → (AssociatedPolynomialRing I vars) := by
-  refine MvPolynomial.eval₂ ?_ MvPolynomial.X
-  · --exact MvPolynomial.C ∘ (aux_scalar_morphism₂ I)
-    
-    sorry -- first go to GRP 0 via iso, then do scalar morphism 
- 
+noncomputable def constant_map_phi : A →+* AssociatedPolynomialRing I vars where
+  toFun := MvPolynomial.C ∘ (aux_constant_morphism I)
+  map_one' := rfl
+  map_mul' _ _ := by simp
+  map_zero' := by simp
+  map_add' _ _ := by simp
+
+noncomputable def phi (I: Ideal A) (vars : Type v) : (AuxiliaryPolynomialRing A vars) → (AssociatedPolynomialRing I vars) :=  MvPolynomial.eval₂ (constant_map_phi) MvPolynomial.X
 
 
-#check DirectSum.of _ 0 ∘ (aux_scalar_morphism I)
 
 -- `ψ : A[xᵢ] → AssociatedGradedRing I`
-def psi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): AuxiliaryPolynomialRing A vars → AssociatedGradedRing I := by
-  refine MvPolynomial.eval₂ ?_ (variable_morphism embedding)
+-- quotient.mk to go to A/I, then use isomorphism with zero, then use MvPolynomial.C
 
-  -- zero_toFun_aux₁ composed with the direct sum of?
-  sorry
 
--- `μ : AssociatedPolynomialRing I vars → AssociatedGradedRing := MvMorphism I vars embedding`
+def constant_map_psi : A →+* AssociatedGradedRing I where
+  toFun := (scalar_morphism I) ∘ (zero_toFun I)∘ (Ideal.Quotient.mk I)
+  map_one' := rfl
+  map_mul' _ _ := by simp
+  map_zero' := by simp
+  map_add'  _ _ := by simp
 
+def psi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): AuxiliaryPolynomialRing A vars → AssociatedGradedRing I := MvPolynomial.eval₂ constant_map_psi (variable_morphism embedding)
 
 /- `ψ` surjective (use Christian's lemma) -/
-def psi.Surjective (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): Function.Surjective (psi I vars embedding) := sorry
+lemma psi.Surjective (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): Function.Surjective (psi I vars embedding) := sorry
 
-/- `μ ∘ φ = ψ` -/
-def auxiliary_composition (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars embedding) := sorry
+/- `MvMorphism I vars embedding ∘ φ = ψ` -/
+lemma auxiliary_composition: psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars) := by
+  ext x
+  simp
+  unfold psi phi MvMorphism
+  simp
+  unfold constant_map_psi
+  
+  sorry
 
 
-/- `μ` surjective -/
+/- `MvMorphism I vars embedding` surjective -/
 lemma MvMorphism.Surjective (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1) : Function.Surjective ⇑(MvMorphism I vars embedding) := by
-  have h₁ : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars embedding) := by
-    rw [auxiliary_composition I vars embedding]
-  have h₂: Function.Surjective ((MvMorphism I vars embedding) ∘ (phi I vars embedding)) := by 
+  have h₁ : psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars) := by
+    rw [auxiliary_composition]
+  have h₂: Function.Surjective ((MvMorphism I vars embedding) ∘ (phi I vars)) := by 
     rw[← h₁]
     exact psi.Surjective I vars embedding
 
