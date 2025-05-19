@@ -15,6 +15,7 @@ import MyProject.AssociatedGradedRing.Components
 
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 
+
 instance : IsNoetherianRing (A ⧸ I) := by
   infer_instance
 
@@ -74,6 +75,10 @@ lemma GradedRingPiece_FG_of_Noetherian : (⊤ : Submodule (GradedRingPiece I 0) 
 
 noncomputable abbrev vars : Finset (GradedRingPiece I 1) := (GradedRingPiece_FG_of_Noetherian I).choose
 
+def embedding : vars I → GradedRingPiece I 1 := by
+  rintro ⟨x, hx⟩
+  refine ⟦?_⟧ₘ
+  sorry
 
 /-- 
   Given `I`, outputs the polynomial ring with scalars in `GradedRingPiece I 0` and variables indexed by the generators of `GradedRingPiece I 1` over the scalars.
@@ -86,12 +91,16 @@ instance : IsNoetherianRing (AssociatedGradedRing.AssociatedPolynomialRing I (va
   infer_instance
 
 
+abbrev scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I := AssociatedGradedRing.scalar_morphism I
 
-def scalar_morphism : GradedRingPiece I 0 →+* AssociatedGradedRing I where
+def scalar_morphism₂ : GradedRingPiece I 0 →+* AssociatedGradedRing I where
   __ := DirectSum.of _ _
   map_one' := by simp 
   map_mul' := by simp
 
+
+
+--def variable_morphism : (vars I) → AssociatedGradedRing I := AssociatedGradedRing.variable_morphism 
 def variable_morphism : (vars I) → AssociatedGradedRing I := fun ⟨x, _⟩ => DirectSum.of _ 1 x
 
 
@@ -128,12 +137,12 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
       unfold a_poly
       have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) a
       congr 1
-  · ext x
+  · sorry/-ext x -- this is screwed up after changeing scalar_morphism to one in AssociatedGradedRing.scalar_morphism I
     simp
     unfold MvMorphism
     use MvPolynomial.C x
     have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
-    exact this
+    exact this-/
   
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
