@@ -178,3 +178,9 @@ lemma am10_4_of_n_eq_self (n : ℕ) (x : OurFiltrationCompletion F) :
 
 lemma am10_4_inv_apply (n : ℕ) (x : OurFiltrationCompletion F) :
   (am10_4 F n).symm ⟦x⟧ = x.1 n := rfl
+
+lemma mem_n_iff_completion_mem_n (n : ℕ) (x : G) :
+    x ∈ F.N n ↔ (OurFiltrationCompletion.of F x) ∈ (CompletedFiltration F).N n := by
+  rw [←QuotientAddGroup.eq_zero_iff,←QuotientAddGroup.eq_zero_iff]
+  rw [←(injective_iff_map_eq_zero' (am10_4 F n)).mp (am10_4 F n).injective]
+  rfl
