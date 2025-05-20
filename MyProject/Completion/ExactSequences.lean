@@ -337,10 +337,10 @@ lemma induced₁Coincide {dia : CommDiagramOfSES} : ∀ x, (inducedMap₁ dia) x
   simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, implies_true]
 
 
-theorem inducedMap₁Injective {dia : CommDiagramOfSES} : (inducedMap₁ dia).toFun.Injective := by
+theorem inducedMap₁Injective {dia : CommDiagramOfSES} : Function.Injective (inducedMap₁ dia) := by
   intro x y hxy
   unfold inducedMap₁ at hxy
-  simp only [Subtype.mk.injEq] at hxy
+  simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, Subtype.mk.injEq] at hxy
   apply dia.s₁.injective at hxy
   ext
   exact hxy
@@ -421,12 +421,9 @@ lemma kernelExact {A B : AddCommGrp} (f : A ⟶ B) : Function.Exact f.hom'.ker.s
 
 
 @[reducible, inline]
-def cokernel {A B : Type*} [AddCommGroup A] [AddCommGroup B] (f : A →+ B) := B ⧸ AddMonoidHom.range f
+def cokernel {A B : Type*} [AddCommGroup A] [AddCommGroup B] (f : A →+ B) := B ⧸ f.range
 
-def cokernelHom {A B : AddCommGrp} (f : A ⟶ B) : B →+ (cokernel f.hom') where
-  toFun := QuotientAddGroup.mk
-  map_zero' := rfl
-  map_add' := fun _ _ ↦ by rfl
+def cokernelHom {A B : AddCommGrp} (f : A ⟶ B) : B →+ (cokernel f.hom') := QuotientAddGroup.mk' f.hom'.range
 
 lemma cokernelHomKer {A B : AddCommGrp} (f : A ⟶ B) : (cokernelHom f).ker = f.hom'.range := by
   ext x
@@ -599,22 +596,52 @@ theorem inducedMap₄inducedMap₅Exact {dia : CommDiagramOfSES} : Function.Exac
   apply AddMonoidHom.exact_iff.mpr
   ext x
   constructor
-  · intro hx
+  · /- Some diagram chasing :) -/
+    intro hx
     rcases (cokernelExistsOrig x) with ⟨w,hw⟩
-    have : ∃ a, dia.v₃.hom' a = dia.s₂.g w := by
-      sorry
+    have : (inducedMap₅ dia) (cokernelHom dia.v₂ w) = 0 := by
+      rw [hw, hx]
+    have : (dia.s₂.g.hom' w) ∈ (cokernelHom dia.v₃).ker := by
+      rw [inducedMap₅CommElt] at this
+      exact this
+    have : ∃ a, dia.v₃.hom' a = dia.s₂.g.hom' w := by
+      rw [(AddMonoidHom.exact_iff.mp (cokernelExact dia.v₃))] at this
+      exact this
     rcases this with ⟨a,ha⟩
     rcases dia.s₁.surjective a with ⟨b, hb⟩
-    have : w - dia.v₂.hom' b ∈ dia.s₂.g.hom'.ker := by sorry
+    have : dia.v₃.hom' (dia.s₁.g.hom' b) = dia.v₃.hom'.comp dia.s₁.g.hom' b := rfl
+    have : w - dia.v₂.hom' b ∈ dia.s₂.g.hom'.ker := by
+      apply congr_arg dia.v₃.hom' at hb
+      rw [ha, this, CommRightElt dia b] at hb
+      simp at hb
+      simp
+      rw [hb, sub_self]
     rw [<- RangeIsKernel dia.s₂] at this
     rcases this with ⟨c, hc⟩
     use cokernelHom dia.v₁ c
     rw [inducedMap₄CommElt dia, hc, map_sub, hw]
     have : dia.v₂.hom' b ∈ dia.v₂.hom'.range := by use b
     rw [<- QuotientAddGroup.ker_mk' dia.v₂.hom'.range] at this
+    unfold cokernelHom
+    rw [this, sub_zero]
+  · intro hx
+    rcases hx with ⟨w,hw⟩
+    rcases (cokernelExistsOrig w) with ⟨a,ha⟩
+    rw [<- ha] at hw
+    rw [inducedMap₄CommElt dia a] at hw
+    have : cokernelHom dia.v₃ (dia.s₂.g.hom' (dia.s₂.f.hom' a)) = 0 := by
+      suffices dia.s₂.g.hom' (dia.s₂.f.hom' a) = 0 by rw [this]; apply map_zero
+      apply compIsZeroElt
+    rw [<- inducedMap₅CommElt dia] at this
+    rw [hw] at this
+    exact this
 
-    sorry
-  · sorry
+theorem inducedMap₅Surjective {dia : CommDiagramOfSES} : Function.Surjective (inducedMap₅ dia) := by
+  intro y
+  rcases (cokernelExistsOrig y) with ⟨x,hx⟩
+  rcases (dia.s₂.surjective x) with ⟨w, hw⟩
+  use cokernelHom dia.v₂ w
+  rw [inducedMap₅CommElt, hw, hx]
 
 
 end CommDiaOfSES
