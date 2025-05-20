@@ -6,7 +6,9 @@ import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Category.Init
 import Mathlib.Algebra.Exact
 import Mathlib.GroupTheory.Coset.Defs
+import Mathlib.GroupTheory.QuotientGroup.Defs
 import Mathlib.Algebra.Module.SnakeLemma
+import Mathlib.Algebra.Group.Subgroup.Map
 
 
 -- Should have done this earlier
@@ -372,7 +374,7 @@ lemma induced₂Coincide {dia : CommDiagramOfSES} : ∀ x, inducedMap₂ dia x =
   unfold inducedMap₂
   simp
 
-theorem inducedMap₁inducedMap₂Exact {dia : CommDiagramOfSES} : Function.Exact (inducedMap₁ dia).toFun (inducedMap₂ dia).toFun := by
+theorem inducedMap₁inducedMap₂Exact {dia : CommDiagramOfSES} : Function.Exact (inducedMap₁ dia) (inducedMap₂ dia) := by
   apply AddMonoidHom.exact_iff.mpr
   ext x
   constructor
@@ -436,6 +438,7 @@ lemma cokernelHomKer {A B : AddCommGrp} (f : A ⟶ B) : (cokernelHom f).ker = f.
     simp [cokernelHom]
     exact hx
 
+lemma cokernelExistsOrig {A B : AddCommGrp} {f : A ⟶ B} (x : cokernel f.hom') : ∃ w, cokernelHom f w = x := QuotientAddGroup.mk_surjective x
 
 lemma cokernelExact {A B : AddCommGrp} (f : A ⟶ B) : Function.Exact f.hom' (cokernelHom f) := by
   apply AddMonoidHom.exact_iff.mpr
@@ -469,19 +472,13 @@ noncomputable def SnakeLemmaDelta (dia : CommDiagramOfSES) : dia.v₃.hom'.ker �
     ext x
     simp
     exact (CommRightElt dia x).symm
-  let σ : dia.s₁.X₃ → dia.s₁.X₂ := (Function.Surjective.hasRightInverse dia.s₁.surjective).choose
-  have hσ : f₂ ∘ σ = id := by
-    ext x
-    apply Exists.choose_spec (Function.Surjective.hasRightInverse dia.s₁.surjective)
-  let ρ : dia.s₂.X₂ → dia.s₂.X₁ := (Function.Injective.hasLeftInverse dia.s₂.injective).choose
-  have hρ : ρ ∘ g₁ = id := by
-    ext x
-    apply Exists.choose_spec (Function.Injective.hasLeftInverse dia.s₂.injective)
   let ι₃ : dia.v₃.hom'.ker →ₗ[ℤ] dia.s₁.X₃ := dia.v₃.hom'.ker.subtype.toIntLinearMap
   have hι₃ : Function.Exact ι₃ i₃ := kernelExact dia.v₃
   let π₁ : dia.s₂.X₁ →ₗ[ℤ] (cokernel dia.v₁.hom') := (cokernelHom dia.v₁).toIntLinearMap
   have hπ₁ : Function.Exact i₁ π₁ := cokernelExact dia.v₁
-  apply (SnakeLemma.δ i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ σ hσ ρ hρ ι₃ hι₃ π₁ hπ₁).toAddMonoidHom
+  have hf₂ : Function.Surjective f₂ := dia.s₁.surjective
+  have hg₁ : Function.Injective g₁ := dia.s₂.injective
+  apply (SnakeLemma.δ' i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ ι₃ hι₃ π₁ hπ₁ hf₂ hg₁).toAddMonoidHom
 
 theorem DeltaExact (dia : CommDiagramOfSES) : Function.Exact (inducedMap₂ dia) (SnakeLemmaDelta dia) := by
   let i₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₂.X₁ := dia.v₁.hom'.toIntLinearMap
@@ -501,20 +498,14 @@ theorem DeltaExact (dia : CommDiagramOfSES) : Function.Exact (inducedMap₂ dia)
     ext x
     simp
     exact (CommRightElt dia x).symm
-  let σ : dia.s₁.X₃ → dia.s₁.X₂ := (Function.Surjective.hasRightInverse dia.s₁.surjective).choose
-  have hσ : f₂ ∘ σ = id := by
-    ext x
-    apply Exists.choose_spec (Function.Surjective.hasRightInverse dia.s₁.surjective)
-  let ρ : dia.s₂.X₂ → dia.s₂.X₁ := (Function.Injective.hasLeftInverse dia.s₂.injective).choose
-  have hρ : ρ ∘ g₁ = id := by
-    ext x
-    apply Exists.choose_spec (Function.Injective.hasLeftInverse dia.s₂.injective)
   let ι₂ : dia.v₂.hom'.ker →ₗ[ℤ] dia.s₁.X₂ := dia.v₂.hom'.ker.subtype.toIntLinearMap
   have hι₂ : Function.Exact ι₂ i₂ := kernelExact dia.v₂
   let ι₃ : dia.v₃.hom'.ker →ₗ[ℤ] dia.s₁.X₃ := dia.v₃.hom'.ker.subtype.toIntLinearMap
   have hι₃ : Function.Exact ι₃ i₃ := kernelExact dia.v₃
   let π₁ : dia.s₂.X₁ →ₗ[ℤ] (cokernel dia.v₁.hom') := (cokernelHom dia.v₁).toIntLinearMap
   have hπ₁ : Function.Exact i₁ π₁ := cokernelExact dia.v₁
+  have hf₂ : Function.Surjective f₂ := dia.s₁.surjective
+  have hg₁ : Function.Injective g₁ := dia.s₂.injective
   let F : dia.v₂.hom'.ker →ₗ[ℤ] dia.v₃.hom'.ker := (inducedMap₂ dia).toIntLinearMap
   have hF : f₂ ∘ₗ ι₂ = ι₃ ∘ₗ F := by
     ext x
@@ -523,6 +514,107 @@ theorem DeltaExact (dia : CommDiagramOfSES) : Function.Exact (inducedMap₂ dia)
     intro x y hxy
     simp [ι₃] at hxy
     exact hxy
-  exact SnakeLemma.exact_δ_right i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ σ hσ ρ hρ ι₂ hι₂ ι₃ hι₃ π₁ hπ₁ F hF h
+  exact SnakeLemma.exact_δ'_right i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ ι₂ hι₂ ι₃ hι₃ π₁ hπ₁ hf₂ hg₁ F hF h
+
+def inducedMap₄ (dia : CommDiagramOfSES) : (cokernel dia.v₁.hom') →+ (cokernel dia.v₂.hom') := by
+  have : dia.v₁.hom'.range ≤ AddSubgroup.comap dia.s₂.f.hom' dia.v₂.hom'.range := by
+    intro x hx
+    rcases hx with ⟨w, hw⟩
+    rw [<- hw]
+    simp
+    use dia.s₁.f.hom' w
+    exact CommLeftElt dia w
+  apply QuotientAddGroup.map _ _ _ this
+
+
+lemma inducedMap₄Comm (dia : CommDiagramOfSES) : (inducedMap₄ dia).comp (cokernelHom dia.v₁) = (cokernelHom dia.v₂).comp dia.s₂.f.hom' := by
+  ext x
+  unfold inducedMap₄ cokernelHom
+  simp
+
+lemma inducedMap₄CommElt (dia : CommDiagramOfSES) : ∀ x, (inducedMap₄ dia) ((cokernelHom dia.v₁) x) = (cokernelHom dia.v₂) (dia.s₂.f.hom' x) := by
+  intro x
+  exact congrHom (inducedMap₄Comm dia) x
+
+theorem DeltaExact₂ (dia : CommDiagramOfSES) : Function.Exact (SnakeLemmaDelta dia) (inducedMap₄ dia) := by
+  let i₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₂.X₁ := dia.v₁.hom'.toIntLinearMap
+  let i₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₂.X₂ := dia.v₂.hom'.toIntLinearMap
+  let i₃ : dia.s₁.X₃ →ₗ[ℤ] dia.s₂.X₃ := dia.v₃.hom'.toIntLinearMap
+  let f₁ : dia.s₁.X₁ →ₗ[ℤ] dia.s₁.X₂ := dia.s₁.f.hom'.toIntLinearMap
+  let f₂ : dia.s₁.X₂ →ₗ[ℤ] dia.s₁.X₃ := dia.s₁.g.hom'.toIntLinearMap
+  have hf : Function.Exact f₁ f₂ := by exact MiddleExact dia.s₁
+  let g₁ : dia.s₂.X₁ →ₗ[ℤ] dia.s₂.X₂ := dia.s₂.f.hom'.toIntLinearMap
+  let g₂ : dia.s₂.X₂ →ₗ[ℤ] dia.s₂.X₃ := dia.s₂.g.hom'.toIntLinearMap
+  have hg : Function.Exact g₁ g₂ := by exact MiddleExact dia.s₂
+  have h₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
+    ext x
+    simp
+    exact (CommLeftElt dia x).symm
+  have h₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
+    ext x
+    simp
+    exact (CommRightElt dia x).symm
+  let ι₃ : dia.v₃.hom'.ker →ₗ[ℤ] dia.s₁.X₃ := dia.v₃.hom'.ker.subtype.toIntLinearMap
+  have hι₃ : Function.Exact ι₃ i₃ := kernelExact dia.v₃
+  let π₁ : dia.s₂.X₁ →ₗ[ℤ] (cokernel dia.v₁.hom') := (cokernelHom dia.v₁).toIntLinearMap
+  have hπ₁ : Function.Exact i₁ π₁ := cokernelExact dia.v₁
+  let π₂ : dia.s₂.X₂ →ₗ[ℤ] (cokernel dia.v₂.hom') := (cokernelHom dia.v₂).toIntLinearMap
+  have hπ₂ : Function.Exact i₂ π₂ := cokernelExact dia.v₂
+  have hf₂ : Function.Surjective f₂ := dia.s₁.surjective
+  have hg₁ : Function.Injective g₁ := dia.s₂.injective
+  let G : (cokernel dia.v₁.hom') →ₗ[ℤ] (cokernel dia.v₂.hom') := (inducedMap₄ dia).toIntLinearMap
+  have hF : G ∘ₗ π₁ = π₂ ∘ₗ g₁ := by -- Probably a typo in mathlib, this should probaby be name hG
+    ext x
+    simp [G, π₁, π₂, g₁]
+    exact inducedMap₄CommElt dia x
+  have h : Function.Surjective π₁ := QuotientAddGroup.mk'_surjective dia.v₁.hom'.range
+
+  exact SnakeLemma.exact_δ'_left i₁ i₂ i₃ f₁ f₂ hf g₁ g₂ hg h₁ h₂ ι₃ hι₃ π₁ hπ₁ π₂ hπ₂ hf₂ hg₁ G hF h
+
+
+
+/- copy of inducedMap₄ with the correct indices -/
+def inducedMap₅ (dia : CommDiagramOfSES) : (cokernel dia.v₂.hom') →+ (cokernel dia.v₃.hom') := by
+  have : dia.v₂.hom'.range ≤ AddSubgroup.comap dia.s₂.g.hom' dia.v₃.hom'.range := by
+    intro x hx
+    rcases hx with ⟨w, hw⟩
+    rw [<- hw]
+    simp
+    use dia.s₁.g.hom' w
+    exact CommRightElt dia w
+  apply QuotientAddGroup.map _ _ _ this
+
+
+lemma inducedMap₅Comm (dia : CommDiagramOfSES) : (inducedMap₅ dia).comp (cokernelHom dia.v₂) = (cokernelHom dia.v₃).comp dia.s₂.g.hom' := by
+  ext x
+  unfold inducedMap₅ cokernelHom
+  simp
+
+lemma inducedMap₅CommElt (dia : CommDiagramOfSES) : ∀ x, (inducedMap₅ dia) ((cokernelHom dia.v₂) x) = (cokernelHom dia.v₃) (dia.s₂.g.hom' x) := by
+  intro x
+  exact congrHom (inducedMap₅Comm dia) x
+
+
+theorem inducedMap₄inducedMap₅Exact {dia : CommDiagramOfSES} : Function.Exact (inducedMap₄ dia) (inducedMap₅ dia) := by
+  apply AddMonoidHom.exact_iff.mpr
+  ext x
+  constructor
+  · intro hx
+    rcases (cokernelExistsOrig x) with ⟨w,hw⟩
+    have : ∃ a, dia.v₃.hom' a = dia.s₂.g w := by
+      sorry
+    rcases this with ⟨a,ha⟩
+    rcases dia.s₁.surjective a with ⟨b, hb⟩
+    have : w - dia.v₂.hom' b ∈ dia.s₂.g.hom'.ker := by sorry
+    rw [<- RangeIsKernel dia.s₂] at this
+    rcases this with ⟨c, hc⟩
+    use cokernelHom dia.v₁ c
+    rw [inducedMap₄CommElt dia, hc, map_sub, hw]
+    have : dia.v₂.hom' b ∈ dia.v₂.hom'.range := by use b
+    rw [<- QuotientAddGroup.ker_mk' dia.v₂.hom'.range] at this
+
+    sorry
+  · sorry
+
 
 end CommDiaOfSES
