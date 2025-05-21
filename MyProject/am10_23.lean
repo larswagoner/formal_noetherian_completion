@@ -170,6 +170,7 @@ def CommDiagramOfSES_n (n : ℕ) : CommDiagramOfSES where
   commleft := sorry
   commright := sorry
 
+variable {F F'}
 variable {φ : M →ₗ[A] M'}
 
 lemma am10_23_i (hφ : ∀ n, F.N n ≤ (F'.N n).comap φ) :
