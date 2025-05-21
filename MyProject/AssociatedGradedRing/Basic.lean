@@ -1,5 +1,6 @@
 import Mathlib.RingTheory.Filtration
 import Mathlib.RingTheory.GradedAlgebra.Basic
+import MyProject.Filtration.OurFiltration
 
 /- # Associated Graded Ring
   Consider a ring `A` and an ideal `I : Ideal A`.
@@ -144,11 +145,6 @@ end AssociatedGradedModule
 section AssociatedGradedRing
 
 variable {A : Type u} [CommRing A]
-
-/--
-  `CanonicalFiltration I` is an abbreviation for `I.stableFiltration (⊤ : Submodule A A)` and is thus given by the filtration `n ↦ Iⁿ`.
--/
-abbrev CanonicalFiltration (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
 
 lemma canonicalFiltration_eval (I : Ideal A) (m : ℕ) :
     (CanonicalFiltration I).N m = I ^ m := by simp
