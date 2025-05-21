@@ -21,3 +21,16 @@ def Ideal.Filtration.toOurFiltration (F : I.Filtration M) : OurFiltration M wher
   mono := fun n ↦ F.mono n
 
 end
+
+section
+
+variable {A : Type u} [CommRing A]
+
+/--
+  `CanonicalFiltration I` is an abbreviation for `I.stableFiltration (⊤ : Submodule A A)` and is thus given by the filtration `n ↦ Iⁿ`.
+-/
+abbrev CanonicalFiltration (I : Ideal A) := I.stableFiltration (⊤ : Submodule A A)
+
+abbrev CanonicalOurFiltration (I : Ideal A) := (CanonicalFiltration I).toOurFiltration
+
+end
