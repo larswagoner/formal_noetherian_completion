@@ -58,7 +58,8 @@ lemma am10_15_i (J : Ideal A) :
   have comm : g ∘ₗ f = h := AdicCompletion.ofTensorProduct_naturality I J.subtype
 
   have h₁ : I.adicCompletion J = LinearMap.range h := Ideal.adicCompletion_eq_tensor_product_range I J
-  have h₂ : AddSubgroupCompletion J.toAddSubgroup (CanonicalFiltration I).toOurFiltration = g.toAddMonoidHom.range := sorry
+  have h₂ : AddSubgroupCompletion J.toAddSubgroup (CanonicalFiltration I).toOurFiltration = g.toAddMonoidHom.range :=
+    AddSubgroupCompletionOfCanonical_eq_map_range I J
 
   rw [h₁, h₂]
   rw [←comm]

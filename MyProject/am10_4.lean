@@ -116,7 +116,6 @@ lemma AddSubgroupCompletion_ker_def_eq_filtration_ker_def (n : ℕ) :
     show x.1 n = _
     unfold g h FiltrationCompletion_of_discrete_iso
     simp
-    rw [OurFiltrationCompletionHom.of_comap_le_apply]
     rcases x.1 n with ⟨y⟩
     rfl
   rw [this]

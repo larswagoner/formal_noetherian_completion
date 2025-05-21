@@ -76,6 +76,7 @@ def OurFiltrationCompletionHom.of_comap_le :
     OurFiltrationCompletion F₁ →+ OurFiltrationCompletion F₂ :=
   InducedNaiveInverseLimitHom (OFISystemHom.of_comap_le F₁ F₂ φ hφ)
 
+@[simp]
 lemma OurFiltrationCompletionHom.of_comap_le_apply (x : OurFiltrationCompletion F₁) (n : ℕ) :
     (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ x).1 n =
       QuotientAddGroup.map _ _ φ (hφ n) (x.1 n) :=
@@ -87,7 +88,6 @@ lemma OurFiltrationCompletionHom.of_comap_le_comp_eq :
       (OurFiltrationCompletionHom.of_comap_le F₁ F₂ φ hφ) := by
   ext x n
   simp
-  repeat rw [OurFiltrationCompletionHom.of_comap_le_apply]
   rw [QuotientAddGroup.map_map]
 
 lemma OurFiltrationCompletionHom.comm :
