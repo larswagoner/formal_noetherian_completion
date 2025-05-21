@@ -10,6 +10,56 @@ class AddInverseSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ 
 lemma fSelf {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] : ∀ n : ℕ, ∀ x : F n, (f (le_refl n)) x = x := by
   apply AIS.map_self
 
+
+def composedHomsFromSingles {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ n, (F (n+1)) →+ (F n)) : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n) := by
+  intro n m h
+  induction h using Nat.leRec with
+  | refl => apply AddMonoidHom.id
+  | le_succ_of_le h ih =>
+    expose_names
+    apply ih.comp (f k)
+
+
+lemma composSelf {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ n, (F (n+1)) →+ (F n)} : ∀ n : ℕ, composedHomsFromSingles f n.le_refl = AddMonoidHom.id (F n) := by
+  intro n
+  ext x
+  simp [composedHomsFromSingles]
+
+
+lemma composCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ n, (F (n+1)) →+ (F n)) : ∀ ⦃n m⦄, (h : n ≤ m) → (composedHomsFromSingles f h).comp (composedHomsFromSingles f m.le_succ) = composedHomsFromSingles f (le_trans h m.le_succ) := by
+  intro n m h
+  have : ∀ i, composedHomsFromSingles f i.le_succ = f i := by
+      intro i
+      ext x
+      unfold composedHomsFromSingles
+      simp [composSelf]
+  rw [this]
+  let temp := (composedHomsFromSingles f h).comp (f m)
+  have : temp = (composedHomsFromSingles f h).comp (f m) := rfl
+  rw [<- this]
+  unfold composedHomsFromSingles
+  rw [this]
+  symm
+  apply Nat.leRec_succ
+
+
+lemma composCompatibleElt {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ n, (F (n+1)) →+ (F n)) : ∀ ⦃n m⦄, (h : n ≤ m) → ∀ y, composedHomsFromSingles f h (composedHomsFromSingles f m.le_succ y) = composedHomsFromSingles f (le_trans h m.le_succ) y := by
+  intro n m h y
+  exact congrHom (composCompatible f h) y
+
+def AddInverseSystemSingles {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ n, (F (n+1)) →+ (F n)) : AddInverseSystem <| composedHomsFromSingles f where
+  map_self := fun n x ↦ by simp [composedHomsFromSingles]
+  map_map := by
+    intro k j i hkj hji x
+    induction hkj using Nat.leRec with
+  | refl => simp [composedHomsFromSingles]
+  | le_succ_of_le h ih =>
+    expose_names
+    specialize ih (le_trans k_1.le_succ hji)
+    rw [<- composCompatibleElt f h, ]
+    sorry
+
+
 @[simp]
 lemma fCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] : ∀ ⦃n m k : ℕ⦄ (hnm : n ≤ m) (hmk : m ≤ k), ∀ x, f hnm (f hmk x) = f (le_trans hnm hmk) x := by
   apply AIS.map_map

@@ -592,7 +592,7 @@ lemma inducedMap₅CommElt (dia : CommDiagramOfSES) : ∀ x, (inducedMap₅ dia)
   exact congrHom (inducedMap₅Comm dia) x
 
 
-theorem inducedMap₄inducedMap₅Exact {dia : CommDiagramOfSES} : Function.Exact (inducedMap₄ dia) (inducedMap₅ dia) := by
+theorem inducedMap₄inducedMap₅Exact (dia : CommDiagramOfSES) : Function.Exact (inducedMap₄ dia) (inducedMap₅ dia) := by
   apply AddMonoidHom.exact_iff.mpr
   ext x
   constructor
@@ -636,7 +636,7 @@ theorem inducedMap₄inducedMap₅Exact {dia : CommDiagramOfSES} : Function.Exac
     rw [hw] at this
     exact this
 
-theorem inducedMap₅Surjective {dia : CommDiagramOfSES} : Function.Surjective (inducedMap₅ dia) := by
+theorem inducedMap₅Surjective (dia : CommDiagramOfSES) : Function.Surjective (inducedMap₅ dia) := by
   intro y
   rcases (cokernelExistsOrig y) with ⟨x,hx⟩
   rcases (dia.s₂.surjective x) with ⟨w, hw⟩
@@ -645,3 +645,19 @@ theorem inducedMap₅Surjective {dia : CommDiagramOfSES} : Function.Surjective (
 
 
 end CommDiaOfSES
+
+lemma zeroOfZeroExactZero {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C] {f : A →+ B} {g : B →+ C} (Azero : ∀ x : A, x = 0) (Czero : ∀ x : C, x = 0) (exact : Function.Exact f g) : ∀ x : B, x = 0 := by
+  intro x
+  have : x ∈ g.ker := Czero (g x)
+  rw [AddMonoidHom.exact_iff.mp exact] at this
+  rcases this with ⟨a, ha⟩
+  rw [Azero a] at ha
+  rw [<- ha]
+  apply map_zero
+
+
+lemma surjectiveOfExactZero {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C] {f : A →+ B} {g : B →+ C} (Czero : ∀ x : C, x = 0) (exact : Function.Exact f g) : Function.Surjective f := by
+  intro x
+  have : x ∈ g.ker := Czero (g x)
+  rw [AddMonoidHom.exact_iff.mp exact] at this
+  exact this

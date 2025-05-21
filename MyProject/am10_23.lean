@@ -25,6 +25,9 @@ import Mathlib.Algebra.Module.NatInt
 
 -- take particular case of I adic completions of A and B.
 
+
+section nthExactSequence
+
 variable {A : Type*} [CommRing A] {I : Ideal A}
 variable {M : Type u} [AddCommGroup M] [Module A M]
 variable (F : I.Filtration M)
@@ -43,7 +46,7 @@ def submoduleOfSubSet {N₁ N₂ : Submodule A M} (_ : N₁ ≤ N₂) : Submodul
     exact hx
 
 def SES_n (n : ℕ) : AddCommGroupSES where
-  X₁ := AddCommGrp.of <| F.N n ⧸ (submoduleOfSubSet (F.mono n)).toAddSubgroup
+  X₁ := AddCommGrp.of <| GradedPiece F n
   X₂ := AddCommGrp.of <| M ⧸ (F.N (n+1)).toAddSubgroup
   X₃ := AddCommGrp.of <| M ⧸ (F.N n).toAddSubgroup
   f := by
@@ -82,8 +85,8 @@ def SES_n (n : ℕ) : AddCommGroupSES where
     --
 
     ext x
-    have this : g (f x) = x.1 := rfl
-    simp
+    rcases (QuotientAddGroup.mk'_surjective (submoduleOfSubSet (F.mono n)).toAddSubgroup x) with ⟨w,hw⟩
+    have this : g (f x) = Submodule.subtype _ w := by rw [<- hw]; rfl
     show g (f x) = 0
     rw [this]
     simp
@@ -157,20 +160,61 @@ def SES_n (n : ℕ) : AddCommGroupSES where
     simp
     exact hx
 
+end nthExactSequence
 
+
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M : Type u} [AddCommGroup M] [Module A M]
+variable {F : I.Filtration M}
 variable {M' : Type u} [AddCommGroup M'] [Module A M']
-variable (F' : I.Filtration M')
+variable {F' : I.Filtration M'}
+variable {φ : M →ₗ[A] M'} (hφ : ∀ n, F.N n ≤ (F'.N n).comap φ)
 
 def CommDiagramOfSES_n (n : ℕ) : CommDiagramOfSES where
   s₁ := SES_n F n
   s₂ := SES_n F' n
-  v₁ := sorry
-  v₂ := sorry
-  v₃ := sorry
-  commleft := sorry
-  commright := sorry
+  v₁ := groupHomToGrpHom <| GradedPieceHom_additive hφ n
+  v₂ := groupHomToGrpHom <| QuotientAddGroup.map _ _ φ (hφ (n+1))
+  v₃ := groupHomToGrpHom <| QuotientAddGroup.map _ _ φ (hφ n)
+  commleft := by
+    ext x
+    rcases QuotientAddGroup.mk'_surjective _ x with ⟨w,hw⟩
+    rw [<- hw]
+    rfl
+  commright := by
+    ext x
+    rcases QuotientAddGroup.mk'_surjective _ x with ⟨w,hw⟩
+    rw [<- hw]
+    rfl
 
-variable {φ : M →ₗ[A] M'}
+lemma cokerφnzero (GradedSurjective : Function.Surjective (GradedModuleHom hφ)) (n : ℕ) : ∀ x : (cokernel (CommDiagramOfSES_n hφ n).v₁.hom'), x = 0 := by
+  intro y
+  rcases QuotientAddGroup.mk'_surjective _ y with ⟨w,hw⟩
+  rw [<- hw]
+  simp
+  exact (DirectSum.lmap_surjective (GradedPieceHom hφ)).mp GradedSurjective _ _
+
+
+lemma cokerv₃zero (F'top : F'.N 0 = ⊤) (GradedSurjective : Function.Surjective (GradedModuleHom hφ)) (n : ℕ) : ∀ x : (cokernel (CommDiagramOfSES_n hφ n).v₃.hom'), x = 0 := by
+  intro y
+  induction' n with n hn
+  · rcases QuotientAddGroup.mk'_surjective _ y with ⟨w,hw⟩
+    rcases QuotientAddGroup.mk'_surjective _ w with ⟨a,ha⟩
+    have : QuotientAddGroup.mk' _ a = (0 : (CommDiagramOfSES_n hφ 0).s₂.X₃) := by
+      show a ∈ (QuotientAddGroup.mk' _).ker
+      rw [QuotientAddGroup.ker_mk', F'top]
+      simp
+    rw [<- hw, <- ha, this, map_zero]
+  · exact zeroOfZeroExactZero (cokerφnzero hφ GradedSurjective n) hn (inducedMap₄inducedMap₅Exact (CommDiagramOfSES_n hφ n)) y
+
+
+lemma inducedMap₂Surjective (GradedSurjective : Function.Surjective (GradedModuleHom hφ)) (n : ℕ) : Function.Surjective <| inducedMap₂ (CommDiagramOfSES_n hφ n) :=
+  surjectiveOfExactZero (cokerφnzero hφ GradedSurjective n) (DeltaExact (CommDiagramOfSES_n hφ n))
+
+
+--def middleAddInvSystem (GradedSurjective : Function.Surjective (GradedModuleHom hφ)) : AddInverseSystem := sorry
+
+
 
 lemma am10_23_i (hφ : ∀ n, F.N n ≤ (F'.N n).comap φ) :
   Function.Injective (GradedModuleHom hφ) → Function.Injective (FiltrationCompletionHom.of_comap_le hφ) := sorry
