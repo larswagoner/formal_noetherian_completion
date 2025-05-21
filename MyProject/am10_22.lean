@@ -16,9 +16,36 @@ import MyProject.AssociatedGradedRing.Components
 variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 
 
+-- start scratch 
+-- Gives Finset I lemma ideal_fg : (⊤ : Submodule A I).FG := Module.Finite.fg_top
+
+-- define φ on homogeneous components? then the desired equ
+
+
+lemma ideal_fg : Submodule.FG I := by 
+  exact IsNoetherian.noetherian I
+
+
+
+
+
+noncomputable def ideal_generators := (ideal_fg I).choose
+
+
+def help  (p : MvPolynomial (ideal_generators I) A) := by
+
+  #check MvPolynomial.eval Subtype.val p
+
+  sorry
+
+
+
+
 instance : IsNoetherianRing (A ⧸ I) := by
   infer_instance
 
+
+-- end of scratch
 instance : IsNoetherianRing (GradedRingPiece I 0) := 
   isNoetherianRing_of_ringEquiv (A ⧸ I) (GradedRingPiece_zero_isomorphism I)
 

@@ -21,11 +21,15 @@ lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
 /- SECTION I -/
 universe u v w
 
-variable {vars : Type v} {embedding : vars → GradedRingPiece I 1}  {vars_generate : Submodule.span (GradedRingPiece I 0) (Set.range embedding) = ⊤} {identification : vars → (CanonicalFiltration I).N 1} {compatibility : embedding = GradedPiece_mk ∘ identification}
+variable {vars : Type v} {embedding : vars → GradedRingPiece I 1}  {embedded_vars_generate : Submodule.span (GradedRingPiece I 0) (Set.range embedding) = ⊤} {identification₂ : vars → (CanonicalFiltration I).N 1} {identification : vars → I} {compatibility : embedding = GradedPiece_mk ∘ identification₂} {identified_vars_generate : Submodule.span A (Set.range identification) = ⊤}
+
+
 -- might need to add vars → I or I^1 or (CanonicalFiltration I).N 1 then a proof that that and embedding commute
 
 -- when applying this in am_10_22.lean, choose vars wisely... probably in terms of generators of GRP 1, if i want to do stuff with `A[xᵢ]` use generators of (CanonicalFiltration I).N 1
 
+
+--question: should i include the variables here?
 abbrev AssociatedPolynomialRing (I : Ideal A) (vars : Type v) : Type (max u v) := MvPolynomial (vars) (GradedRingPiece I 0)
 
 noncomputable instance : Semiring (AssociatedPolynomialRing I vars) := by
@@ -49,9 +53,18 @@ def MvMorphism (I : Ideal A) (vars : Type v) (embedding : vars → GradedRingPie
     (AssociatedPolynomialRing I vars) →+* (AssociatedGradedRing I) := 
       MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism embedding)
 
-/- `A/I[xᵢ] → G(A)` is surjective -/
+
+/- `A/I[yᵢ] → G(A)` is surjective -/
 /- APPROACH 1-/
 def AuxiliaryPolynomialRing (A : Type u) [CommRing A] (vars : Type v):= MvPolynomial vars A
+
+noncomputable instance : Semiring (AuxiliaryPolynomialRing A vars) := by
+  unfold AuxiliaryPolynomialRing
+  infer_instance
+noncomputable instance : CommRing (AuxiliaryPolynomialRing A vars) :=  by
+  unfold AuxiliaryPolynomialRing
+  infer_instance
+
 
 -- `φ : A[xᵢ] → AssociatedPolynomialRing I vars`
 def aux_constant_morphism (I : Ideal A) : A →+* GradedRingPiece I 0 where
@@ -69,13 +82,14 @@ noncomputable def constant_map_phi : A →+* AssociatedPolynomialRing I vars whe
   map_zero' := by simp
   map_add' _ _ := by simp
 
-noncomputable def phi (I: Ideal A) (vars : Type v) : (AuxiliaryPolynomialRing A vars) → (AssociatedPolynomialRing I vars) :=  MvPolynomial.eval₂ (constant_map_phi) MvPolynomial.X
+noncomputable def phi (I: Ideal A) (vars : Type v) : (AuxiliaryPolynomialRing A vars) →+* (AssociatedPolynomialRing I vars) :=  MvPolynomial.eval₂Hom (constant_map_phi) MvPolynomial.X
 
 
 
 -- `ψ : A[xᵢ] → AssociatedGradedRing I`
 -- quotient.mk to go to A/I, then use isomorphism with zero, then use MvPolynomial.C
 
+-- maybe with MvPolynomial.comp_eval₂Hom
 
 def constant_map_psi : A →+* AssociatedGradedRing I where
   toFun := (scalar_morphism I) ∘ (zero_toFun I)∘ (Ideal.Quotient.mk I)
@@ -84,18 +98,44 @@ def constant_map_psi : A →+* AssociatedGradedRing I where
   map_zero' := by simp
   map_add'  _ _ := by simp
 
-def psi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): AuxiliaryPolynomialRing A vars → AssociatedGradedRing I := MvPolynomial.eval₂ constant_map_psi (variable_morphism embedding)
+def psi (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): AuxiliaryPolynomialRing A vars →+* AssociatedGradedRing I := MvPolynomial.eval₂Hom constant_map_psi (variable_morphism embedding)
 
 /- `ψ` surjective (use Christian's lemma) -/
-lemma psi.Surjective (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): Function.Surjective (psi I vars embedding) := sorry
+lemma psi.Surjective (I: Ideal A) (vars : Type v) (embedding : vars → GradedRingPiece I 1): Function.Surjective (psi I vars embedding) := by
+  intro x
+  refine DirectSum.induction_on x ?_ ?_ ?_
+  · use 0 
+    rfl
+  · intro n
+    rintro ⟨a, ha⟩ 
+    simp
+    have := (@Ideal.mem_span_pow' A _ n (⊤) a).mp sorry
+    rcases this with ⟨p, p₁, p₂⟩
+    
+    have : (⟨a, ha⟩ : (CanonicalFiltration I).N n) = ⟨(MvPolynomial.eval Subtype.val) p, by sorry⟩ :=  Subtype.mk_eq_mk.mpr ((Eq.symm p₂))
+    
+    rw[this]
+    -- use p -- replace top with generators of I. 
+    -- now we should have the lmma on the board
+    -- MvPolynomial.induction_on_monomial?
+    
+    sorry
+  · intro r s ⟨c, hc⟩ ⟨d, hd⟩
+    use (c + d)
+    simp only [map_add]
+    rw [hc, hd]
+    
 
 /- `MvMorphism I vars embedding ∘ φ = ψ` -/
+
+-- make definitions such that this is true
 lemma auxiliary_composition: psi I vars embedding = (MvMorphism I vars embedding) ∘ (phi I vars) := by
-  ext x
+  ext b
   simp
   unfold psi phi MvMorphism
   simp
-  unfold constant_map_psi
+  unfold constant_map_psi constant_map_phi
+  
   
   sorry
 
