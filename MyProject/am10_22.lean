@@ -13,7 +13,7 @@ import MyProject.AssociatedGradedRing.Components
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
-variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
+variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
 
 
 -- start scratch 
@@ -22,21 +22,38 @@ variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A)
 -- define φ on homogeneous components? then the desired equ
 
 
+-- APPROACH 3
+
+/-- Copyright (c) 2022 Christian Merten-/
+lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
+    x ∈ (Ideal.span S) ^ n ↔ ∃ (p : MvPolynomial S R),
+      MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x := sorry
+/- end of copyright -/
+
 lemma ideal_fg : Submodule.FG I := by 
   exact IsNoetherian.noetherian I
 
 
 
-
-
 noncomputable def ideal_generators := (ideal_fg I).choose
 
+abbrev aux_polynomial (I : Ideal A) := MvPolynomial (ideal_generators I) A
+instance : IsNoetherianRing (aux_polynomial I) := by
+  infer_instance
 
-def help  (p : MvPolynomial (ideal_generators I) A) := by
+def φ (I : Ideal A): aux_polynomial I →+* AssociatedGradedRing I := sorry
 
-  #check MvPolynomial.eval Subtype.val p
+lemma φ.Surjective : Function.Surjective (φ I) := sorry
 
-  sorry
+
+instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] : IsNoetherianRing (AssociatedGradedRing I) := by 
+  exact isNoetherianRing_of_surjective (aux_polynomial I) (AssociatedGradedRing I) (φ I) (φ.Surjective I)
+
+
+
+
+
+--def help  (p : MvPolynomial (ideal_generators I) A) := sorry
 
 
 
@@ -135,6 +152,9 @@ def variable_morphism : (vars I) → AssociatedGradedRing I := fun ⟨x, _⟩ =>
 def MvMorphism : (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) →+* (AssociatedGradedRing I) := 
   MvPolynomial.eval₂Hom (scalar_morphism I) (variable_morphism I)
 
+
+lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) :=  sorry
+/-
 -- call from surjective map
 lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
  -- idk why this breaks
@@ -171,10 +191,10 @@ lemma MvMorphism_surjective : Function.Surjective ⇑(MvMorphism I) := by
     use MvPolynomial.C x
     have := MvPolynomial.eval₂Hom_C (scalar_morphism I) (variable_morphism I) x
     exact this-/
-
+-/
 
 /-- Associated Graded Ring of a Noetherian Ring is Noetherian-/
-instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
+instance am10_22_i_old {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] :
   IsNoetherianRing (AssociatedGradedRing I) := 
     isNoetherianRing_of_surjective (AssociatedGradedRing.AssociatedPolynomialRing I (vars I)) (AssociatedGradedRing I) (MvMorphism I) (MvMorphism_surjective I)
 
