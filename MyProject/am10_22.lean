@@ -3,6 +3,7 @@ import MyProject.am10_15
 import MyProject.AssociatedGradedRing.Module
 import MyProject.AssociatedGradedRing.SurjectiveMap
 import MyProject.AssociatedGradedRing.Components
+import MyProject.AssociatedGradedRing.Algebra
 
 /-
   # Proposition 10.22
@@ -30,20 +31,77 @@ lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
       MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x := sorry
 /- end of copyright -/
 
-lemma ideal_fg : Submodule.FG I := by 
-  exact IsNoetherian.noetherian I
+def ideal_fg := (IsNoetherian.noetherian I) 
+
+noncomputable def ideal_generators : Set A:= (ideal_fg I).choose
 
 
-
-noncomputable def ideal_generators := (ideal_fg I).choose
 
 abbrev aux_polynomial (I : Ideal A) := MvPolynomial (ideal_generators I) A
+
 instance : IsNoetherianRing (aux_polynomial I) := by
+  dsimp [aux_polynomial, ideal_generators]
   infer_instance
 
-def φ (I : Ideal A): aux_polynomial I →+* AssociatedGradedRing I := sorry
 
-lemma φ.Surjective : Function.Surjective (φ I) := sorry
+def scalars₁_aux : A →+ (CanonicalFiltration I).N 0 := by exact zero_toFun_aux₁ I
+
+def scalars₁ : A →+* GradedRingPiece I 0 where
+  toFun := Submodule.Quotient.mk ∘ scalars₁_aux I
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+def scalar_morph : A →+* AssociatedGradedRing I where
+  toFun := DirectSum.of _ 0 ∘ scalars₁ I
+  map_one' := rfl
+  map_mul' _ _ := by simp
+  map_zero' := by simp
+  map_add' _ _ := by simp
+
+
+
+def ideal_generator_mem (a : A) (ha: a ∈ ideal_generators I) : a ∈ I := by
+  have : Submodule.span A (ideal_generators I) = I := (IsNoetherian.noetherian I).choose_spec
+  rw[← this] 
+  exact Submodule.mem_span.mpr fun p a_1 ↦ a_1 ha
+
+
+--def var₁ (a : A) (ha: a ∈ ideal_generators I) :  I :=  ⟨a, ideal_generator_mem I a ha⟩
+
+   --exact Submodule.mem_span.mpr fun p a_1 ↦ a_1 ha
+
+def oneaux₁ : ideal_generators I → ↥(I) := fun ⟨a, ha⟩ => ⟨a, ideal_generator_mem I a ha⟩
+
+def oneaux₂ : ↥(I) → (CanonicalFiltration I).N 1 := fun x => ⟨x, by simp⟩
+
+def oneaux₃ : (CanonicalFiltration I).N 1 → AssociatedGradedRing I :=  DirectSum.of _ 1 ∘ Submodule.Quotient.mk 
+  
+def var_morph : ideal_generators I → AssociatedGradedRing I := fun x =>  ((oneaux₃ I) ∘ (oneaux₂ I) ∘ (oneaux₁ I)) x
+
+
+
+
+
+-- MvPolynomal.aeval (var_morph I)
+
+def φ₂ (I : Ideal A): aux_polynomial I →ₐ[A] AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
+
+def φ (I : Ideal A): aux_polynomial I →+* AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
+
+
+lemma φ.Surjective : Function.Surjective (φ I) := by
+  intro x
+  refine DirectSum.induction_on x ?_ ?_ ?_
+  · use 0
+    simp
+  · rintro n ⟨y⟩ 
+    
+    sorry
+  · rintro x y ⟨a, ha⟩ ⟨b, hb⟩
+    use a+b
+    rw [map_add, ha, hb]
 
 
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] : IsNoetherianRing (AssociatedGradedRing I) := by 

@@ -6,6 +6,29 @@ variable {A : Type u} [CommRing A] (I : Ideal A)
 
 open QuotientAddGroup
 
+/-- `A` is isomorphic to `(CanoncialFiltration I).N 0`-/
+
+
+instance : CommRing ((CanonicalFiltration I).N 0) where
+  mul a b := by
+    unfold CanonicalFiltration Ideal.stableFiltration
+    simp
+  
+    sorry
+  left_distrib := sorry
+  right_distrib := sorry
+  zero_mul := sorry
+  mul_zero := sorry
+  mul_assoc := sorry
+  one := sorry
+  one_mul := sorry
+  mul_one := sorry
+
+
+  mul_comm := sorry
+
+--def CanonicalFiltration_zero_isomorphism (I : Ideal A) : A ≃+* (CanoncialFiltration I).N 0 := sorry
+
 /-- `A/I` is isomorphic to `GradedRingPiece I 0` as rings-/
 def zero_toFun_aux₁ : A →+ (CanonicalFiltration I).N 0 where
   toFun := (fun a => ⟨ a , by simp ⟩)
