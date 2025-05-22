@@ -58,6 +58,16 @@ theorem groupHomCompatibleComp₂ {A B C : AddCommGrp} (g : B →+ C) (f : A →
   intro x
   exact congrHom (groupHomCompatibleComp g f) x
 
+def inducedMapKer {A B C D : AddCommGrp} {f₁ : A ⟶ B} {f₂ : C ⟶ D} {g₁ : A ⟶ C} {g₂ : B ⟶ D} (comm : f₁ ≫ g₂ = g₁ ≫ f₂) : g₁.hom'.ker →+ g₂.hom'.ker := by
+  have : ∀ x : g₁.hom'.ker, f₁.hom' x ∈ g₂.hom'.ker := by
+    intro x
+    have : (f₁ ≫ g₂).hom' = (g₁ ≫ f₂).hom' := by rw [comm]
+    simp at this
+    simp
+    have : g₂.hom' (f₁.hom' x.1) = f₂.hom' (g₁.hom' x.1) := congrHom this x.1
+    rw [this]
+    rw [x.2, map_zero]
+  apply AddMonoidHom.codRestrict (f₁.hom'.restrict g₁.hom'.ker) _ this
 
 section Complexes
 
