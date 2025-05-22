@@ -14,7 +14,7 @@ import MyProject.AssociatedGradedRing.Algebra
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
-variable {A : Type u} [CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
+variable {A : Type u} [hCA : CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
 
 
 -- start scratch 
@@ -36,7 +36,6 @@ def ideal_fg := (IsNoetherian.noetherian I)
 noncomputable def ideal_generators : Set A:= (ideal_fg I).choose
 
 
-
 abbrev aux_polynomial (I : Ideal A) := MvPolynomial (ideal_generators I) A
 
 instance : IsNoetherianRing (aux_polynomial I) := by
@@ -44,7 +43,7 @@ instance : IsNoetherianRing (aux_polynomial I) := by
   infer_instance
 
 
-def scalars₁_aux : A →+ (CanonicalFiltration I).N 0 := by exact zero_toFun_aux₁ I
+def scalars₁_aux : A →+ (CanonicalFiltration I).N 0 := zero_toFun_aux₁ I
 
 def scalars₁ : A →+* GradedRingPiece I 0 where
   toFun := Submodule.Quotient.mk ∘ scalars₁_aux I
@@ -67,17 +66,12 @@ def ideal_generator_mem (a : A) (ha: a ∈ ideal_generators I) : a ∈ I := by
   rw[← this] 
   exact Submodule.mem_span.mpr fun p a_1 ↦ a_1 ha
 
-
---def var₁ (a : A) (ha: a ∈ ideal_generators I) :  I :=  ⟨a, ideal_generator_mem I a ha⟩
-
-   --exact Submodule.mem_span.mpr fun p a_1 ↦ a_1 ha
-
 def oneaux₁ : ideal_generators I → ↥(I) := fun ⟨a, ha⟩ => ⟨a, ideal_generator_mem I a ha⟩
 
 def oneaux₂ : ↥(I) → (CanonicalFiltration I).N 1 := fun x => ⟨x, by simp⟩
 
 def oneaux₃ : (CanonicalFiltration I).N 1 → AssociatedGradedRing I :=  DirectSum.of _ 1 ∘ Submodule.Quotient.mk 
-  
+
 def var_morph : ideal_generators I → AssociatedGradedRing I := fun x =>  ((oneaux₃ I) ∘ (oneaux₂ I) ∘ (oneaux₁ I)) x
 
 
@@ -86,19 +80,70 @@ def var_morph : ideal_generators I → AssociatedGradedRing I := fun x =>  ((one
 
 -- MvPolynomal.aeval (var_morph I)
 
-def φ₂ (I : Ideal A): aux_polynomial I →ₐ[A] AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
+def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] AssociatedGradedRing I :=   MvPolynomial.aeval (var_morph I)
 
-def φ (I : Ideal A): aux_polynomial I →+* AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
+def φ₂ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →+* AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
 
+
+def ideal_to_GRP (n:ℕ) : ↥(I ^ n) → GradedRingPiece I n := (Submodule.Quotient.mk ∘ (Taux I n))
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
   refine DirectSum.induction_on x ?_ ?_ ?_
   · use 0
     simp
-  · rintro n ⟨y⟩ 
+  · rintro n x
+    obtain  ⟨⟨z,hz⟩, rfl⟩ := Submodule.mkQ_surjective _  x 
     
-    sorry
+
+    -- intro d above, let z:= isomorphsim nth component d
+    --simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top] at z
+    simp at hz
+    have h₁ : I = Ideal.span (ideal_generators I) := (ideal_fg I).choose_spec.symm
+    rw [h₁] at hz
+
+
+    have ⟨y, hy₁, hy₂⟩ := (@Ideal.mem_span_pow' A hCA n (ideal_generators I) z).mp hz
+
+
+
+
+
+    use y
+
+    
+    unfold φ
+ 
+    rw[← hy₂, ← h₁] at hz
+
+
+    -- map (MvPolynomial.eval Subtype.val) y to nth component, and then have it be equal to (MvPolynomial.aeval (var_morph I)) y. then can use injectivity of 
+
+    
+    #check (MvPolynomial.aeval (var_morph I)) y -- : G(A)
+    #check (MvPolynomial.eval Subtype.val) y -- : A
+
+    
+    
+    -- okay, lhs of goal i want to reside in nth component
+    have h₃: (MvPolynomial.aeval (var_morph I)) y  = (DirectSum.of (GradedPiece (CanonicalFiltration I)) n) (ideal_to_GRP I n ⟨((MvPolynomial.eval Subtype.val) y), hz⟩) := by
+      dsimp [ideal_to_GRP, Taux]
+      revert hy₁
+      induction y using MvPolynomial.induction_on -- maybe not induction here now. induction outside of homogeneous setting
+      · sorry
+      · sorry
+      · sorry
+    
+    simp [h₃, ideal_to_GRP, Taux, hy₂]
+
+
+    
+    
+    
+--- want to use CanI n -> gradedPiece is surjective -- Submodule.mkQ_surjective
+
+  
+  
   · rintro x y ⟨a, ha⟩ ⟨b, hb⟩
     use a+b
     rw [map_add, ha, hb]
