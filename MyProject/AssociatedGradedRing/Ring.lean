@@ -155,6 +155,8 @@ instance (I : Ideal A) : GRing (GradedRingPiece I) where
     congr
     simp
 
+
+
 instance (I : Ideal A) : GCommSemiring (GradedRingPiece I) where
 
 instance (I : Ideal A) : GCommRing (GradedRingPiece I) where

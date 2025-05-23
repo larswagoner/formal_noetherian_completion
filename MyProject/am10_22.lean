@@ -17,29 +17,19 @@ import MyProject.AssociatedGradedRing.Algebra
 variable {A : Type u} [hCA : CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
 
 
--- start scratch 
--- Gives Finset I lemma ideal_fg : (⊤ : Submodule A I).FG := Module.Finite.fg_top
-
--- define φ on homogeneous components? then the desired equ
-
-
--- APPROACH 3
-
 /-- Copyright (c) 2022 Christian Merten-/
 lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
     x ∈ (Ideal.span S) ^ n ↔ ∃ (p : MvPolynomial S R),
       MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x := sorry
 /- end of copyright -/
 
-def ideal_fg := (IsNoetherian.noetherian I) 
 
-noncomputable def ideal_generators : Set A:= (ideal_fg I).choose
+noncomputable def ideal_generators : Set A := (IsNoetherian.noetherian I).choose
 
 
-abbrev aux_polynomial (I : Ideal A) := MvPolynomial (ideal_generators I) A
 
-instance : IsNoetherianRing (aux_polynomial I) := by
-  dsimp [aux_polynomial, ideal_generators]
+instance : IsNoetherianRing (MvPolynomial (ideal_generators I) A) := by
+  dsimp [ideal_generators]
   infer_instance
 
 
@@ -76,16 +66,21 @@ def var_morph : ideal_generators I → AssociatedGradedRing I := fun x =>  ((one
 
 
 
-
-
--- MvPolynomal.aeval (var_morph I)
-
 def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] AssociatedGradedRing I :=   MvPolynomial.aeval (var_morph I)
-
-def φ₂ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →+* AssociatedGradedRing I :=   MvPolynomial.eval₂Hom (scalar_morph I) (var_morph I)
 
 
 def ideal_to_GRP (n:ℕ) : ↥(I ^ n) → GradedRingPiece I n := (Submodule.Quotient.mk ∘ (Taux I n))
+
+
+-- need to find mathcal A first... maybe by checking instance of graded ring and unfolding direct sum... or just check online... 
+-- if we have an nth degree homogeneous element, then the finite support is only n, i.e. if k≠ n, then k∉DFinsupp.support ...
+
+                         -- r : M
+
+--lemma homog_pol_supp {n k : ℕ} {hkn : k ≠ n} (y : MvPolynomial (↑(ideal_generators I)) A ) {hy : MvPolynomial.IsHomogeneous y n} : k ∉ DFinsupp.support (DirectSum.decompose _ ) ((MvPolynomial.aeval (var_morph I)) y ) := sorry  
+
+lemma adgasf {n k : ℕ} {hkn : k ≠ n} (y : MvPolynomial (↑(ideal_generators I)) A ): ((MvPolynomial.aeval (var_morph I)) y) k = 0 := by
+  sorry
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
@@ -94,55 +89,31 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
     simp
   · rintro n x
     obtain  ⟨⟨z,hz⟩, rfl⟩ := Submodule.mkQ_surjective _  x 
-    
-
-    -- intro d above, let z:= isomorphsim nth component d
-    --simp only [Ideal.stableFiltration_N, smul_eq_mul, Ideal.mul_top] at z
     simp at hz
-    have h₁ : I = Ideal.span (ideal_generators I) := (ideal_fg I).choose_spec.symm
+    have h₁ : I = Ideal.span (ideal_generators I) := (IsNoetherian.noetherian I).choose_spec.symm
     rw [h₁] at hz
-
-
     have ⟨y, hy₁, hy₂⟩ := (@Ideal.mem_span_pow' A hCA n (ideal_generators I) z).mp hz
 
-
-
-
-
-    use y
-
-    
+    use y    
     unfold φ
  
     rw[← hy₂, ← h₁] at hz
-
-
-    -- map (MvPolynomial.eval Subtype.val) y to nth component, and then have it be equal to (MvPolynomial.aeval (var_morph I)) y. then can use injectivity of 
-
-    
-    #check (MvPolynomial.aeval (var_morph I)) y -- : G(A)
-    #check (MvPolynomial.eval Subtype.val) y -- : A
-
-    
-    
-    -- okay, lhs of goal i want to reside in nth component
+  
     have h₃: (MvPolynomial.aeval (var_morph I)) y  = (DirectSum.of (GradedPiece (CanonicalFiltration I)) n) (ideal_to_GRP I n ⟨((MvPolynomial.eval Subtype.val) y), hz⟩) := by
       dsimp [ideal_to_GRP, Taux]
-      revert hy₁
-      induction y using MvPolynomial.induction_on -- maybe not induction here now. induction outside of homogeneous setting
-      · sorry
-      · sorry
-      · sorry
+      apply DirectSum.ext
+      intro k
+      by_cases hkn : k = n
+      · 
+        sorry
+      · rw[DirectSum.of_eq_of_ne n k _ (id (Ne.symm hkn))]
+        sorry
+
+  
+      --induction y using MvPolynomial.induction_on -- maybe not induction here now. induction outside of homogeneous setting
     
     simp [h₃, ideal_to_GRP, Taux, hy₂]
 
-
-    
-    
-    
---- want to use CanI n -> gradedPiece is surjective -- Submodule.mkQ_surjective
-
-  
   
   · rintro x y ⟨a, ha⟩ ⟨b, hb⟩
     use a+b
@@ -150,7 +121,7 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
 
 
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] : IsNoetherianRing (AssociatedGradedRing I) := by 
-  exact isNoetherianRing_of_surjective (aux_polynomial I) (AssociatedGradedRing I) (φ I) (φ.Surjective I)
+  exact isNoetherianRing_of_surjective (MvPolynomial (ideal_generators I) A) (AssociatedGradedRing I) (φ I) (φ.Surjective I)
 
 
 
