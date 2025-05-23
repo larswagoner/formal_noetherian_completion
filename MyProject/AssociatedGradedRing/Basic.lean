@@ -174,6 +174,7 @@ def idealPowerToFiltrationComponent (I : Ideal A) (m : ℕ ): ↥(I^m) →+ (Can
 
 
 
+
 /--
   The associated graded ring is defined by `G(A) = ⊕ₙ aⁿ/aⁿ⁺¹` and is a specific instance of `G(M)`.
 -/
