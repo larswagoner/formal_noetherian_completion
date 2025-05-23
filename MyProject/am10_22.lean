@@ -70,7 +70,10 @@ def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] Assoc
 
 def ideal_to_GRP (n:ℕ) : ↥(I ^ n) → GradedRingPiece I n := (Submodule.Quotient.mk ∘ (Taux I n))
 
-lemma adgasf {n k : ℕ} {hkn : k ≠ n} (y : MvPolynomial (↑(ideal_generators I)) A ): ((MvPolynomial.aeval (var_morph I)) y) k = 0 := by
+--need to add  ((MvPolynomial.eval Subtype.val) y ∈ I ^ n) as assumption
+lemma poly_homog_of_not_deg (n k : ℕ) (hkn : k ≠ n) (y : MvPolynomial (↑(ideal_generators I)) A) (hIy : (MvPolynomial.eval Subtype.val) y ∈ I^n) {hy : MvPolynomial.IsHomogeneous y n}  : ((MvPolynomial.aeval (var_morph I)) y) k = 0 := by
+  dsimp [MvPolynomial.IsHomogeneous, MvPolynomial.IsWeightedHomogeneous] at hy
+  
   sorry
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
@@ -95,11 +98,9 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
       apply DirectSum.ext
       intro k
       by_cases hkn : k = n
-      · 
-        sorry
-      · rw[DirectSum.of_eq_of_ne n k _ (id (Ne.symm hkn))]
-        sorry
-
+      · sorry
+      · rwa [DirectSum.of_eq_of_ne n k _ (id (Ne.symm hkn)), ← poly_homog_of_not_deg I n k hkn y hz]
+     
   
       --induction y using MvPolynomial.induction_on -- maybe not induction here now. induction outside of homogeneous setting
     
