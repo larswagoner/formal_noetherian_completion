@@ -2,6 +2,8 @@ import MyProject.AssociatedGradedRing.GradedSMul
 
 open DirectSum
 
+section
+
 variable {A : Type*} [CommRing A] {I : Ideal A}
 
 lemma canonicalFiltration_mul_deg {m n : ℕ} {x y : A} (hx : x ∈ (CanonicalFiltration I).N m) (hy : y ∈ (CanonicalFiltration I).N n) :
@@ -166,3 +168,55 @@ instance (I : Ideal A) : GCommRing (GradedRingPiece I) where
 -/
 instance (I : Ideal A) : CommRing (AssociatedGradedRing I) :=
   DirectSum.commRing _
+
+end
+
+section
+
+variable {A₁ A₂ : Type*} [CommRing A₁] [CommRing A₂] {I₁ : Ideal A₁} {I₂ : Ideal A₂}
+variable {φ : ∀ n, GradedRingPiece I₁ n ≃+ GradedRingPiece I₂ n}
+
+
+def AssociatedGradedRingIso_of_grp_iso (hφ : ∀ (m n : ℕ) (x : GradedRingPiece I₁ m) (y : GradedRingPiece I₁ n),
+    φ (m + n) (graded_mul x y) = graded_mul (φ m x) (φ n y)) :
+    AssociatedGradedRing I₁ ≃+* AssociatedGradedRing I₂ where
+  toFun := DirectSum.map (fun n ↦ φ n)
+  invFun := DirectSum.map (fun n ↦ (φ n).symm)
+  left_inv := by
+    intro x
+    apply @DirectSum.induction_on ℕ (GradedRingPiece I₁) _ _ _ x
+    · simp
+    · simp
+    · intro x y h₁ h₂
+      simp
+      rw [h₁, h₂]
+  right_inv := by
+    intro x
+    apply @DirectSum.induction_on ℕ (GradedRingPiece I₂) _ _ _ x
+    · simp
+    · simp
+    · intro x y h₁ h₂
+      simp
+      rw [h₁, h₂]
+  map_add' := by simp
+  map_mul' := by
+    intro x
+    apply @DirectSum.induction_on ℕ (GradedRingPiece I₁) _ _ _ x
+    · simp
+    · intro i x y
+      apply @DirectSum.induction_on ℕ (GradedRingPiece I₁) _ _ _ y
+      · simp
+      · simp
+        intro j y
+        rw [DirectSum.of_mul_of]
+        rw [DirectSum.of_mul_of]
+        simp
+        show (of (GradedPiece (CanonicalFiltration I₂)) (i + j)) ((φ (i + j)) (graded_mul x y)) = _
+        rw [hφ]
+        rfl
+      · intro y₁ y₂ hy₁ hy₂
+        rw [mul_add, map_add, hy₁, hy₂, map_add _ y₁ y₂, mul_add]
+    · intro x₁ x₂ hx₁ hx₂ y
+      rw [add_mul, map_add, hx₁ y, hx₂ y, map_add _ x₁ x₂, add_mul]
+
+end

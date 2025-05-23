@@ -1,5 +1,4 @@
 import MyProject.am10_23
-import MyProject.adic_completion
 import MyProject.AssociatedGradedRing.Map
 import MyProject.Completion.IsFiltrationComplete
 
@@ -115,6 +114,7 @@ end
 
 lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [hA : IsAdicComplete I A]
     {M : Type u} [AddCommGroup M] [Module A M] (F : I.Filtration M)
+    (Ftop : F.N 0 = ⊤)
     [hF_haus : IsFiltrationHausdorff F]
     [hFin : Module.Finite (AssociatedGradedRing I) (AssociatedGradedModule F)] : Module.Finite A M := by
 
@@ -215,7 +215,7 @@ lemma am10_24 {A : Type u} [CommRing A] {I : Ideal A} [hA : IsAdicComplete I A]
       ext t
       rfl
     rw [this]
-    apply (Function.Surjective.of_comp_iff _ _).mpr (am10_23_ii hφ Gφ_surj)
+    apply (Function.Surjective.of_comp_iff _ _).mpr (am10_23_ii hφ Ftop Gφ_surj)
     have : IsFiltrationPrecomplete F' := by
       rw [product_Precomplete_iff_forall_Precomplete]
       intro i

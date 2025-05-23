@@ -62,7 +62,7 @@ lemma IsFiltrationHausdorff_iff_Injective :
   rw [injective_iff_map_eq_zero (FiltrationCompletion.of F)]
   apply forall_congr'
   intro a
-  rw [←FiltrationCompletion.ext_iff]
+  rw [FiltrationCompletion.ext_iff]
   rfl
 
 /--
@@ -117,7 +117,7 @@ lemma IsFiltrationPrecomplete_of_Surjective (hs : Function.Surjective (Filtratio
   rcases hs y with ⟨x, hx⟩
   use x
   intro n
-  exact ((FiltrationCompletion.ext_iff F).mpr hx n).symm
+  exact ((FiltrationCompletion.ext_iff).mp hx n).symm
 
 /--
   Let `M` be an `A`-module and `I ⊆ A` an ideal. Then `M` is `I`-adic complete if and only if the

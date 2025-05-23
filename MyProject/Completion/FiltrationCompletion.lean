@@ -39,11 +39,8 @@ def FiltrationCompletion : Type v :=
 
 
 @[ext]
-lemma ext {x y : FiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
+lemma FiltrationCompletion.ext {x y : FiltrationCompletion F} (h : ∀ n, x.1 n = y.1 n) : x = y :=
   Subtype.eq (funext h)
-
-lemma FiltrationCompletion.ext_iff {x y : FiltrationCompletion F} : (∀ n, x.1 n = y.1 n) ↔ x = y :=
-  ⟨fun h ↦ Subtype.eq (funext h), fun h n ↦ by rw [h]⟩
 
 instance : AddCommGroup (FiltrationCompletion F) :=
   instAddCommGroupElemForallNaiveAddInverseLimit (FISTransitionMap F)
@@ -111,13 +108,13 @@ def FISystemHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
 
 def FiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
   FiltrationCompletion F₁ →ₗ[A] FiltrationCompletion F₂ := {
-    __ := InverseLimitHom (FISystemHom.of_comap_le hφ)
+    __ := InducedNaiveInverseLimitHom (FISystemHom.of_comap_le hφ)
     map_smul' := by
       intro a m
       simp
       ext n
       show _ = a • _
-      rw [InverseLimitHom_apply]
+      rw [NaiveInverseLimitHom_compatible]
       show (Submodule.mapQ _ _ φ (hφ n)) (a • m.1 n) = _
       rw [(Submodule.mapQ _ _ φ (hφ n)).map_smul]
       rfl
@@ -126,3 +123,5 @@ def FiltrationCompletionHom.of_comap_le (hφ : ∀ n, F₁.N n ≤ (F₂.N n).co
 def FiltrationCompletionHom.comm (hφ : ∀ n, F₁.N n ≤ (F₂.N n).comap φ) :
   (FiltrationCompletion.of F₂).comp φ =
     (FiltrationCompletionHom.of_comap_le hφ).comp (FiltrationCompletion.of F₁) := rfl
+
+end

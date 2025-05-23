@@ -14,6 +14,7 @@ lemma naive_compatible_entries₂ [AddInverseSystem f] (x : ∀ n, F n) (hx : x 
   f h (x m) = x n := by apply hx
 
 
+
 variable {G : ℕ → Type*} [∀ i, AddCommGroup (G i)] (g : ∀ ⦃n m⦄, (n ≤ m) → (G m) →+ (G n))
 
 @[simp]
@@ -49,7 +50,7 @@ lemma NaiveAddInverseLimit_compatible₃ (ψ : f →ₛ+ g) (n : ℕ) {x y : Nai
   rfl
 
 
-def InverseLimitHom (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
+def InducedNaiveInverseLimitHom (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInverseLimit g where
   toFun := by
     intro x
     use fun n ↦ ψ.maps n (x.1 n)
@@ -67,5 +68,24 @@ def InverseLimitHom (ψ : f →ₛ+ g) : NaiveAddInverseLimit f →+ NaiveAddInv
     rw [NaiveAddInverseLimit_compatible₃, <- NaiveAddInverseLimit_compatible₂]
     rfl
 
-lemma InverseLimitHom_apply (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) (n : ℕ) :
-  (InverseLimitHom ψ x).1 n = ψ.maps n (x.1 n) := rfl
+
+@[simp]
+lemma NaiveInverseLimitHom_compatible (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) (n : ℕ) :
+  ((InducedNaiveInverseLimitHom ψ) x).1 n = ψ.maps n (x.1 n) := rfl
+
+@[simp]
+lemma NaiveInverseLimitHom_compatible₂ (ψ : f →ₛ+ g) (x : NaiveAddInverseLimit f) ⦃n m : ℕ⦄ (h : n ≤ m) :
+  g h (((InducedNaiveInverseLimitHom ψ) x).1 m) = ψ.maps n (x.1 n) := by simp
+
+def InducedNaiveInverseLimitIso_of_AddInverseSystemIso (ψ : AddInverseSystemIso f g) :
+    NaiveAddInverseLimit f ≃+ NaiveAddInverseLimit g where
+  __ := InducedNaiveInverseLimitHom ψ.toHom
+  invFun := InducedNaiveInverseLimitHom ψ.invHom
+  left_inv := by
+    intro x
+    ext n
+    exact ψ.left_inv n (x.1 n)
+  right_inv := by
+    intro x
+    ext n
+    exact ψ.right_inv n (x.1 n)

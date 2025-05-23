@@ -120,3 +120,33 @@ lemma DirectProductFiltration_mod_iff {F : ∀ i, I.Filtration (β i)} (n : ℕ)
   rfl
 
 end
+
+section
+
+variable {A : Type*} [CommRing A] {I : Ideal A}
+variable {M N : Type*} [AddCommGroup M] [Module A M] [AddCommGroup N] [Module A N]
+variable (φ : M →ₗ[A] N)
+
+/--
+  Given two `A`-modules `M` and `N` and a map `φ : M →ₗ[A] N`, one can pullback a filtration `F` on `N`
+  to a filtration on `M` given by `Mₙ = φ⁻¹(Nₙ)`.
+-/
+def PullbackFiltration (F : I.Filtration N) : I.Filtration M where
+  N := fun n ↦ ((F.N n).comap φ)
+  mono := fun n ↦ Submodule.comap_mono (F.mono n)
+  smul_le := fun n ↦ le_trans
+    (Submodule.smul_comap_le_comap_smul φ (F.N n) I)
+    (Submodule.comap_mono (F.smul_le n))
+
+/--
+  Given two `A`-modules `M` and `N` and a map `φ : M →ₗ[A] N`, one can pushforward a filtration `F`
+  on `M` to a filtration on `N` given by `Nₙ = φ(Mₙ)`.
+-/
+def PushforwardFiltration (F : I.Filtration M) : I.Filtration N where
+  N := fun n ↦ ((F.N n).map φ)
+  mono := fun n ↦ Submodule.map_mono (F.mono n)
+  smul_le := fun n ↦ by
+    apply le_trans _ (Submodule.map_mono (F.smul_le n))
+    rw [Submodule.map_smul'']
+
+end

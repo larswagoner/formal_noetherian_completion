@@ -21,7 +21,9 @@ def SubmoduleFiltrationHausdorff_of {F : I.Filtration M} (M' : Submodule A M) (h
   rw [h]
   simp
 
-lemma am10_25 [IsAdicComplete I A] (F : I.Filtration M) (hF : ⨅ n, F.N n = (⊥ : Submodule A M))
+lemma am10_25 [IsAdicComplete I A] (F : I.Filtration M)
+  (Ftop : F.N 0 = ⊤)
+  (hF : ⨅ n, F.N n = (⊥ : Submodule A M))
   (hiN : IsNoetherian (AssociatedGradedRing I) (AssociatedGradedModule F)) :
     IsNoetherian A M where
   noetherian := by
@@ -38,4 +40,7 @@ lemma am10_25 [IsAdicComplete I A] (F : I.Filtration M) (hF : ⨅ n, F.N n = (�
       intro n
       rw [←SModEq.zero]
       exact h n
-    apply am10_24 (SubmoduleFiltration F M')
+    have : (SubmoduleFiltration F M').N 0 = ⊤ := by
+      unfold SubmoduleFiltration
+      simp [Ftop]
+    apply am10_24 (SubmoduleFiltration F M') this
