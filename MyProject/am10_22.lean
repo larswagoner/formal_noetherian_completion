@@ -70,11 +70,45 @@ def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] Assoc
 
 def ideal_to_GRP (n:ℕ) : ↥(I ^ n) → GradedRingPiece I n := (Submodule.Quotient.mk ∘ (Taux I n))
 
---need to add  ((MvPolynomial.eval Subtype.val) y ∈ I ^ n) as assumption
+
+
 lemma poly_homog_of_not_deg (n k : ℕ) (hkn : k ≠ n) (y : MvPolynomial (↑(ideal_generators I)) A) (hIy : (MvPolynomial.eval Subtype.val) y ∈ I^n) {hy : MvPolynomial.IsHomogeneous y n}  : ((MvPolynomial.aeval (var_morph I)) y) k = 0 := by
-  dsimp [MvPolynomial.IsHomogeneous, MvPolynomial.IsWeightedHomogeneous] at hy
+  have h₅ := (MvPolynomial.mem_homogeneousSubmodule n y).mpr hy
+  rw [MvPolynomial.homogeneousSubmodule_eq_finsupp_supported _ _] at h₅
   
-  sorry
+  
+  have h₆ : (MvPolynomial.homogeneousComponent k) y  = 0 := by
+    refine MvPolynomial.homogeneousComponent_eq_zero' k y ?_
+    intro d hd
+    exact Lean.Grind.ne_of_ne_of_eq_left (h₅ hd) (id (Ne.symm hkn))
+  have h₇ : (MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) = 0 := by rw[h₆, map_zero]
+  
+
+  -- maybe this is enough?
+  have h₉ : ((MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) ) = DirectSum.of _ k (((MvPolynomial.aeval (var_morph I)) y) k) := by
+  
+    sorry
+
+
+
+  have h₈ : ((MvPolynomial.aeval (var_morph I)) y) k = (DirectSum.component A _ _ k ((MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) )) := by
+    rw[h₉]
+    -- seems like DS.component and DS.of should cancel eachother out
+    
+    sorry
+  
+  rw [h₈, h₇, map_zero]
+
+
+--- notes: 
+-- look at theorem MvPolynomial.IsHomogeneous.add for proving that mul by x increases degree by 1
+-- would be nice to have ((MvPolynomial.aeval (var_morph I)) y) i =( aeval _ homogcomponent y i) proj i
+ -- theorem MvPolynomial.IsHomogeneous.coeff_eq_zero seem super great!
+    -- MvPolynomial.homogeneousComponent_eq_zero'
+    -- MvPolynomial.homogeneousComponent_of_mem {σ : Type u_1} {R : Type u_3} [CommSemiring R] us this one then eval 0 = 0
+
+  -- DirectSum.of_eq_of_ne useful
+
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
@@ -92,13 +126,19 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
     unfold φ
  
     rw[← hy₂, ← h₁] at hz
+
   
     have h₃: (MvPolynomial.aeval (var_morph I)) y  = (DirectSum.of (GradedPiece (CanonicalFiltration I)) n) (ideal_to_GRP I n ⟨((MvPolynomial.eval Subtype.val) y), hz⟩) := by
-      dsimp [ideal_to_GRP, Taux]
+      --dsimp [ideal_to_GRP, Taux]
       apply DirectSum.ext
       intro k
       by_cases hkn : k = n
-      · sorry
+      · rw [hkn]
+        simp
+
+        induction' n with n ih
+        · sorry
+        · sorry
       · rwa [DirectSum.of_eq_of_ne n k _ (id (Ne.symm hkn)), ← poly_homog_of_not_deg I n k hkn y hz]
      
   
