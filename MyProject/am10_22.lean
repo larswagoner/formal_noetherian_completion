@@ -16,6 +16,7 @@ import Mathlib.RingTheory.MvPolynomial.Homogeneous
 
 variable {A : Type u} [hCA : CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
 
+instance hCSA : CommSemiring A := by infer_instance
 
 /-- Copyright (c) 2022 Christian Merten-/
 lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
@@ -84,8 +85,8 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · simp
     rfl
   · simp [hp, hq]
-  · 
-    sorry
+  · sorry
+
 
 lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal_generators I)) A,
   (p.aeval (var_morph I)) n =
@@ -99,8 +100,17 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
     simp
   · intro p
     induction' p using MvPolynomial.induction_on with a p q hp hq p i hp
-    · -- use that C a is a constant and so has no hom.comp for n > 0? Why is this not in MathLib?
-      sorry
+    · have h₂ : ((MvPolynomial.aeval (var_morph I)) (MvPolynomial.C a)) (n + 1) = 0  := by 
+        simp
+        rfl
+      rw [h₂]
+      have h₃: (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (@MvPolynomial.C A (↑(ideal_generators I)) hCSA a)) = 0 := by
+        have h₆ :=  MvPolynomial.isHomogeneous_C (↑(ideal_generators I)) a
+        have : n+1 ≠ 0 := by linarith
+        rw [MvPolynomial.homogeneousComponent_of_mem h₆]
+        simp
+
+      exact SetLike.coe_eq_coe.mp (id (Eq.symm h₃))
     · simp [hp, hq]
     · -- use ih?
       sorry
@@ -121,14 +131,12 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
 
     apply DirectSum.ext
     intro k
-    -- hz : (MvPolynomial.eval Subtype.val) y ∈ I^n
-    have : y.eval Subtype.val = (MvPolynomial.eval Subtype.val) y := rfl
     rw [aeval_proj_eq_hom_comp_eval]
     by_cases hkn : k = n
     · rw [hkn]
       rw [DirectSum.of_eq_same]
       congr
-      rw[MvPolynomial.homogeneousComponent_of_mem hy₁, ]
+      rw[MvPolynomial.homogeneousComponent_of_mem hy₁]
       simp
 
     · rw [DirectSum.of_eq_of_ne n k _ (Ne.symm hkn)]
