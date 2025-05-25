@@ -54,14 +54,6 @@ def var_morph : ideal_generators I → GradedStarRing I := fun ⟨a, ha⟩ => Di
 
 def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] GradedStarRing I := MvPolynomial.aeval (var_morph I)
 
---- notes:
--- look at theorem MvPolynomial.IsHomogeneous.add for proving that mul by x increases degree by 1
--- would be nice to have ((MvPolynomial.aeval (var_morph I)) y) i =( aeval _ homogcomponent y i) proj i
- -- theorem MvPolynomial.IsHomogeneous.coeff_eq_zero seem super great!
-    -- MvPolynomial.homogeneousComponent_eq_zero'
-    -- MvPolynomial.homogeneousComponent_of_mem {σ : Type u_1} {R : Type u_3} [CommSemiring R] us this one then eval 0 = 0
-
-  -- DirectSum.of_eq_of_ne useful
 
 lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) (hp : p.IsHomogeneous n) :
     p.eval Subtype.val ∈ I ^ n := by
@@ -77,6 +69,7 @@ lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators
   apply homogenous_polynomial_mem
   exact MvPolynomial.homogeneousComponent_isHomogeneous n p
 
+instance : CoeOut ↥(I ^ 0) A := ⟨Subtype.val⟩
 
 lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I)) A,
     (p.aeval (var_morph I)) 0 = ⟨p.coeff 0, by simp⟩ := by
@@ -85,8 +78,35 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · simp
     rfl
   · simp [hp, hq]
-  · sorry
+  · 
+    /-
+    have h₁ : MvPolynomial.constantCoeff (p * MvPolynomial.X i) = (((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 : A) := by
+      rw[map_mul, map_mul]
 
+
+      sorry
+
+    exact SetLike.coe_eq_coe.mp (id (Eq.symm h₁))
+    
+    -/
+
+    have h₄: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
+      rw[map_mul]
+      simp
+
+    have h₂ : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
+      rw[map_mul]
+
+      --have : ( ((MvPolynomial.aeval (var_morph I)) p * (MvPolynomial.aeval (var_morph I)) (MvPolynomial.X i)) 0 : A) = ( (((MvPolynomial.aeval (var_morph I)) p) 0 : A)) * ((((MvPolynomial.aeval (var_morph I)) (MvPolynomial.X i)) 0)) := sorry
+
+
+      sorry
+
+    rw[h₂]
+    
+    have h₃: MvPolynomial.coeff 0 (p * MvPolynomial.X i) = 0 := h₄
+    rw[h₃]
+    rfl
 
 lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal_generators I)) A,
   (p.aeval (var_morph I)) n =
@@ -100,9 +120,7 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
     simp
   · intro p
     induction' p using MvPolynomial.induction_on with a p q hp hq p i hp
-    · have h₂ : ((MvPolynomial.aeval (var_morph I)) (MvPolynomial.C a)) (n + 1) = 0  := by 
-        simp
-        rfl
+    · have h₂ : ((MvPolynomial.aeval (var_morph I)) (MvPolynomial.C a)) (n + 1) = 0  := by simp ; rfl
       rw [h₂]
       have h₃: (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (@MvPolynomial.C A (↑(ideal_generators I)) hCSA a)) = 0 := by
         have h₆ :=  MvPolynomial.isHomogeneous_C (↑(ideal_generators I)) a
@@ -113,7 +131,33 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       exact SetLike.coe_eq_coe.mp (id (Eq.symm h₃))
     · simp [hp, hq]
     · -- use ih?
+
+      have h₂ := (ih p)
+
+      /-
+
+
+      have h₃: ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) (n + 1) = ⟨((MvPolynomial.aeval (var_morph I)) (p)) (n) * i, sorry⟩  := by
+        simp [map_mul, MvPolynomial.aeval_X,
+          Polynomial.coeff_mul, Polynomial.coeff_X, Polynomial.coeff_C]
+
+        apply?
+        sorry 
+
+      have : (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent n) p) * ↑i =
+  (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (p * MvPolynomial.X i)) := by 
+        
+        sorry
+      
+
+      rw[h₃]
+      
+      congr
+      rw[h₂]
+      exact this 
+      -/
       sorry
+      
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
