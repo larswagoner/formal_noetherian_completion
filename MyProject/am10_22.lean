@@ -78,33 +78,19 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · simp
     rfl
   · simp [hp, hq]
-  · 
-    /-
-    have h₁ : MvPolynomial.constantCoeff (p * MvPolynomial.X i) = (((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 : A) := by
-      rw[map_mul, map_mul]
-
-
-      sorry
-
-    exact SetLike.coe_eq_coe.mp (id (Eq.symm h₁))
-    
-    -/
-
-    have h₄: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
+  · have h₁: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
       rw[map_mul]
       simp
 
-  
     have h₂ : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
       rw[map_mul]
       
-      
-
+      -- would be nice to write LHS as product of zeroth components. I have tried (even with coercing into A) and I didnt manage to get it to type check. If that is solved, then the zeroeth component of MvP.aeval (MvP.X i) = 0 so the product is.
       sorry
 
     rw[h₂]
     
-    have h₃: MvPolynomial.coeff 0 (p * MvPolynomial.X i) = 0 := h₄
+    have h₃: MvPolynomial.coeff 0 (p * MvPolynomial.X i) = 0 := h₁
     rw[h₃]
     rfl
 
@@ -131,12 +117,10 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       exact SetLike.coe_eq_coe.mp (id (Eq.symm h₃))
     · simp [hp, hq]
     · -- use ih?
-
       have h₂ := (ih p)
 
-      /-
 
-
+      /- This approach works, but didnt use ih
       have h₃: ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) (n + 1) = ⟨((MvPolynomial.aeval (var_morph I)) (p)) (n) * i, sorry⟩  := by
         simp [map_mul, MvPolynomial.aeval_X,
           Polynomial.coeff_mul, Polynomial.coeff_X, Polynomial.coeff_C]
