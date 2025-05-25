@@ -94,11 +94,11 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
       rw[map_mul]
       simp
 
+  
     have h₂ : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
       rw[map_mul]
-
-      --have : ( ((MvPolynomial.aeval (var_morph I)) p * (MvPolynomial.aeval (var_morph I)) (MvPolynomial.X i)) 0 : A) = ( (((MvPolynomial.aeval (var_morph I)) p) 0 : A)) * ((((MvPolynomial.aeval (var_morph I)) (MvPolynomial.X i)) 0)) := sorry
-
+      
+      
 
       sorry
 
