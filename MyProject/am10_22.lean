@@ -119,8 +119,7 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
 
       exact SetLike.coe_eq_coe.mp (id (Eq.symm h₃))
     · simp [hp, hq]
-    · -- use ih?
-      have h₂ := (ih p)
+    · have h₂ := (ih p)
 
 
       /- This approach works, but didnt use ih
