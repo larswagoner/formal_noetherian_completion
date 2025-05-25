@@ -64,13 +64,18 @@ def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] Grade
 
 lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) (hp : p.IsHomogeneous n) :
     p.eval Subtype.val ∈ I ^ n := by
+      have h₁: p.eval Subtype.val ∈ (Ideal.span (ideal_generators I)) ^ n := by
+        apply (@Ideal.mem_span_pow'  A hCA n ((ideal_generators I)) (p.eval Subtype.val)).mpr
+        use p
+      have : Ideal.span (ideal_generators I) = I := (IsNoetherian.noetherian I).choose_spec
+      rwa [this] at h₁
       
-      sorry
 
 lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) :
    (p.homogeneousComponent n).eval Subtype.val ∈ I ^ n := by
   apply homogenous_polynomial_mem
   exact MvPolynomial.homogeneousComponent_isHomogeneous n p
+
 
 lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I)) A,
     (p.aeval (var_morph I)) 0 = ⟨p.coeff 0, by simp⟩ := by
@@ -79,11 +84,13 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · simp
     rfl
   · simp [hp, hq]
-  · sorry
+  · 
+    sorry
 
 lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal_generators I)) A,
   (p.aeval (var_morph I)) n =
     ⟨(p.homogeneousComponent n).eval Subtype.val, homogenous_component_mem I n p⟩ := by
+  
   intro n
   induction' n with n ih
   · intro p
@@ -114,6 +121,8 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
 
     apply DirectSum.ext
     intro k
+    -- hz : (MvPolynomial.eval Subtype.val) y ∈ I^n
+    have : y.eval Subtype.val = (MvPolynomial.eval Subtype.val) y := rfl
     rw [aeval_proj_eq_hom_comp_eval]
     by_cases hkn : k = n
     · rw [hkn]
@@ -135,11 +144,10 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
 
       rw [h₆, map_zero]
 
-
-
   · rintro x y ⟨a, ha⟩ ⟨b, hb⟩
     use a+b
     rw [map_add, ha, hb]
+
 
 
 instance am10_22_i {A : Type u} [CommRing A] (I : Ideal A) [IsNoetherianRing A] : IsNoetherianRing (AssociatedGradedRing I) := by
