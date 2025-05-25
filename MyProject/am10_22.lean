@@ -120,8 +120,19 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
       sorry
     · rw [DirectSum.of_eq_of_ne n k _ (Ne.symm hkn)]
       simp
-      -- use that y.homogenousComponent k = 0?
-      sorry
+      have h₅ := (MvPolynomial.mem_homogeneousSubmodule n y).mpr hy₁
+
+      have h₆ : (MvPolynomial.homogeneousComponent k) y  = 0 := by
+        refine MvPolynomial.homogeneousComponent_eq_zero' k y ?_
+        intro d hd
+        have : d.degree = n := by
+          rw[MvPolynomial.homogeneousSubmodule_eq_finsupp_supported ] at h₅
+          exact h₅ hd
+        exact Lean.Grind.ne_of_ne_of_eq_left this fun a ↦ hkn (id (Eq.symm a))
+
+      rw [h₆, map_zero]
+
+
 
   · rintro x y ⟨a, ha⟩ ⟨b, hb⟩
     use a+b
