@@ -63,7 +63,9 @@ def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] Grade
   -- DirectSum.of_eq_of_ne useful
 
 lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) (hp : p.IsHomogeneous n) :
-    p.eval Subtype.val ∈ I ^ n := sorry
+    p.eval Subtype.val ∈ I ^ n := by
+      
+      sorry
 
 lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) :
    (p.homogeneousComponent n).eval Subtype.val ∈ I ^ n := by
@@ -117,11 +119,12 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
     · rw [hkn]
       rw [DirectSum.of_eq_same]
       congr
-      sorry
+      rw[MvPolynomial.homogeneousComponent_of_mem hy₁, ]
+      simp
+
     · rw [DirectSum.of_eq_of_ne n k _ (Ne.symm hkn)]
       simp
       have h₅ := (MvPolynomial.mem_homogeneousSubmodule n y).mpr hy₁
-
       have h₆ : (MvPolynomial.homogeneousComponent k) y  = 0 := by
         refine MvPolynomial.homogeneousComponent_eq_zero' k y ?_
         intro d hd
