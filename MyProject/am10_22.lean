@@ -85,14 +85,12 @@ lemma poly_homog_of_not_deg (n k : ℕ) (hkn : k ≠ n) (y : MvPolynomial (↑(i
   
 
   -- maybe this is enough?
-  have h₉ : ((MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) ) = DirectSum.of _ k (((MvPolynomial.aeval (var_morph I)) y) k) := by
-  
-    sorry
+ -- have h₉ : ((MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) ) = DirectSum.of _ k (((MvPolynomial.aeval (var_morph I)) y) k) :=  sorry
 
 
 
   have h₈ : ((MvPolynomial.aeval (var_morph I)) y) k = (DirectSum.component A _ _ k ((MvPolynomial.aeval (var_morph I)) ((MvPolynomial.homogeneousComponent k) y) )) := by
-    rw[h₉]
+    --rw[h₉]
     -- seems like DS.component and DS.of should cancel eachother out
     
     sorry
@@ -133,12 +131,29 @@ lemma φ.Surjective : Function.Surjective (φ I) := by
       apply DirectSum.ext
       intro k
       by_cases hkn : k = n
-      · rw [hkn]
-        simp
+      · subst hkn
+        simp [DirectSum.of_eq_same]
+        /-
+       
+        have : (MvPolynomial.aeval (var_morph I)) y ∈ GradedRingPiece I n := 
+          aeval_homogeneous_in_component n y hy₁
+        
+        sorry
+       
+        
+       -- rw [hkn]
+       -- simp
+        induction y using MvPolynomial.induction_on 
+        · --by_cases hazero : a✝ = 0
 
+          sorry
+        · sorry
+        · sorry
         induction' n with n ih
+        ·sorry
         · sorry
-        · sorry
+         -/
+        sorry
       · rwa [DirectSum.of_eq_of_ne n k _ (id (Ne.symm hkn)), ← poly_homog_of_not_deg I n k hkn y hz]
      
   
