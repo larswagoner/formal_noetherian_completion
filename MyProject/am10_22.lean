@@ -84,7 +84,7 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · have h₁: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
       rw[map_mul]
       simp
-    have h₂ : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
+    have h : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
       rw[map_mul]
       have := gradedStarRing_mul_0 ((MvPolynomial.aeval (var_morph I)) p) (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i)))
       have h₂:  ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i)) = GradedStarRing_mk  (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i))) := by
@@ -92,7 +92,7 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
         simp
         rfl
       rw[h₂, this]
-    rw[h₂]
+    rw[h]
     have h₃: MvPolynomial.coeff 0 (p * MvPolynomial.X i) = 0 := h₁
     rw[h₃]
     rfl
