@@ -216,6 +216,8 @@ lemma gradedStarRing_mul_0 (x : GradedStarRing I) (y : ↥(I^1)) :
   · rw [add_mul]
     simp [hx, hy]
 
+
+
 lemma gradedStarRing_mul_succ (y : ↥(I^1)) (x : GradedStarRing I) (n : ℕ) :
     (x * GradedStarRing_mk y) (n+1) = ⟨(x n) * y, SetLike.GradedMul.mul_mem (x n).2 y.2⟩ := by
   induction' x using DirectSum.induction_on with i hx x x' hx hx'

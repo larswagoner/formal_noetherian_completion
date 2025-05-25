@@ -71,6 +71,7 @@ lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators
 
 instance : CoeOut ↥(I ^ 0) A := ⟨Subtype.val⟩
 
+
 lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I)) A,
     (p.aeval (var_morph I)) 0 = ⟨p.coeff 0, by simp⟩ := by
   intro p
@@ -81,10 +82,11 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · have h₁: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
       rw[map_mul]
       simp
-
+  
     have h₂ : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
       rw[map_mul]
-      
+      have := gradedStarRing_mul_0 ((MvPolynomial.aeval (var_morph I)) p) ⟨i, by sorry⟩ 
+      --have : (MvPolynomial.aeval (var_morph I)) (MvPolynomial.X i) = GradedStarRing_mk ⟨↑i, by sorry⟩ := sorry
       -- would be nice to write LHS as product of zeroth components. I have tried (even with coercing into A) and I didnt manage to get it to type check. If that is solved, then the zeroeth component of MvP.aeval (MvP.X i) = 0 so the product is.
       sorry
 
