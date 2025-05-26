@@ -8,5 +8,4 @@ import Mathlib.RingTheory.AdicCompletion.AsTensorProduct
 
 variable {A : Type*} [CommRing A] (I : Ideal A) [IsNoetherianRing A]
 
-lemma am10_14 : Module.Flat A (AdicCompletion I A) := by
-  exact AdicCompletion.flat_of_isNoetherian I
+lemma am10_14 : Module.Flat A (AdicCompletion I A) := AdicCompletion.flat_of_isNoetherian I

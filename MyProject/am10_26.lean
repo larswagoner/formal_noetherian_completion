@@ -15,3 +15,5 @@ theorem AdicCompletion.noetherian_of_isNoetherian {A : Type*} [CommRing A] (I : 
     apply IsAdicComplete.toIsHausdorff
   · apply isNoetherianRing_of_ringEquiv (AssociatedGradedRing I)
     apply am10_22_ii
+
+#print axioms AdicCompletion.noetherian_of_isNoetherian

@@ -6,18 +6,19 @@ variable {A : Type u} [CommRing A] (I : Ideal A)
 
 open QuotientAddGroup
 
-
-
---def CanonicalFiltration_zero_isomorphism (I : Ideal A) : A ≃+* (CanoncialFiltration I).N 0 := sorry
-
-
-
+/-- `Iᵐ` is isomorphic to `(CanonicalFiltration I).N m`-/
 def idealPowerToFiltrationComponent_iso (I : Ideal A) (m : ℕ ): ↥(I^m) ≃+ (CanonicalFiltration I).N m where
-  toFun := sorry
-  invFun := sorry
-  left_inv := sorry
-  right_inv := sorry
-  map_add' := sorry
+  toFun := fun x => ⟨x, by simp⟩ 
+  invFun := fun ⟨x, hx⟩ => ⟨x, (mem_filtration_iff_mem_Im I m x).mp hx⟩ 
+  left_inv := by
+    simp
+    exact congrFun rfl
+  right_inv := by 
+    simp
+    exact congrFun rfl
+  map_add' := by
+    intro x y
+    rfl
 
 /-- `A/I` is isomorphic to `GradedRingPiece I 0` as rings-/
 def zero_toFun_aux₁ : A →+ (CanonicalFiltration I).N 0 where

@@ -196,3 +196,46 @@ instance (I : Ideal A) : CommRing (GradedStarRing I) :=
   DirectSum.commRing (fun n ↦ ↥(I^n))
 
 end
+
+section
+
+variable {A : Type*} [CommRing A] {I : Ideal A}
+
+@[simp]
+lemma GradedStarRing_add (x y : GradedStarRing I) (n : ℕ) : (x + y) n = x n + y n := rfl
+
+def GradedStarRing_mk {n : ℕ} (y : ↥(I^n)) : GradedStarRing I := DirectSum.of _ n y
+
+lemma gradedStarRing_mul_0 (x : GradedStarRing I) (y : ↥(I^1)) :
+    (x * GradedStarRing_mk y) 0 = 0 := by
+  induction' x using DirectSum.induction_on with n hx x y hx hy
+  · simp
+  · unfold GradedStarRing_mk
+    rw [DirectSum.of_mul_of]
+    rfl
+  · rw [add_mul]
+    simp [hx, hy]
+
+
+lemma gradedStarRing_mul_succ (x : GradedStarRing I) (y : ↥(I^1)) (n : ℕ) :
+    (x * GradedStarRing_mk y) (n+1) = ⟨(x n) * y, SetLike.GradedMul.mul_mem (x n).2 y.2⟩ := by
+  induction' x using DirectSum.induction_on with i hx x x' hx hx'
+  · simp
+    rfl
+  · unfold GradedStarRing_mk
+    apply Subtype.coe_inj.mp
+    rw [DirectSum.of_mul_of]
+    simp
+    by_cases h : i = n
+    · rw [←h]
+      rw [DirectSum.of_eq_same]
+      rw [DirectSum.of_eq_same]
+      rfl
+    · rw [DirectSum.of_eq_of_ne]
+      rw [DirectSum.of_eq_of_ne]
+      simp
+      exact h
+      exact (Nat.succ_ne_succ).mpr h
+  · rw [add_mul]
+    simp [hx, hx']
+    rw [add_mul]
