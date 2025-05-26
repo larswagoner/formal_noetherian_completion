@@ -2,6 +2,8 @@ import MyProject.GradedStarRing.GradedStarRing
 
 variable {A : Type*} [CommRing A] (I : Ideal A)
 
+/- We define a surjection `GradedStarRing I →+* G(A)` by componentwise quotients -/
+
 def GradedStarRing_to_AssociatedGradedRingHom :
     GradedStarRing I →+* AssociatedGradedRing I where
   __ := @DirectSum.map ℕ (fun n ↦ ↥(I^n)) (GradedRingPiece I) _ _ (fun n ↦ {

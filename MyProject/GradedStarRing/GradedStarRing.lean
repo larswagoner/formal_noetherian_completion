@@ -1,17 +1,9 @@
 import MyProject.AssociatedGradedRing.Ring
 
-/- # Associated Graded Ring
+/- # GradedStarRing
   Consider a ring `A` and an ideal `I : Ideal A`.
 
-  Given an `A`-module `M` and an `I`-filtration `(Mₙ)`, define the associated graded module
-    `G(M) = ⊕ₙ Mₙ/Mₙ₊₁`
-  This has a natural group structure.
-
-  In the case that `M = A` and `Mₙ = Iⁿ`, we obtain the associated graded ring of `A`
-    `G(A) = ⊕ₙ Iⁿ/Iⁿ⁺¹`
-  Multiplication is defined by `[xₙ] ⬝ [xₘ] = [xₙ ⬝ xₘ] ∈ Iⁿ⁺ᵐ/Iⁿ⁺ᵐ⁺¹`.
-
-  Now `G(M)` is a `G(A)`-module in a natural way.
+  Define `GradedStarRing I` to be `⊕Iⁿ` 
 -/
 
 open DirectSum
@@ -37,6 +29,7 @@ instance (I : Ideal A) :
     CoeFun (GradedStarRing I) fun _ => ∀ n : ℕ, ↥(I^n) :=
   inferInstanceAs (CoeFun (Π₀ n, ↥(I^n)) fun _ => ∀ n : ℕ, ↥(I^n))
 
+/-- `GradedStarRing I` is an `A`module-/
 instance (I : Ideal A) : Module A (GradedStarRing I) := by
   unfold GradedStarRing
   infer_instance
@@ -47,11 +40,10 @@ section
 
 variable {A : Type*} [CommRing A] {I : Ideal A}
 
--- SetLike.GradedMul.mul_mem
+
 
 /--
-  Let `A` be a ring and `I` be an ideal. Then for `m n : ℕ` we obtain a multiplication map
-  `I^m → I^n → I^(m+n)`
+ Graded Multiplication and properties
 -/
 def star_ideal_mul {m n : ℕ} :
     ↥(I^m) →ₗ[A] ↥(I^n) →ₗ[A] ↥(I^(m + n)) where
@@ -130,8 +122,7 @@ lemma GradedStarRing.ext {m n : ℕ} (x : ↥(I^m)) (y : ↥(I^n)) (h : m = n) (
   exact SetLike.coe_eq_coe.mp hxy
 
 /--
-  The map `ℕ → Type` given by `GradedRingPiece I` defines a
-  graded ring structure.
+  `GradedStarRing I` is a graded ring.
 -/
 instance (I : Ideal A) : GradedMonoid.GMul (fun n ↦ ↥(I^n)) where
   mul := fun x y ↦ ⟨x.1 * y.1, SetLike.GradedMul.mul_mem x.2 y.2⟩
@@ -190,7 +181,7 @@ instance (I : Ideal A) : GCommSemiring (fun n ↦ ↥(I^n)) where
 instance (I : Ideal A) : GCommRing (fun n ↦ ↥(I^n)) where
 
 /-
-  It follows that `G(A)` is a commutative ring.
+  It follows that `GradedStarRing I` is a commutative ring.
 -/
 instance (I : Ideal A) : CommRing (GradedStarRing I) :=
   DirectSum.commRing (fun n ↦ ↥(I^n))
