@@ -164,34 +164,7 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       
       congr
       simp
-      -- might need to rewrite q₂ at some other goals... 
-      -- for lhs of goal would also be nice to split it... although might not be true...
       
-      --have h3 := ih ( MvPolynomial.X )
-
-      
-
-
-      /- This approach works, but didnt use ih
-      have h₃: ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) (n + 1) = ⟨((MvPolynomial.aeval (var_morph I)) (p)) (n) * i, sorry⟩  := by
-        simp [map_mul, MvPolynomial.aeval_X,
-          Polynomial.coeff_mul, Polynomial.coeff_X, Polynomial.coeff_C]
-
-        apply?
-        sorry
-
-      have : (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent n) p) * ↑i =
-  (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (p * MvPolynomial.X i)) := by
-
-        sorry
-
-
-      rw[h₃]
-
-      congr
-      rw[h₂]
-      exact this
-      -/
       sorry
 
 
