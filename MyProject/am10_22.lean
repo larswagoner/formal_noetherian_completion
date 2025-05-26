@@ -21,9 +21,9 @@ instance hCSG : CommSemiring (GradedStarRing I) := by infer_instance
 instance hAG : Algebra A (GradedStarRing I) := by exact instAlgebraGradedStarRing I
 
 /-- Copyright (c) 2022 Christian Merten-/
-lemma Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
+axiom Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
     x ∈ (Ideal.span S) ^ n ↔ ∃ (p : MvPolynomial S R),
-      MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x := sorry
+      MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x
 /- end of copyright -/
 
 
@@ -56,7 +56,6 @@ def var_morph : ideal_generators I → GradedStarRing I := fun ⟨a, ha⟩ => Di
 
 def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] GradedStarRing I := MvPolynomial.aeval (var_morph I)
 
-
 lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) (hp : p.IsHomogeneous n) :
     p.eval Subtype.val ∈ I ^ n := by
       have h₁: p.eval Subtype.val ∈ (Ideal.span (ideal_generators I)) ^ n := by
@@ -64,7 +63,7 @@ lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generator
         use p
       have : Ideal.span (ideal_generators I) = I := (IsNoetherian.noetherian I).choose_spec
       rwa [this] at h₁
-      
+
 
 lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) :
    (p.homogeneousComponent n).eval Subtype.val ∈ I ^ n := by
@@ -84,7 +83,7 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
   · have h₁: MvPolynomial.constantCoeff (p * MvPolynomial.X i) = 0 := by
       rw[map_mul]
       simp
-    have h : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by 
+    have h : ((MvPolynomial.aeval (var_morph I)) (p * MvPolynomial.X i)) 0 = 0 := by
       rw[map_mul]
       have := gradedStarRing_mul_0 ((MvPolynomial.aeval (var_morph I)) p) (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i)))
       have h₂:  ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i)) = GradedStarRing_mk  (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i))) := by
@@ -97,10 +96,34 @@ lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I))
     rw[h₃]
     rfl
 
+section
+
+variable {σ : Type*} {R : Type*} [CommSemiring R]
+
+lemma MvPolynomial.mul_homComp_eq_homComp_mul_of_hom (p q : MvPolynomial σ R) (n m : ℕ) (hq : q.IsHomogeneous m) :
+    (p * q).homogeneousComponent (n + m) = p.homogeneousComponent n * q := by
+  nth_rw 1 [←MvPolynomial.sum_homogeneousComponent p]
+  rw [Finset.sum_mul]
+  rw [map_sum]
+
+  have : ∀ i, (p.homogeneousComponent i * q).homogeneousComponent (n + m) = if n = i then (p.homogeneousComponent n * q) else 0 := by
+    intro i
+    rw [MvPolynomial.homogeneousComponent_of_mem (MvPolynomial.IsHomogeneous.mul (MvPolynomial.homogeneousComponent_isHomogeneous i p) (hq))]
+    refine if_ctx_congr ?_ ?_ (congrFun rfl)
+    · exact Nat.add_right_cancel_iff
+    · rintro ⟨rfl⟩
+      rfl
+
+  simp [this]
+  intro h
+  simp [MvPolynomial.homogeneousComponent_eq_zero n p h]
+
+end
+
 lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal_generators I)) A,
   (p.aeval (var_morph I)) n =
     ⟨(p.homogeneousComponent n).eval Subtype.val, homogenous_component_mem I n p⟩ := by
-  
+
   intro n
   induction' n with n ih
   · intro p
@@ -128,22 +151,22 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
           Polynomial.coeff_mul, Polynomial.coeff_X, Polynomial.coeff_C]
 
         apply?
-        sorry 
+        sorry
 
       have : (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent n) p) * ↑i =
-  (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (p * MvPolynomial.X i)) := by 
-        
+  (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (p * MvPolynomial.X i)) := by
+
         sorry
-      
+
 
       rw[h₃]
-      
+
       congr
       rw[h₂]
-      exact this 
+      exact this
       -/
       sorry
-      
+
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
