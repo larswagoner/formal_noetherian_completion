@@ -14,25 +14,37 @@ import Mathlib.RingTheory.MvPolynomial.Homogeneous
       then `G(M)` is a finitely-generated graded `Gₐ(A)`-module.
 -/
 
+
+/- Proposition 10.22.i
+  We define a surjection `φ : A[xᵢ] → GradedStarRing I`, where `(xᵢ) = I`. 
+  By Hilbert's Basis Theorem the domain is Noetherian, therefore the codomain is. 
+  Using the surjective morphism from `GradedStarRing I` to `G(A)`, we obtain that `G(A)` is Noetherian.
+  -/
 variable {A : Type u} [hCA : CommRing A] [hNA: IsNoetherianRing A] (I : Ideal A) {R : Type u} [CommRing R]
 
+
+/-- Useful instances -/
 instance hCSA : CommSemiring A := by infer_instance
 instance hCSG : CommSemiring (GradedStarRing I) := by infer_instance
 instance hAG : Algebra A (GradedStarRing I) := by exact instAlgebraGradedStarRing I
-
-/-- Copyright (c) 2022 Christian Merten-/
-axiom Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
-    x ∈ (Ideal.span S) ^ n ↔ ∃ (p : MvPolynomial S R),
-      MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x
-/- end of copyright -/
-
+instance : CoeOut ↥(I ^ 0) A := ⟨Subtype.val⟩
 
 noncomputable def ideal_generators : Set A := (IsNoetherian.noetherian I).choose
-
 instance : IsNoetherianRing (MvPolynomial (ideal_generators I) A) := by
   dsimp [ideal_generators]
   infer_instance
 
+/-- Copyright (c) 2022 Christian Merten 
+  Source: https://chrisflav.github.io/pi1/Pi1/RingTheory/Smooth/NoetherianDescent.html#Algebra.Smooth.Ideal.mem_span_pow'
+-/
+axiom Ideal.mem_span_pow' {n : ℕ} (S : Set R) (x : R) :
+    x ∈ (Ideal.span S) ^ n ↔ ∃ (p : MvPolynomial S R),
+      MvPolynomial.IsHomogeneous p n ∧ MvPolynomial.eval Subtype.val p = x
+
+/- end of copyright -/
+
+
+/- Defining `φ : A[xᵢ] → GradedStarRing I` -/
 def scalars₁ : A →+* ↥(I^0) where
   toFun := fun x ↦ ⟨x, by simp⟩
   map_one' := rfl
@@ -56,6 +68,8 @@ def var_morph : ideal_generators I → GradedStarRing I := fun ⟨a, ha⟩ => Di
 
 def φ (I : Ideal A): (MvPolynomial (↑(ideal_generators I)) A) →ₐ[A] GradedStarRing I := MvPolynomial.aeval (var_morph I)
 
+
+/- Auxiliary lemmas to prove surjectivity of `φ`-/
 lemma homogenous_polynomial_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators I)) A) (hp : p.IsHomogeneous n) :
     p.eval Subtype.val ∈ I ^ n := by
       have h₁: p.eval Subtype.val ∈ (Ideal.span (ideal_generators I)) ^ n := by
@@ -69,9 +83,6 @@ lemma homogenous_component_mem (n : ℕ) (p : MvPolynomial (↑(ideal_generators
    (p.homogeneousComponent n).eval Subtype.val ∈ I ^ n := by
   apply homogenous_polynomial_mem
   exact MvPolynomial.homogeneousComponent_isHomogeneous n p
-
-instance : CoeOut ↥(I ^ 0) A := ⟨Subtype.val⟩
-
 
 lemma polynomial_aeval_deg_zero : ∀ p : MvPolynomial (↑(ideal_generators I)) A,
     (p.aeval (var_morph I)) 0 = ⟨p.coeff 0, by simp⟩ := by
@@ -170,7 +181,7 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
         exact rfl
 
 
-
+/-- `φ` is surjective -/
 lemma φ.Surjective : Function.Surjective (φ I) := by
   intro x
   refine DirectSum.induction_on x ?_ ?_ ?_
