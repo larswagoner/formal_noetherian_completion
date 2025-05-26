@@ -117,7 +117,6 @@ lemma MvPolynomial.mul_homComp_eq_homComp_mul_of_hom (p q : MvPolynomial σ R) (
   simp [this]
   intro h
   simp [MvPolynomial.homogeneousComponent_eq_zero n p h]
-
 end
 
 lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal_generators I)) A,
@@ -143,6 +142,34 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       exact SetLike.coe_eq_coe.mp (id (Eq.symm h₃))
     · simp [hp, hq]
     · have h₂ := (ih p)
+      have Xi_homog := MvPolynomial.isHomogeneous_X A i
+
+      have h₄ := MvPolynomial.mul_homComp_eq_homComp_mul_of_hom p (MvPolynomial.X i) n 1 Xi_homog
+      
+      have : (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent (n + 1)) (p * MvPolynomial.X i)) = (MvPolynomial.eval Subtype.val) ((MvPolynomial.homogeneousComponent n) p * MvPolynomial.X i) := by
+          congr
+      
+      nth_rw 2 [map_mul] at this
+      nth_rw 1 [map_mul]
+
+      have q₁ := gradedStarRing_mul_succ ((MvPolynomial.aeval (var_morph I)) p) (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i))) n
+
+      have q₂:  ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i)) = GradedStarRing_mk  (DirectSum.component A _ _ 1 ((@MvPolynomial.aeval A (GradedStarRing I) (↑(ideal_generators I)) hCSA (hCSG I) (hAG I) (var_morph I)) (MvPolynomial.X i))) := by
+        dsimp [GradedStarRing_mk]
+        simp
+        rfl
+
+      rw[← q₂] at q₁
+      rw[q₁]
+      
+      congr
+      simp
+      -- might need to rewrite q₂ at some other goals... 
+      -- for lhs of goal would also be nice to split it... although might not be true...
+      
+      --have h3 := ih ( MvPolynomial.X )
+
+      
 
 
       /- This approach works, but didnt use ih
