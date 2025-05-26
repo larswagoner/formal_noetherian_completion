@@ -1,5 +1,7 @@
 import MyProject.Completion.InverseSystem
 
+/- Related to Mathlib inverse limits, not used in final result -------------------------------/
+
 variable {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n))
 
 def AddInverseLimit [AddInverseSystem f] :=

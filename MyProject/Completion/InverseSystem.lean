@@ -14,6 +14,7 @@ lemma fSelf {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, 
 lemma fCompatible {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] {f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)} [AIS : AddInverseSystem f] : ∀ ⦃n m k : ℕ⦄ (hnm : n ≤ m) (hmk : m ≤ k), ∀ x, f hnm (f hmk x) = f (le_trans hnm hmk) x := by
   apply AIS.map_map
 
+/- Related to Mathlib inverse limits, not used in final result -------------------------------/
 def ExtendedF (F : ℕ → Type u) : ENat → Type u :=
   ENat.recTopCoe PUnit F
 
@@ -69,6 +70,7 @@ instance {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n 
           simp
         · intro c hab hbc x
           exact h.map_map (ENat.coe_le_coe.mp hab) (ENat.coe_le_coe.mp hbc) x
+/- --------------------------------------------------------------------------------------------/
 
 
 def SurjectiveSystem {F : ℕ → Type*} [∀ i, AddCommGroup (F i)] (f : ∀ ⦃n m⦄, (n ≤ m) → (F m) →+ (F n)) [AddInverseSystem f] : Prop :=
