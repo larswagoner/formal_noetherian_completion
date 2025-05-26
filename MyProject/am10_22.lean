@@ -163,9 +163,15 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       rw[q₁]
       
       congr
-      simp
+      rw[this]
+      congr 2
+      · 
+        sorry
+     
       
-      sorry
+      · simp
+        exact rfl
+
 
 
 lemma φ.Surjective : Function.Surjective (φ I) := by
