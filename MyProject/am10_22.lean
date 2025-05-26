@@ -165,10 +165,7 @@ lemma aeval_proj_eq_hom_comp_eval : ∀ n : ℕ, ∀ p : MvPolynomial (↑(ideal
       congr
       rw[this]
       congr 2
-      · 
-        sorry
-     
-      
+      · simpa using congrArg Subtype.val h₂
       · simp
         exact rfl
 
